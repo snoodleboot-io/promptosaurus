@@ -166,7 +166,12 @@ def list_prompts():
 
 
 @cli.command("init")
-def init_prompts():
+@click.option(
+    "--interactive/--simple",
+    default=True,
+    help="Use interactive TUI (arrow keys, numbers) or simple prompts.",
+)
+def init_prompts(interactive: bool):
     """
     Interactively initialize prompt configuration for your project.
 
@@ -182,61 +187,114 @@ def init_prompts():
         get_language_questions,
     )
 
+    # Try to import interactive UI
+    use_interactive = interactive
+    if interactive:
+        try:
+            from promptcli.ui import select_option_interactive
+        except Exception:
+            use_interactive = False
+
     click.echo("\n" + "=" * 60)
     click.secho("  Prompt CLI Initialization", bold=True, fg="cyan")
     click.echo("=" * 60)
-    click.echo("\nThis wizard will help you configure prompt conventions.")
-    click.echo("Press Enter to accept defaults shown in brackets.\n")
+    if use_interactive:
+        click.echo("\nInteractive mode: Use ↑/↓ arrows, numbers, or Enter for defaults.")
+    else:
+        click.echo("\nSimple mode: Type number or press Enter for defaults.\n")
 
     # Step 1: Repository type
     repo_question = RepositoryTypeQuestion()
-    click.echo(f"\n{repo_question.question_text}\n")
-    click.echo(repo_question.explanation)
-    click.echo("\nOptions:")
-    for opt in repo_question.options:
-        explanation = repo_question.option_explanations.get(opt, "")
-        is_default = " [default]" if opt == repo_question.default else ""
-        click.echo(f"  {opt:30s} - {explanation}{is_default}")
+    default_idx = repo_question.options.index(repo_question.default)
 
-    repo_type = click.prompt(
-        "\nRepository type",
-        type=click.Choice(repo_question.options),
-        default=repo_question.default,
-    )
+    if use_interactive:
+        click.echo(f"\n{repo_question.question_text}\n")
+        click.echo(repo_question.explanation)
+        click.echo("\n[?] Press ? to see option explanations, Enter to continue...")
+        repo_type = select_option_interactive(
+            question=repo_question.question_text,
+            options=repo_question.options,
+            explanations=repo_question.option_explanations,
+            default_index=default_idx,
+        )
+    else:
+        click.echo(f"\n{repo_question.question_text}\n")
+        click.echo(repo_question.explanation)
+        click.echo("\nOptions:")
+        for i, opt in enumerate(repo_question.options):
+            explanation = repo_question.option_explanations.get(opt, "")
+            is_default = " [default]" if opt == repo_question.default else ""
+            click.echo(f"  {i + 1}. {opt:30s} - {explanation}{is_default}")
+
+        repo_type = click.prompt(
+            "\nRepository type",
+            type=click.Choice(repo_question.options),
+            default=repo_question.default,
+        )
 
     # Step 2: Language (only for single-language repos)
     language = ""
     if repo_type == REPO_TYPE_SINGLE:
-        click.echo("\n\nAvailable languages:")
-        for lang in sorted(LANGUAGE_KEYS):
-            click.echo(f"  - {lang}")
+        if use_interactive:
+            click.echo("\n\nSelect your primary language:")
+            language = select_option_interactive(
+                question="What is your primary language?",
+                options=LANGUAGE_KEYS,
+                explanations={},  # Could add language explanations
+                default_index=LANGUAGE_KEYS.index("python") if "python" in LANGUAGE_KEYS else 0,
+            )
+        else:
+            click.echo("\n\nAvailable languages:")
+            for i, lang in enumerate(sorted(LANGUAGE_KEYS)):
+                click.echo(f"  {i + 1}. {lang}")
 
-        language = click.prompt(
-            "\nPrimary language",
-            type=click.Choice(LANGUAGE_KEYS),
-            default="python",
-        )
+            language = click.prompt(
+                "\nPrimary language (number or name)",
+                default="python",
+            )
+            # Handle number input
+            try:
+                idx = int(language) - 1
+                if 0 <= idx < len(LANGUAGE_KEYS):
+                    language = sorted(LANGUAGE_KEYS)[idx]
+            except ValueError:
+                pass  # Use the typed name
 
         # Step 3: Language-specific questions
         lang_questions = get_language_questions(language)
         config = create_default_config(language, repo_type=repo_type)
 
         for q in lang_questions:
-            click.echo(f"\n\n{q.question_text}\n")
-            click.echo(q.explanation)
-            click.echo("\nOptions:")
-            for opt in q.options:
-                explanation = q.option_explanations.get(opt, "")
-                is_default = " [default]" if opt == q.default else ""
-                click.echo(f"  {opt:30s} - {explanation}{is_default}")
+            default_idx = q.options.index(q.default) if q.default in q.options else 0
+
+            if use_interactive:
+                click.echo(f"\n{q.question_text}\n")
+                click.echo(q.explanation)
+                value = select_option_interactive(
+                    question=q.question_text,
+                    options=q.options,
+                    explanations=q.option_explanations,
+                    default_index=default_idx,
+                )
+            else:
+                click.echo(f"\n\n{q.question_text}\n")
+                click.echo(q.explanation)
+                click.echo("\nOptions:")
+                for i, opt in enumerate(q.options):
+                    explanation = q.option_explanations.get(opt, "")
+                    is_default = " [default]" if opt == q.default else ""
+                    click.echo(f"  {i + 1}. {opt:30s} - {explanation}{is_default}")
+
+                config_key = q.key.replace(f"{language}_", "")
+                value = click.prompt(
+                    f"\n{q.question_text().split('?')[0]}",
+                    type=click.Choice(q.options),
+                    default=q.default,
+                )
+                config["defaults"][config_key] = value
 
             # Store key without language prefix for config
             config_key = q.key.replace(f"{language}_", "")
-            value = click.prompt(
-                f"\n{q.question_text().split('?')[0]}",
-                type=click.Choice(q.options),
-                default=q.default,
-            )
             config["defaults"][config_key] = value
     else:
         # Multi-folder or mixed - just save repo type for now
