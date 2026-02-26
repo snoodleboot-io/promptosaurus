@@ -191,7 +191,7 @@ def init_prompts(interactive: bool):
     use_interactive = interactive
     if interactive:
         try:
-            from promptcli.ui import select_option_interactive
+            from promptcli.ui import select_option_with_explain
         except Exception:
             use_interactive = False
 
@@ -211,10 +211,11 @@ def init_prompts(interactive: bool):
         click.echo(f"\n{repo_question.question_text}\n")
         click.echo(repo_question.explanation)
         click.echo("\n[?] Press ? to see option explanations, Enter to continue...")
-        repo_type = select_option_interactive(
+        repo_type = select_option_with_explain(
             question=repo_question.question_text,
             options=repo_question.options,
             explanations=repo_question.option_explanations,
+            question_explanation=repo_question.explanation,
             default_index=default_idx,
         )
     else:
@@ -237,10 +238,11 @@ def init_prompts(interactive: bool):
     if repo_type == REPO_TYPE_SINGLE:
         if use_interactive:
             click.echo("\n\nSelect your primary language:")
-            language = select_option_interactive(
+            language = select_option_with_explain(
                 question="What is your primary language?",
                 options=LANGUAGE_KEYS,
-                explanations={},  # Could add language explanations
+                explanations={},
+                question_explanation="Select the primary language for your project",
                 default_index=LANGUAGE_KEYS.index("python") if "python" in LANGUAGE_KEYS else 0,
             )
         else:
@@ -270,10 +272,11 @@ def init_prompts(interactive: bool):
             if use_interactive:
                 click.echo(f"\n{q.question_text}\n")
                 click.echo(q.explanation)
-                value = select_option_interactive(
+                value = select_option_with_explain(
                     question=q.question_text,
                     options=q.options,
                     explanations=q.option_explanations,
+                    question_explanation=q.explanation,
                     default_index=default_idx,
                 )
             else:
