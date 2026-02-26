@@ -1,17 +1,33 @@
 <!-- path: flat/core-conventions.md -->
 # core-conventions.md
-# Project coding standards. EDIT THIS FILE for each project.
+# Project coding standards - base conventions for all projects.
+# For language-specific rules, see: core-conventions-ts.md, core-conventions-py.md, etc.
 # All mode-specific rules inherit from this file.
 
-## Language & Runtime
+## Repository Structure
 
-Primary Language:    {{LANGUAGE}}           e.g., TypeScript 5.x
-Runtime:             {{RUNTIME}}            e.g., Node 20, Python 3.12, Go 1.22
-Package Manager:     {{PKG_MANAGER}}        e.g., pnpm, poetry, go mod
-Linter:              {{LINTER}}             e.g., ESLint, Ruff, golangci-lint
-Formatter:           {{FORMATTER}}          e.g., Prettier, Black, gofmt
+Repository type: {{single-language | multi-language-folder | mixed-collocation}}
 
-## Naming Conventions
+### If single-language:
+Include: core-conventions-[LANG].md where [LANG] matches your primary language
+
+### If multi-language-folder:
+Define each language area:
+- /frontend      → include: core-conventions-ts.md
+- /backend       → include: core-conventions-py.md
+- /shared        → include: core-conventions-go.md
+
+### If mixed-collocation:
+File extension determines which rules apply:
+- *.ts, *.tsx   → TypeScript rules
+- *.py           → Python rules
+- *.go           → Go rules
+
+## Shared Conventions
+
+These conventions apply to all languages and projects:
+
+### Naming Conventions
 
 Files:               {{kebab-case | snake_case | PascalCase}}
 Variables:           {{camelCase | snake_case}}
@@ -71,25 +87,20 @@ PR size:             {{MAX_LINES}} lines changed (soft limit)
 
 Target:              {{DEPLOYMENT_TARGET}}  e.g., AWS Lambda, Vercel, GKE
 
-## Language-Specific Rules
+---
 
-### TypeScript
-- strict mode always on
-- No any — use unknown + type narrowing
-- Prefer interface for object shapes, type for unions/intersections
-- Always type function return values explicitly
+# Language-Specific Conventions
 
-### Python
-- Type hints required on all public functions
-- Use dataclasses or pydantic for data shapes, not raw dicts
-- Async: use asyncio — no mixing sync/async without explicit bridging
+For language-specific rules, include the appropriate file:
+- `core-conventions-ts.md` - TypeScript/JavaScript
+- `core-conventions-py.md` - Python
+- `core-conventions-go.md` - Go
+- `core-conventions-java.md` - Java
+- `core-conventions-rust.md` - Rust
+- `core-conventions-sql.md` - SQL
 
-### Go
-- Return (T, error) — never panic in library code
-- Use context.Context as first arg on all I/O functions
-- Prefer table-driven tests
-
-### SQL
-- Parameterized queries always — no string interpolation
-- Migrations: always include up and down
-- Index any column used in WHERE or JOIN
+These files contain language-specific patterns for:
+- Error handling patterns
+- Type system usage
+- Testing frameworks and patterns
+- Module/dependency management
