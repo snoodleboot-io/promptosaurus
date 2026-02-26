@@ -11,13 +11,7 @@ from datetime import datetime
 from pathlib import Path
 
 from promptcli.builders.builder import Builder
-from promptcli.registry import (
-    ALWAYS_ON,
-    COPILOT_APPLY,
-    MODE_FILES,
-    MODES,
-    prompt_body,
-)
+from promptcli.registry import registry
 
 
 class CopilotBuilder(Builder):
@@ -35,7 +29,7 @@ class CopilotBuilder(Builder):
         actions.extend(self._build_always_on(github, dry_run))
 
         # Per-mode instruction files
-        for mode_key, files in MODE_FILES.items():
+        for mode_key, files in registry.mode_files.items():
             actions.extend(self._build_mode(github, mode_key, files, dry_run))
 
         return actions
@@ -49,9 +43,9 @@ class CopilotBuilder(Builder):
             f"# Last built: {now}",
             "",
         ]
-        for filename in ALWAYS_ON:
+        for filename in registry.always_on:
             try:
-                body = prompt_body(filename)
+                body = registry.prompt_body(filename)
             except FileNotFoundError:
                 lines.append(f"<!-- MISSING: {filename} -->")
                 continue
@@ -76,8 +70,8 @@ class CopilotBuilder(Builder):
         dry_run: bool,
     ) -> list[str]:
         dst = github / "instructions" / f"{mode_key}.instructions.md"
-        label = MODES.get(mode_key, mode_key.title())
-        apply = COPILOT_APPLY.get(mode_key, "**")
+        label = registry.modes.get(mode_key, mode_key.title())
+        apply = registry.copilot_apply.get(mode_key, "**")
 
         lines: list[str] = [
             "---",
@@ -88,7 +82,7 @@ class CopilotBuilder(Builder):
         ]
         for filename in files:
             try:
-                body = prompt_body(filename)
+                body = registry.prompt_body(filename)
             except FileNotFoundError:
                 lines.append(f"<!-- MISSING: {filename} -->")
                 continue

@@ -14,12 +14,7 @@ from pathlib import Path
 
 from promptcli.builders._concat import build_concatenated
 from promptcli.builders.builder import Builder
-from promptcli.registry import (
-    ALWAYS_ON,
-    MODE_FILES,
-    dest_name,
-    prompt_path,
-)
+from promptcli.registry import registry
 
 
 class CursorBuilder(Builder):
@@ -34,17 +29,17 @@ class CursorBuilder(Builder):
         rules_base = output / ".cursor" / "rules"
 
         # Always-on rules as .mdc
-        for filename in ALWAYS_ON:
+        for filename in registry.always_on:
             mdc_name = filename.replace(".md", ".mdc")
             dst = rules_base / mdc_name
-            actions.append(self._copy(prompt_path(filename), dst, dry_run))
+            actions.append(self._copy(registry.prompt_path(filename), dst, dry_run))
 
         # Per-mode rules as .mdc in subdirectories
-        for mode_key, files in MODE_FILES.items():
+        for mode_key, files in registry.mode_files.items():
             for filename in files:
-                dname = dest_name(mode_key, filename, ext=".mdc")
+                dname = registry.dest_name(mode_key, filename, ext=".mdc")
                 dst = rules_base / mode_key / dname
-                actions.append(self._copy(prompt_path(filename), dst, dry_run))
+                actions.append(self._copy(registry.prompt_path(filename), dst, dry_run))
 
         # Legacy .cursorrules fallback
         legacy_dst = output / ".cursorrules"

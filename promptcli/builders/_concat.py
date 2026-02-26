@@ -1,7 +1,7 @@
 """
 builders/_concat.py
 Shared helper: builds a single concatenated markdown string from all prompt
-files in CONCAT_ORDER, with section headers between each.
+files in concat_order, with section headers between each.
 
 Used by Cline (.clinerules), Cursor (.cursorrules legacy), and Copilot
 (copilot-instructions.md always-on section).
@@ -9,7 +9,7 @@ Used by Cline (.clinerules), Cursor (.cursorrules legacy), and Copilot
 
 from datetime import datetime
 
-from promptcli.registry import CONCAT_ORDER, prompt_body
+from promptcli.registry import registry
 
 
 def build_concatenated(tool_comment: str) -> str:
@@ -26,9 +26,9 @@ def build_concatenated(tool_comment: str) -> str:
         "",
     ]
 
-    for label, filename in CONCAT_ORDER:
+    for label, filename in registry.concat_order:
         try:
-            body = prompt_body(filename)
+            body = registry.prompt_body(filename)
         except FileNotFoundError:
             lines.append(f"## {label} — MISSING: {filename}")
             lines.append("")

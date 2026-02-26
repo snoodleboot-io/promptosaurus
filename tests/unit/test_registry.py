@@ -8,99 +8,99 @@ class TestRegistry(unittest.TestCase):
     """Tests for the registry module."""
 
     def test_prompts_dir_is_path(self):
-        """PROMPTS_DIR should be a Path object."""
-        from promptcli.registry import PROMPTS_DIR
+        """prompts_dir should be a Path object."""
+        from promptcli.registry import registry
 
-        assert isinstance(PROMPTS_DIR, Path)
+        assert isinstance(registry.prompts_dir, Path)
 
     def test_prompts_dir_exists(self):
-        """PROMPTS_DIR should exist."""
-        from promptcli.registry import PROMPTS_DIR
+        """prompts_dir should exist."""
+        from promptcli.registry import registry
 
-        assert PROMPTS_DIR.exists()
+        assert registry.prompts_dir.exists()
 
     def test_prompts_dir_is_directory(self):
-        """PROMPTS_DIR should be a directory."""
-        from promptcli.registry import PROMPTS_DIR
+        """prompts_dir should be a directory."""
+        from promptcli.registry import registry
 
-        assert PROMPTS_DIR.is_dir()
+        assert registry.prompts_dir.is_dir()
 
     def test_always_on_is_list(self):
-        """ALWAYS_ON should be a list."""
-        from promptcli.registry import ALWAYS_ON
+        """always_on should be a list."""
+        from promptcli.registry import registry
 
-        assert isinstance(ALWAYS_ON, list)
+        assert isinstance(registry.always_on, list)
 
     def test_always_on_contains_strings(self):
-        """ALWAYS_ON should contain string filenames."""
-        from promptcli.registry import ALWAYS_ON
+        """always_on should contain string filenames."""
+        from promptcli.registry import registry
 
-        assert all(isinstance(f, str) for f in ALWAYS_ON)
+        assert all(isinstance(f, str) for f in registry.always_on)
 
     def test_modes_is_dict(self):
-        """MODES should be a dictionary."""
-        from promptcli.registry import MODES
+        """modes should be a dictionary."""
+        from promptcli.registry import registry
 
-        assert isinstance(MODES, dict)
+        assert isinstance(registry.modes, dict)
 
     def test_modes_not_empty(self):
-        """MODES should not be empty."""
-        from promptcli.registry import MODES
+        """modes should not be empty."""
+        from promptcli.registry import registry
 
-        assert len(MODES) > 0
+        assert len(registry.modes) > 0
 
     def test_mode_files_is_dict(self):
-        """MODE_FILES should be a dictionary."""
-        from promptcli.registry import MODE_FILES
+        """mode_files should be a dictionary."""
+        from promptcli.registry import registry
 
-        assert isinstance(MODE_FILES, dict)
+        assert isinstance(registry.mode_files, dict)
 
     def test_mode_files_not_empty(self):
-        """MODE_FILES should not be empty."""
-        from promptcli.registry import MODE_FILES
+        """mode_files should not be empty."""
+        from promptcli.registry import registry
 
-        assert len(MODE_FILES) > 0
+        assert len(registry.mode_files) > 0
 
     def test_prompt_path_returns_path(self):
         """prompt_path() should return a Path."""
-        from promptcli.registry import prompt_path
+        from promptcli.registry import registry
 
-        result = prompt_path("core-system.md")
+        result = registry.prompt_path("core-system.md")
         assert isinstance(result, Path)
 
     def test_prompt_path_includes_filename(self):
         """prompt_path() should include the filename."""
-        from promptcli.registry import prompt_path
+        from promptcli.registry import registry
 
-        result = prompt_path("core-system.md")
+        result = registry.prompt_path("core-system.md")
         assert result.name == "core-system.md"
 
     def test_dest_name_strips_prefix(self):
         """dest_name() should strip the mode prefix."""
-        from promptcli.registry import dest_name
+        from promptcli.registry import registry
 
-        result = dest_name("architect", "architect-scaffold.md")
+        result = registry.dest_name("architect", "architect-scaffold.md")
         assert result == "scaffold.md"
 
     def test_dest_name_with_extension(self):
         """dest_name() should handle custom extensions."""
-        from promptcli.registry import dest_name
+        from promptcli.registry import registry
 
-        result = dest_name("architect", "architect-scaffold.md", ext=".mdc")
+        result = registry.dest_name("architect", "architect-scaffold.md", ext=".mdc")
         assert result == "scaffold.mdc"
 
     def test_validate_returns_list(self):
         """validate() should return a list."""
-        from promptcli.registry import validate
+        from promptcli.registry import registry
 
-        result = validate()
+        result = registry.validate()
         assert isinstance(result, list)
 
     def test_validate_with_valid_files_returns_empty(self):
         """validate() should return empty list when all files exist."""
-        from promptcli.registry import validate
+        from promptcli.registry import registry
 
-        errors = validate()
+        errors = registry.validate()
         # Filter out orphan warnings - we may have extra files
         missing_errors = [e for e in errors if "MISSING" in e]
         assert len(missing_errors) == 0, f"Missing files: {missing_errors}"

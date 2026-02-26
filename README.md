@@ -62,7 +62,7 @@ uv sync
 # Run from inside your project directory — output lands there by default
 cd my-project
 
-prompt build kilo       # → .kilocode/
+prompt build kilo       # → .kilo/
 prompt build cline      # → .clinerules
 prompt build cursor     # → .cursor/rules/ + .cursorrules (legacy)
 prompt build copilot    # → .github/copilot-instructions.md + .github/instructions/
@@ -103,7 +103,7 @@ cd my-project
 prompt build kilo
 
 # 3. Commit the generated config
-git add .kilocode/
+git add .kilo/
 git commit -m "chore: add Kilo Code prompt config"
 ```
 
@@ -154,7 +154,7 @@ prompt build kilo --output ~/projects/my-project
 
 | Tool | Command | What gets written |
 |------|---------|-------------------|
-| Kilo Code | `prompt build kilo` | `.kilocode/rules/` (always-on) + `.kilocode/rules-{mode}/` (per-mode) |
+| Kilo Code | `prompt build kilo` | `.kilo/rules/` (always-on) + `.kilo/rules-{mode}/` (per-mode) |
 | Cline | `prompt build cline` | `.clinerules` (all rules concatenated) |
 | Cursor | `prompt build cursor` | `.cursor/rules/{mode}/*.mdc` + `.cursorrules` (legacy) |
 | GitHub Copilot | `prompt build copilot` | `.github/copilot-instructions.md` + `.github/instructions/{mode}.instructions.md` |

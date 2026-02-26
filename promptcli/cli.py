@@ -19,10 +19,9 @@ import click
 from sweet_tea.factory import Factory
 
 from promptcli import fill_registry
-from promptcli.registry import ALWAYS_ON, MODE_FILES, MODES, PROMPTS_DIR, validate
+from promptcli.registry import registry
 
 # ── Initialize registry ───────────────────────────────────────────────────────
-# Register all builders with sweet_tea at module load time
 fill_registry()
 
 
@@ -89,7 +88,7 @@ def _run_build(builder_key: str, target_label: str, output: str, dry_run: bool):
 @output_option
 @dry_run_option
 def build_kilo(output, dry_run):
-    """Build .kilocode/ for Kilo Code."""
+    """Build .kilo/ for Kilo Code."""
     _run_build("kilobuilder", "Kilo Code", output, dry_run)
 
 
@@ -139,19 +138,25 @@ def list_prompts():
     """List all registered modes and their prompt files."""
     always_header = click.style("ALWAYS ON (all modes)", bold=True)
     click.echo(f"\n{always_header}")
-    for fname in ALWAYS_ON:
-        exists = "✓" if (PROMPTS_DIR / fname).exists() else click.style("✗ MISSING", fg="red")
+    for fname in registry.always_on:
+        exists = (
+            "✓" if (registry.prompts_dir / fname).exists() else click.style("✗ MISSING", fg="red")
+        )
         click.echo(f"  {exists}  {fname}")
 
-    for mode_key, label in MODES.items():
+    for mode_key, label in registry.modes.items():
         header = click.style(f"\n{label.upper()} MODE  [{mode_key}]", bold=True)
         click.echo(header)
-        files = MODE_FILES.get(mode_key, [])
+        files = registry.mode_files.get(mode_key, [])
         if not files:
             click.secho("  (no files registered)", fg="yellow")
             continue
         for fname in files:
-            exists = "✓" if (PROMPTS_DIR / fname).exists() else click.style("✗ MISSING", fg="red")
+            exists = (
+                "✓"
+                if (registry.prompts_dir / fname).exists()
+                else click.style("✗ MISSING", fg="red")
+            )
             click.echo(f"  {exists}  {fname}")
 
     click.echo()
@@ -167,7 +172,7 @@ def validate_prompts():
     are unregistered (orphans).
     """
     click.echo("\n▶ Validating prompt registry...\n")
-    errors = validate()
+    errors = registry.validate()
     if not errors:
         click.secho("  ✓ All good — no missing or orphaned files.", fg="green")
     else:
