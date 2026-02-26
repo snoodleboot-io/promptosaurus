@@ -27,15 +27,88 @@ Formatter:           {{FORMATTER}}          e.g., Prettier
 - Order imports: external → internal → types (with blank lines between)
 
 ### Testing
-Framework:            {{TEST_FRAMEWORK}}     e.g., Vitest, Jest
-Coverage target:      {{COVERAGE_%}}         e.g., 80%
-Mocking library:     {{MOCK_LIB}}           e.g., vitest/mock, jest.mock
 
+#### Coverage Targets
+Line:           {{LINE_COVERAGE_%}}          e.g., 80%
+Branch:         {{BRANCH_COVERAGE_%}}        e.g., 70%
+Function:       {{FUNCTION_COVERAGE_%}}       e.g., 90%
+Statement:      {{STATEMENT_COVERAGE_%}}      e.g., 85%
+Mutation:       {{MUTATION_COVERAGE_%}}       e.g., 80%
+Path:           {{PATH_COVERAGE_%}}           e.g., 60%
+
+#### Test Types
+
+##### Unit Tests
+- One function or method in isolation
+- Mock external dependencies (APIs, filesystem, database)
 - Use `describe`/`it` blocks with descriptive names
-- Mock at the boundary (dependencies), not internals
 - Test behavior, not implementation
-- Unit tests: one function or method in isolation
-- Integration tests: at the service or module boundary
+
+##### Integration Tests
+- Test at service or module boundary
+- Use real services or in-memory alternatives (msw, testcontainers)
+- Test API endpoints, database queries, file operations
+
+##### E2E Tests
+- Use Playwright or Cypress for browser testing
+- Test critical user flows end-to-end
+
+##### Mutation Tests
+- Use `stryker-mutator` to verify test quality
+- Run after unit tests pass
+
+##### Component Tests
+- Use Testing Library (@testing-library/react, @testing-library/vue)
+- Test component rendering and user interactions
+
+#### Framework & Tools
+Framework:       {{TEST_FRAMEWORK}}        e.g., Vitest, Jest
+Mocking library: {{MOCK_LIB}}              e.g., vitest/mock, jest.mock
+Coverage tool:  {{COV_TOOL}}              e.g., Vitest coverage, Jest coverage
+E2E tool:       {{E2E_TOOL}}             e.g., Playwright, Cypress
+Mutation tool:  {{MUTATION_TOOL}}          e.g., stryker-mutator
+
+#### Scaffolding
+
+```bash
+# Install (using pnpm)
+pnpm add -D vitest @vitest/coverage-v8 @testing-library/react jest-mock-extended
+
+# Run tests
+vitest run                    # Run all tests
+vitest run --coverage         # With coverage
+vitest run --coverage.branch  # Line + branch
+
+# Configuration (vitest.config.ts)
+import { defineConfig } from 'vitest/config'
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'node',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      branches: true,
+      functions: true,
+      lines: true,
+      statements: true,
+    },
+  },
+})
+```
+
+##### CI Integration
+```yaml
+# GitHub Actions example
+- name: Run tests
+  run: pnpm vitest run --coverage
+
+- name: Mutation tests
+  run: |
+    pnpm add -D @stryker-mutator/core
+    npx stryker run
+```
 
 ### Code Style
 - Use ESNext features (optional chaining, nullish coalescing)

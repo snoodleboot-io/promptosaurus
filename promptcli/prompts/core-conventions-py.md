@@ -31,15 +31,91 @@ Formatter:           {{FORMATTER}}          e.g., Ruff, Black
 - Use `__all__` to define public API
 
 ### Testing
-Framework:           {{TEST_FRAMEWORK}}     e.g., pytest
-Coverage target:      {{COVERAGE_%}}         e.g., 80%
-Mocking library:     {{MOCK_LIB}}           e.g., unittest.mock, pytest-mock
 
+#### Coverage Targets
+Line:           {{LINE_COVERAGE_%}}          e.g., 80%
+Branch:         {{BRANCH_COVERAGE_%}}        e.g., 70%
+Function:       {{FUNCTION_COVERAGE_%}}       e.g., 90%
+Statement:      {{STATEMENT_COVERAGE_%}}      e.g., 85%
+Mutation:       {{MUTATION_COVERAGE_%}}       e.g., 80%
+Path:           {{PATH_COVERAGE_%}}           e.g., 60%
+
+#### Test Types
+
+##### Unit Tests
+- One function or method in isolation
+- Mock all external dependencies (database, API calls, filesystem)
 - Use `pytest` fixtures for setup/teardown
 - Use `pytest.mark.parametrize` for table-driven tests
 - Use `pytest.raises` for exception testing
-- Unit tests: one function or method in isolation
-- Integration tests: at the service or module boundary
+
+##### Integration Tests
+- Test at service or module boundary
+- Use real database (testcontainers) or in-memory alternatives
+- Test API endpoints, database queries, file operations
+- Clean up test data after each test
+
+##### Mutation Tests
+- Use `mutmut` or `pytest-mutmut` to verify test quality
+- Run after unit tests pass
+- Aim to kill mutations in core business logic
+
+##### Property-Based Tests
+- Use `hypothesis` for generative testing
+- Test edge cases automatically generated
+
+#### Framework & Tools
+Framework:         {{TEST_FRAMEWORK}}       e.g., pytest
+Mocking library:   {{MOCK_LIB}}             e.g., unittest.mock, pytest-mock
+Coverage tool:    {{COV_TOOL}}             e.g., pytest-cov, coverage.py
+Mutation tool:    {{MUTATION_TOOL}}        e.g., mutmut, pytest-mutmut
+
+#### Scaffolding
+
+```bash
+# Install
+pip install pytest pytest-cov pytest-mock hypothesis mutmut
+
+# Run tests
+pytest                          # Run all tests
+pytest --cov                    # With coverage
+pytest --cov --cov-branch       # Line + branch coverage
+pytest --cov-report=html        # HTML report
+
+# Mutation testing
+mutmut run
+mutmut report
+
+# Configuration (pyproject.toml)
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --strict-markers"
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]
+```
+
+##### CI Integration
+```yaml
+# GitHub Actions example
+- name: Run tests
+  run: pytest --cov --cov-branch --cov-report=xml
+
+- name: Mutation tests
+  run: |
+    pip install mutmut
+    mutmut run
+    mutmut html > mutation_report.html
+```
 
 ### Code Style
 - Follow PEP 8 (enforced by Ruff)

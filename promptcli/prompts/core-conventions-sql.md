@@ -3,10 +3,85 @@
 Database:            {{DATABASE}}           e.g., PostgreSQL, MySQL, SQLite
 ORM/Query:           {{ORM}}                e.g., Prisma, SQLAlchemy, GORM, Drizzle
 
-## Testing
-Framework:           {{TEST_FRAMEWORK}}     e.g., pytest, Go test, Jest
-Coverage target:      {{COVERAGE_%}}         e.g., 80%
-Mocking library:     {{MOCK_LIB}}           e.g., factory_boy, testfixtures
+### Testing
+
+#### Coverage Targets
+Line:           {{LINE_COVERAGE_%}}          e.g., 80%
+Branch:         {{BRANCH_COVERAGE_%}}        e.g., 70%
+Function:       {{FUNCTION_COVERAGE_%}}       e.g., 90%
+Statement:      {{STATEMENT_COVERAGE_%}}      e.g., 85%
+Mutation:       {{MUTATION_COVERAGE_%}}       e.g., 80%
+Path:           {{PATH_COVERAGE_%}}           e.g., 60%
+
+#### Test Types
+
+##### Unit Tests (Query Tests)
+- Test individual queries, stored procedures, functions
+- Use assertions on query results
+- Test edge cases: empty results, nulls, boundaries
+
+##### Integration Tests
+- Test at service or module boundary
+- Use transactions with rollback for isolation
+- Test migrations, triggers, constraints
+
+##### Schema Tests
+- Verify constraints are enforced
+- Test foreign key relationships
+- Test indexes are used correctly (EXPLAIN ANALYZE)
+
+##### Data Migration Tests
+- Test migration up/down
+- Verify data integrity after migration
+- Test rollback procedures
+
+##### Performance Tests
+- Test query performance with EXPLAIN ANALYZE
+- Verify indexes are used
+- Test under load with realistic data volumes
+
+#### Framework & Tools
+Framework:       {{TEST_FRAMEWORK}}        e.g., pytest, Go test, Jest
+Mocking library: {{MOCK_LIB}}              e.g., factory_boy, testfixtures
+Coverage tool:  {{COV_TOOL}}              e.g., coverage.py, istanbul
+Factory tool:   {{FACTORY_TOOL}}          e.g., factory_boy, testdata
+
+#### Scaffolding
+
+```python
+# Python example with pytest
+import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+@pytest.fixture
+def db_session():
+    engine = create_engine("postgresql://test:test@localhost/testdb")
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    yield session
+    session.rollback()
+    session.close()
+
+def test_user_query(db_session):
+    result = db_session.execute("SELECT * FROM users WHERE id = 1")
+    assert result.fetchone() is not None
+```
+
+```bash
+# Run with coverage
+pytest --cov --cov-report=html
+```
+
+##### CI Integration
+```yaml
+# GitHub Actions example
+- name: Run SQL tests
+  run: |
+    docker-compose up -d test-db
+    pytest tests/sql/ --cov
+    docker-compose down
+```
 
 ## SQL-Specific Rules
 
