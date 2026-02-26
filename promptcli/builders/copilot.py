@@ -1,10 +1,12 @@
 """
 builders/copilot.py
-Builds GitHub Copilot instruction files.
+Builds GitHub Copilot instruction files and ignore files.
 
 Output:
   {output}/.github/copilot-instructions.md         ← always-on rules
   {output}/.github/instructions/{mode}.instructions.md  ← per-mode with applyTo
+  {output}/.copilotignore                         ← ignore patterns
+  {output}/.gitignore                             ← standard git ignore patterns
 """
 
 from datetime import datetime
@@ -31,6 +33,12 @@ class CopilotBuilder(Builder):
         # Per-mode instruction files
         for mode_key, files in registry.mode_files.items():
             actions.extend(self._build_mode(github, mode_key, files, dry_run))
+
+        # Build .copilotignore
+        actions.extend(self._build_copilotignore(output, dry_run))
+
+        # Build .gitignore
+        actions.extend(self._build_gitignore(output, dry_run))
 
         return actions
 
@@ -97,3 +105,29 @@ class CopilotBuilder(Builder):
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_text(content, encoding="utf-8")
         return [f"✓ .github/instructions/{mode_key}.instructions.md"]
+
+    def _build_copilotignore(self, output: Path, dry_run: bool) -> list[str]:
+        """Generate .copilotignore file."""
+        dst = output / ".copilotignore"
+        content = registry.generate_copilotignore()
+
+        if dry_run:
+            lines = content.count("\n")
+            return [f"[dry-run] .copilotignore ({lines} lines)"]
+
+        dst.write_text(content, encoding="utf-8")
+        lines = content.count("\n")
+        return [f"✓ .copilotignore ({lines} lines)"]
+
+    def _build_gitignore(self, output: Path, dry_run: bool) -> list[str]:
+        """Generate .gitignore file."""
+        dst = output / ".gitignore"
+        content = registry.generate_gitignore()
+
+        if dry_run:
+            lines = content.count("\n")
+            return [f"[dry-run] .gitignore ({lines} lines)"]
+
+        dst.write_text(content, encoding="utf-8")
+        lines = content.count("\n")
+        return [f"✓ .gitignore ({lines} lines)"]

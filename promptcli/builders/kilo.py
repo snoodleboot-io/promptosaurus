@@ -11,6 +11,8 @@ Output layout:
 import shutil
 from pathlib import Path
 
+import yaml
+
 from promptcli.builders.builder import Builder
 from promptcli.registry import registry
 
@@ -40,42 +42,48 @@ class KiloBuilder(Builder):
         # Generate .kilocodemodes manifest
         actions.append(self._write_manifest(output / ".kilocodemodes", dry_run))
 
+        # Build .kiloignore
+        actions.extend(self._build_ignore(output, dry_run))
+
         return actions
 
     def _write_manifest(self, dst: Path, dry_run: bool) -> str:
         """Write the .kilocodemodes manifest file."""
-        lines = ["# .kilocodemodes", "customModes:", ""]
-
+        # Build data structure for YAML
+        modes = []
         for mode_key, mode_info in registry.kilo_modes.items():
-            slug = mode_key
-            name = mode_info.get("name", mode_key.title())
-            description = mode_info.get("description", "")
-            role_definition = mode_info.get("roleDefinition", "")
-            when_to_use = mode_info.get("whenToUse", "")
-            groups = mode_info.get("groups", ["read", "edit", "command"])
+            mode_data = {
+                "slug": mode_key,
+                "name": mode_info.get("name", mode_key.title()),
+                "description": mode_info.get("description", ""),
+                "roleDefinition": mode_info.get("roleDefinition", ""),
+                "whenToUse": mode_info.get("whenToUse", ""),
+                "groups": mode_info.get("groups", ["read", "edit", "command"]),
+            }
+            modes.append(mode_data)
 
-            lines.append(f"  - slug: {slug}")
-            lines.append(f"    name: {name}")
-            lines.append(f"    description: {description}")
-            lines.append(f"    roleDefinition: {role_definition}")
-            lines.append(f"    whenToUse: {when_to_use}")
-            lines.append("    groups:")
+        data = {"customModes": modes}
 
-            for group in groups:
-                if isinstance(group, str):
-                    lines.append(f"      - {group}")
-                elif isinstance(group, dict):
-                    for group_name, group_config in group.items():
-                        if group_config is None:
-                            lines.append(f"      - {group_name}")
-                        else:
-                            file_regex = group_config.get("fileRegex", "")
-                            lines.append(f"      - {group_name}:")
-                            lines.append(f"          fileRegex: {file_regex}")
+        # Generate YAML
+        content = yaml.dump(data, default_flow_style=False, allow_unicode=True, sort_keys=False)
 
-            lines.append("")
+        # Post-process: quote roleDefinition values that contain colons
+        lines = content.split("\n")
+        new_lines = []
+        for line in lines:
+            if line.startswith("    roleDefinition:"):
+                key, value = line.split(":", 1)
+                value = value.strip()
+                # Quote if contains colon and not already quoted
+                if ":" in value:
+                    # Escape backslashes first, then quotes
+                    value = value.replace("\\", "\\\\").replace('"', '\\"')
+                    value = '"' + value + '"'
+                line = f"{key}: {value}"
+            new_lines.append(line)
 
-        content = "\n".join(lines)
+        content = "\n".join(new_lines)
+
         label = ".kilocodemodes"
 
         if dry_run:
@@ -91,3 +99,16 @@ class KiloBuilder(Builder):
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src, dst)
         return f"✓ {src.name} → {label}"
+
+    def _build_ignore(self, output: Path, dry_run: bool) -> list[str]:
+        """Generate .kiloignore file."""
+        dst = output / ".kiloignore"
+        content = registry.generate_kiloignore()
+
+        if dry_run:
+            lines = content.count("\n")
+            return [f"[dry-run] .kiloignore ({lines} lines)"]
+
+        dst.write_text(content, encoding="utf-8")
+        lines = content.count("\n")
+        return [f"✓ .kiloignore ({lines} lines)"]

@@ -1,12 +1,13 @@
 """
 builders/cursor.py
-Builds Cursor rule files.
+Builds Cursor rule files and .cursorignore.
 
 Output:
   {output}/.cursor/rules/core-system.mdc          ← always-on as .mdc
   {output}/.cursor/rules/core-conventions.mdc
   {output}/.cursor/rules/{mode}/{topic}.mdc        ← per-mode as .mdc
   {output}/.cursorrules                            ← legacy fallback (concatenated)
+  {output}/.cursorignore                           ← ignore patterns
 """
 
 import shutil
@@ -51,7 +52,23 @@ class CursorBuilder(Builder):
             legacy_dst.write_text(content, encoding="utf-8")
             actions.append(f"✓ .cursorrules ({content.count(chr(10))} lines, legacy fallback)")
 
+        # Build .cursorignore
+        actions.extend(self._build_ignore(output, dry_run))
+
         return actions
+
+    def _build_ignore(self, output: Path, dry_run: bool) -> list[str]:
+        """Generate .cursorignore file."""
+        dst = output / ".cursorignore"
+        content = registry.generate_cursorignore()
+
+        if dry_run:
+            lines = content.count("\n")
+            return [f"[dry-run] .cursorignore ({lines} lines)"]
+
+        dst.write_text(content, encoding="utf-8")
+        lines = content.count("\n")
+        return [f"✓ .cursorignore ({lines} lines)"]
 
     def _copy(self, src: Path, dst: Path, dry_run: bool) -> str:
         rel = str(dst).split(".cursor/", 1)[-1]
