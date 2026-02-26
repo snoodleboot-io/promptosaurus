@@ -13,23 +13,28 @@ def select_option_with_explain(
     explanations: dict[str, str],
     question_explanation: str,
     default_index: int = 0,
-) -> str:
+    allow_multiple: bool = False,
+) -> str | list[str]:
     """
     Interactive selection with number keys and explain option.
 
     Args:
         question: The question to display
-        options: List of available options (including "Explain" as last option)
+        options: List of available options
         explanations: Dict mapping option -> explanation
         question_explanation: Explanation of what the question is asking
         default_index: Index of default selection
+        allow_multiple: Whether multiple selections are allowed
 
     Returns:
-        The selected option
+        The selected option (str) or list of selected options (list)
     """
-    # Add "Explain" as the last option
-    all_options = options + ["Explain"]
-    selected = default_index
+    # Add "Explain" as the last option (only if not already there)
+    all_options = list(options)
+    if "Explain" not in all_options:
+        all_options.append("Explain")
+
+    selected: int | set[int] = {default_index} if allow_multiple else default_index
 
     while True:
         # Clear screen
@@ -38,68 +43,122 @@ def select_option_with_explain(
         print(f"\n{question}\n")
         print("=" * len(question))
         print(f"\n{question_explanation}\n")
-        print("Enter a number to select:\n")
+
+        if allow_multiple:
+            print("Enter numbers to toggle selection, Enter to confirm:\n")
+        else:
+            print("Enter a number to select:\n")
 
         for i, opt in enumerate(all_options):
             num = f"{i + 1}."
-            if i == default_index:
-                marker = "→"
-                default_tag = " (default)"
+            if allow_multiple:
+                # Check if this option is selected
+                is_selected = i in selected if isinstance(selected, set) else i == selected
+                marker = "[*]" if is_selected else "[ ]"
             else:
-                marker = " "
-                default_tag = ""
+                marker = "→" if i == selected else " "
+                if i == default_index:
+                    default_tag = " (default)"
+                else:
+                    default_tag = ""
 
             # Show explanation for selected option OR for Explain
-            if i == selected:
+            if allow_multiple:
+                show_exp = i in selected if isinstance(selected, set) else i == selected
+            else:
+                show_exp = i == selected
+
+            if show_exp:
                 if opt == "Explain":
                     exp = "Learn more about this question"
                 else:
                     exp = explanations.get(opt, "")
                 if exp:
-                    print(f"  {marker} [{num}] {opt}{default_tag}")
+                    print(f"  {marker} {num} {opt}{default_tag}")
                     print(f"       └─ {exp}")
                 else:
-                    print(f"  {marker} [{num}] {opt}{default_tag}")
+                    print(f"  {marker} {num} {opt}{default_tag}")
             else:
-                print(f"  {marker} [{num}] {opt}{default_tag}")
+                print(f"  {marker} {num} {opt}")
 
-        print("\nPress number to select, Enter to confirm default")
+        print("\nControls: Numbers to select, Enter to confirm, q to quit")
 
         try:
             if os.name == "nt":
                 import msvcrt
 
                 key = msvcrt.getch()
-                if key == b"\r":  # Enter - confirm current selection
-                    if selected == len(all_options) - 1:
-                        # Explain selected, show full explanation
-                        print("\033[2J\033[H", end="")
-                        print(f"\n{question}\n")
-                        print("=" * len(question))
-                        print(f"\n{question_explanation}\n")
-                        print("Available options:\n")
-                        for opt in options:
-                            exp = explanations.get(opt, "")
-                            print(f"  • {opt}")
-                            if exp:
-                                print(f"    {exp}")
-                            print()
-                        print("\nPress any key to return...")
-                        msvcrt.getch()
+                if key == b"\r":  # Enter - confirm
+                    # If explain selected, show full explanation
+                    if allow_multiple:
+                        explain_idx = len(all_options) - 1
+                        if explain_idx in selected:
+                            selected.remove(explain_idx)
+                            print("\033[2J\033[H", end="")
+                            print(f"\n{question}\n")
+                            print("=" * len(question))
+                            print(f"\n{question_explanation}\n")
+                            print("Available options:\n")
+                            for opt in options:
+                                exp = explanations.get(opt, "")
+                                print(f"  • {opt}")
+                                if exp:
+                                    print(f"    {exp}")
+                                print()
+                            print("\nPress any key to return...")
+                            msvcrt.getch()
+                            continue
+
+                        # Return list of selected options (excluding Explain)
+                        return [options[i] for i in sorted(selected) if i < len(options)]
                     else:
-                        return options[selected]
+                        if selected == len(all_options) - 1:
+                            # Explain selected, show full explanation
+                            print("\033[2J\033[H", end="")
+                            print(f"\n{question}\n")
+                            print("=" * len(question))
+                            print(f"\n{question_explanation}\n")
+                            print("Available options:\n")
+                            for opt in options:
+                                exp = explanations.get(opt, "")
+                                print(f"  • {opt}")
+                                if exp:
+                                    print(f"    {exp}")
+                                print()
+                            print("\nPress any key to return...")
+                            msvcrt.getch()
+                        else:
+                            return options[selected]
+                elif key == b"q":
+                    if allow_multiple:
+                        return [options[default_index]]
+                    return options[default_index]
                 elif key == b"\xe0":  # Arrow key prefix on Windows
                     key2 = msvcrt.getch()
                     if key2 == b"H":  # Up
-                        selected = max(0, selected - 1)
+                        if allow_multiple:
+                            # Not using arrows for multi-select
+                            pass
+                        else:
+                            selected = max(0, selected - 1)
                     elif key2 == b"P":  # Down
-                        selected = min(len(all_options) - 1, selected + 1)
+                        if allow_multiple:
+                            pass
+                        else:
+                            selected = min(len(all_options) - 1, selected + 1)
                 else:
                     # Number keys
                     try:
                         num = int(key.decode()) - 1
                         if 0 <= num < len(all_options):
-                            selected = num
+                            if allow_multiple:
+                                # Toggle selection
+                                if num in selected:
+                                    selected.remove(num)
+                                else:
+                                    selected.add(num)
+                            else:
+                                selected = num
                     except (ValueError, UnicodeDecodeError):
                         pass
             else:
@@ -113,54 +172,95 @@ def select_option_with_explain(
                     tty.setraw(sys.stdin.fileno())
                     key = sys.stdin.read(1)
                     if key == "\r":  # Enter
-                        if selected == len(all_options) - 1:
-                            # Explain
-                            print("\033[2J\033[H", end="")
-                            print(f"\n{question}\n")
-                            print("=" * len(question))
-                            print(f"\n{question_explanation}\n")
-                            print("Available options:\n")
-                            for opt in options:
-                                exp = explanations.get(opt, "")
-                                print(f"  • {opt}")
-                                if exp:
-                                    print(f"    {exp}")
-                                print()
-                            print("\nPress any key to return...")
-                            sys.stdin.read(1)
+                        if allow_multiple:
+                            explain_idx = len(all_options) - 1
+                            if explain_idx in selected:
+                                selected.remove(explain_idx)
+                                print("\033[2J\033[H", end="")
+                                print(f"\n{question}\n")
+                                print("=" * len(question))
+                                print(f"\n{question_explanation}\n")
+                                print("Available options:\n")
+                                for opt in options:
+                                    exp = explanations.get(opt, "")
+                                    print(f"  • {opt}")
+                                    if exp:
+                                        print(f"    {exp}")
+                                    print()
+                                print("\nPress any key to return...")
+                                sys.stdin.read(1)
+                                continue
+
+                            return [options[i] for i in sorted(selected) if i < len(options)]
                         else:
-                            return options[selected]
+                            if selected == len(all_options) - 1:
+                                # Explain
+                                print("\033[2J\033[H", end="")
+                                print(f"\n{question}\n")
+                                print("=" * len(question))
+                                print(f"\n{question_explanation}\n")
+                                print("Available options:\n")
+                                for opt in options:
+                                    exp = explanations.get(opt, "")
+                                    print(f"  • {opt}")
+                                    if exp:
+                                        print(f"    {exp}")
+                                    print()
+                                print("\nPress any key to return...")
+                                sys.stdin.read(1)
+                            else:
+                                return options[selected]
+                    elif key == "q":
+                        if allow_multiple:
+                            return [options[default_index]]
+                        return options[default_index]
                     elif key == "\x1b":  # Escape
                         next1 = sys.stdin.read(1)
                         if next1 == "[":
                             next2 = sys.stdin.read(1)
                             if next2 == "A":  # Up
-                                selected = max(0, selected - 1)
+                                if not allow_multiple:
+                                    selected = max(0, selected - 1)
                             elif next2 == "B":  # Down
-                                selected = min(len(all_options) - 1, selected + 1)
+                                if not allow_multiple:
+                                    selected = min(len(all_options) - 1, selected + 1)
                     else:
                         # Number keys
                         try:
                             num = int(key) - 1
                             if 0 <= num < len(all_options):
-                                selected = num
+                                if allow_multiple:
+                                    if num in selected:
+                                        selected.remove(num)
+                                    else:
+                                        selected.add(num)
+                                else:
+                                    selected = num
                         except ValueError:
                             pass
                 finally:
                     termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         except Exception:
             # Fallback
-            print("\nEnter number:")
+            print("\nEnter number(s) comma-separated:")
             choice = input(f" [{default_index + 1}]: ").strip()
+            if not choice:
+                return options[default_index]
             try:
-                idx = int(choice) - 1
-                if 0 <= idx < len(all_options):
-                    if idx == len(all_options) - 1:
-                        # Explain
-                        print(f"\n{question_explanation}\n")
-                        input("Press Enter to continue...")
-                    else:
-                        return options[idx]
+                if allow_multiple:
+                    # Parse comma-separated numbers
+                    indices = [int(x.strip()) - 1 for x in choice.split(",")]
+                    result = [options[i] for i in indices if 0 <= i < len(options)]
+                    if result:
+                        return result
+                else:
+                    idx = int(choice) - 1
+                    if 0 <= idx < len(all_options):
+                        if idx == len(all_options) - 1:
+                            print(f"\n{question_explanation}\n")
+                            input("Press Enter to continue...")
+                        else:
+                            return options[idx]
             except ValueError:
                 pass
             return options[default_index]

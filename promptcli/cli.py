@@ -268,6 +268,7 @@ def init_prompts(interactive: bool):
 
         for q in lang_questions:
             default_idx = q.options.index(q.default) if q.default in q.options else 0
+            allow_multiple = getattr(q, "allow_multiple", False)
 
             if use_interactive:
                 click.echo(f"\n{q.question_text}\n")
@@ -278,15 +279,40 @@ def init_prompts(interactive: bool):
                     explanations=q.option_explanations,
                     question_explanation=q.explanation,
                     default_index=default_idx,
+                    allow_multiple=allow_multiple,
                 )
             else:
                 click.echo(f"\n\n{q.question_text}\n")
                 click.echo(q.explanation)
-                click.echo("\nOptions:")
-                for i, opt in enumerate(q.options):
-                    explanation = q.option_explanations.get(opt, "")
-                    is_default = " [default]" if opt == q.default else ""
-                    click.echo(f"  {i + 1}. {opt:30s} - {explanation}{is_default}")
+
+                if allow_multiple:
+                    click.echo("\nEnter numbers comma-separated (e.g., 1,3):")
+                    for i, opt in enumerate(q.options):
+                        explanation = q.option_explanations.get(opt, "")
+                        is_default = " [default]" if opt == q.default else ""
+                        click.echo(f"  {i + 1}. {opt:30s} - {explanation}{is_default}")
+
+                    config_key = q.key.replace(f"{language}_", "")
+                    choice = click.prompt(
+                        f"\n{q.question_text().split('?')[0]} (comma-separated)",
+                        default=q.default,
+                    )
+                    # Parse comma-separated values
+                    values = [v.strip() for v in choice.split(",")]
+                    # Validate choices
+                    valid_values = [v for v in values if v in q.options]
+                    if not valid_values:
+                        valid_values = [q.default]
+                    config["defaults"][config_key] = (
+                        valid_values if len(valid_values) > 1 else valid_values[0]
+                    )
+                    continue
+                else:
+                    click.echo("\nOptions:")
+                    for i, opt in enumerate(q.options):
+                        explanation = q.option_explanations.get(opt, "")
+                        is_default = " [default]" if opt == q.default else ""
+                        click.echo(f"  {i + 1}. {opt:30s} - {explanation}{is_default}")
 
                 config_key = q.key.replace(f"{language}_", "")
                 value = click.prompt(

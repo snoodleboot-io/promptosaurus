@@ -44,6 +44,11 @@ class BaseQuestion(ABC):
         """Sensible default."""
         return self.options[0] if self.options else ""
 
+    @property
+    def allow_multiple(self) -> bool:
+        """Whether multiple selections are allowed. Default is False."""
+        return False
+
     def explain_option(self, option: str) -> str:
         """Get explanation for a specific option."""
         return self.option_explanations.get(option, "")

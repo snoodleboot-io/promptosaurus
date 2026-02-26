@@ -121,7 +121,7 @@ class PythonTestFrameworkQuestion(BaseQuestion):
 
 
 class PythonLinterQuestion(BaseQuestion):
-    """Question for Python linter."""
+    """Question for Python linter - supports multiple selection."""
 
     @property
     def key(self) -> str:
@@ -129,15 +129,15 @@ class PythonLinterQuestion(BaseQuestion):
 
     @property
     def question_text(self) -> str:
-        return "What linter do you want to use?"
+        return "What linter(s) do you want to use?"
 
     @property
     def explanation(self) -> str:
-        return """Linter affects:
-- Code quality checking
-- Style enforcement
-- Bug detection
-- Type checking (for some)"""
+        return """Linters check code quality, style, and bugs. You can select multiple:
+- ruff: Ultra-fast (Rust), modern, replaces flake8+isort
+- flake8: Classic, simple, stable rules
+- pylint: Comprehensive deep analysis, very strict
+- mypy: Static type checker for Python"""
 
     @property
     def options(self) -> list[str]:
@@ -156,9 +156,14 @@ class PythonLinterQuestion(BaseQuestion):
     def default(self) -> str:
         return "ruff"
 
+    @property
+    def allow_multiple(self) -> bool:
+        """Allow selecting multiple linters."""
+        return True
+
 
 class PythonFormatterQuestion(BaseQuestion):
-    """Question for Python formatter."""
+    """Question for Python formatter - supports multiple selection."""
 
     @property
     def key(self) -> str:
@@ -166,14 +171,14 @@ class PythonFormatterQuestion(BaseQuestion):
 
     @property
     def question_text(self) -> str:
-        return "What code formatter do you want to use?"
+        return "What code formatter(s) do you want to use?"
 
     @property
     def explanation(self) -> str:
-        return """Formatter affects:
-- Code style consistency
-- Time saved on formatting debates
-- Integration with pre-commit hooks"""
+        return """Formatters ensure consistent code style. You can select multiple:
+- ruff: Fastest (Rust), format + lint in one tool
+- black: Most popular, opinionated style
+- yapf: Google style, configurable"""
 
     @property
     def options(self) -> list[str]:
@@ -190,6 +195,11 @@ class PythonFormatterQuestion(BaseQuestion):
     @property
     def default(self) -> str:
         return "ruff"
+
+    @property
+    def allow_multiple(self) -> bool:
+        """Allow selecting multiple formatters."""
+        return True
 
 
 # ══════════════════════════════════════════════════════════════════════════════
