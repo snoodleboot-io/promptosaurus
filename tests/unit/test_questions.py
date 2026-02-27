@@ -11,12 +11,16 @@ from promptcli.questions.base import (
     REPO_TYPE_MIXED,
     REPO_TYPES,
 )
-from promptcli.questions.language import (
-    PythonQuestion,
+from promptcli.questions.python import (
+    PythonRuntimeQuestion,
     PythonPackageManagerQuestion,
     PythonTestFrameworkQuestion,
-    TypeScriptQuestion,
+)
+from promptcli.questions.typescript import (
+    TypeScriptVersionQuestion,
     TypeScriptPackageManagerQuestion,
+)
+from promptcli.questions.language import (
     get_language_questions,
     LANGUAGE_KEYS,
 )
@@ -95,14 +99,14 @@ class TestFolderMappingQuestion:
         assert q.default == ""
 
 
-class TestPythonQuestion:
-    """Tests for PythonQuestion."""
+class TestPythonRuntimeQuestion:
+    """Tests for PythonRuntimeQuestion."""
 
     def test_question_has_required_properties(self):
         """Question should have all required properties."""
-        q = PythonQuestion()
+        q = PythonRuntimeQuestion()
 
-        assert q.key == "python"
+        assert q.key == "python_runtime"
         assert q.question_text
         assert q.explanation
         assert q.options
@@ -110,21 +114,21 @@ class TestPythonQuestion:
 
     def test_options_include_common_runtimes(self):
         """Options should include common Python runtimes."""
-        q = PythonQuestion()
+        q = PythonRuntimeQuestion()
 
         assert "3.12" in q.options
         assert "3.11" in q.options
-        assert "PyPy" in q.options
+        assert "pypy" in q.options
 
     def test_default_is_latest_stable(self):
         """Default should be latest stable version."""
-        q = PythonQuestion()
+        q = PythonRuntimeQuestion()
 
         assert q.default == "3.12"
 
     def test_option_explanations_for_all_options(self):
         """Each option should have an explanation."""
-        q = PythonQuestion()
+        q = PythonRuntimeQuestion()
 
         for opt in q.options:
             assert opt in q.option_explanations
@@ -179,19 +183,19 @@ class TestPythonTestFrameworkQuestion:
         assert q.default == "pytest"
 
 
-class TestTypeScriptQuestion:
-    """Tests for TypeScriptQuestion."""
+class TestTypeScriptVersionQuestion:
+    """Tests for TypeScriptVersionQuestion."""
 
     def test_question_has_required_properties(self):
         """Question should have all required properties."""
-        q = TypeScriptQuestion()
+        q = TypeScriptVersionQuestion()
 
-        assert q.key == "typescript"
+        assert q.key == "typescript_version"
         assert q.options
 
     def test_options_include_recent_versions(self):
         """Options should include recent TypeScript versions."""
-        q = TypeScriptQuestion()
+        q = TypeScriptVersionQuestion()
 
         assert "5.4" in q.options
         assert "5.3" in q.options
@@ -199,7 +203,7 @@ class TestTypeScriptQuestion:
 
     def test_default_is_latest(self):
         """Default should be latest stable version."""
-        q = TypeScriptQuestion()
+        q = TypeScriptVersionQuestion()
 
         assert q.default == "5.4"
 
@@ -232,7 +236,7 @@ class TestGetLanguageQuestions:
 
         assert len(questions) > 0
         keys = [q.key for q in questions]
-        assert "python" in keys
+        assert "python_runtime" in keys
         assert "python_package_manager" in keys
 
     def test_get_typescript_questions(self):
@@ -241,7 +245,7 @@ class TestGetLanguageQuestions:
 
         assert len(questions) > 0
         keys = [q.key for q in questions]
-        assert "typescript" in keys
+        assert "typescript_version" in keys
 
     def test_get_javascript_questions(self):
         """Should return questions for JavaScript (same as TypeScript)."""
