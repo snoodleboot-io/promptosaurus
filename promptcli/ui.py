@@ -7,6 +7,58 @@ import sys
 IS_TTY = sys.stdin.isatty()
 
 
+def format_options_columns(
+    options: list[str],
+    items_per_column: int = 8,
+    column_width: int = 20,
+) -> str:
+    """
+    Format options into columns for display.
+
+    Fills columns left-to-right, top-to-bottom (1-8 in col 1, 9-16 in col 2, etc.)
+    Example with items_per_column=8:
+        1. python      9. php
+        2. typescript 10. swift
+        ...
+
+    Args:
+        options: List of option strings
+        items_per_column: Number of items per column (default 8)
+        column_width: Width reserved for each column
+
+    Returns:
+        Formatted string with options in columns
+    """
+    if not options:
+        return ""
+
+    num_items = len(options)
+    num_columns = (num_items + items_per_column - 1) // items_per_column
+    lines: list[str] = []
+
+    for row in range(items_per_column):
+        line_parts = []
+        for col in range(num_columns):
+            idx = col * items_per_column + row
+            if idx < num_items:
+                # Format: " 1. optionname" or "10. optionname"
+                num_str = f"{idx + 1}."
+                part = f"{num_str:>3} {options[idx]}"
+                line_parts.append(part)
+
+        if line_parts:
+            # Join with spacing
+            line = ""
+            for i, part in enumerate(line_parts):
+                if i > 0:
+                    # Add spacing between columns
+                    line += " " * 2
+                line += f"{part}"
+            lines.append(line)
+
+    return "\n".join(lines)
+
+
 def select_option_with_explain(
     question: str,
     options: list[str],
