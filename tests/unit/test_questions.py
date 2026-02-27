@@ -20,8 +20,10 @@ from promptcli.questions.handlers import (
     HandleSingleLanguageQuestions,
 )
 
-from promptcli.questions.typescript import (
+from promptcli.questions.typescript.typescript_version_question import (
     TypeScriptVersionQuestion,
+)
+from promptcli.questions.typescript.typescript_package_manager_question import (
     TypeScriptPackageManagerQuestion,
 )
 from promptcli.questions.language import (
