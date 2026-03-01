@@ -29,6 +29,34 @@ Formatter:           {{FORMATTER}}          e.g., Ruff, Black
 - Use absolute imports (no relative `..` imports)
 - Group imports: stdlib → third-party → local (blank lines between)
 - Use `__all__` to define public API
+- **NO import forwarding** — do not re-export imported symbols (e.g., `from module import X` then exposing `X` at package level). This is an anti-pattern. Define public API explicitly.
+
+### Code Structure & Patterns
+
+#### Constants & Configuration
+- **NO module-level constants** — never define `CONSTANT = value` at module or class level
+- For runtime-changeable values: use YAML configuration files
+- For fixed configuration: use class variables or `pydantic-settings` with environment variable support
+- When asked to create constants, redirect to settings/configuration approach
+
+#### Dynamic Attribute Access
+- **Avoid `setattr` and `getattr`** — these bypass type checking and make code harder to reason about
+- Before using: ask yourself if there's a type-safe alternative (dataclass, pydantic model, explicit properties)
+- Only acceptable when building core framework code that MUST handle dynamic structures
+
+#### Module Structure
+- **Every module directory MUST have `__init__.py`** — no implicit namespace packages
+- Verify `__init__.py` exists before adding new modules
+
+#### Type Casting
+- **NO type casting** (`typing.cast`, `isinstance` + cast patterns) unless working with primitive data conversions (e.g., `int()`, `str()`, `float()`)
+- Use proper type narrowing with `isinstance` checks instead of casting
+- Design APIs to return correct types rather than requiring casts
+
+#### Type Checking Enforcement
+- Run `pyright` continuously during development — treat type errors as blocking issues
+- All code must pass pyright strict mode before commit
+- No commits with type errors or `Any` types without explicit justification
 
 ### Testing
 
