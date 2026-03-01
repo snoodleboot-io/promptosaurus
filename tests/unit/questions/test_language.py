@@ -1,6 +1,5 @@
 """Tests for promptcli.questions.language module."""
 
-
 from promptcli.questions.language import (
     LANGUAGE_KEYS,
     get_language_questions,

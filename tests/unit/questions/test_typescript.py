@@ -1,6 +1,5 @@
 """Tests for promptcli.questions.typescript module."""
 
-
 from promptcli.questions.typescript.typescript_package_manager_question import (
     TypeScriptPackageManagerQuestion,
 )
