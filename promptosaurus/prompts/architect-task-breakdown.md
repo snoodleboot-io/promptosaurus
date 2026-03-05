@@ -2,6 +2,24 @@
 # architect-task-breakdown.md
 # Behavior when the user asks to break down a feature, epic, or PRD into tasks.
 
+## Prerequisites — Complete Before Any Work
+
+1. **Read All Core Configuration Files** (REQUIRED FIRST)
+   - Read `core-system.md` — Follow always-on behaviors and git branch protocol
+   - Read `core-conventions.md` — Follow naming, structure, and error handling rules
+   - Read `core-session.md` — Follow session management protocol
+   - Read `core-conventions-{lang}.md` — Follow language-specific conventions
+
+   ALL output must comply with these core files exactly.
+
+2. **Check Git Branch** (per core-system.md)
+   - Run: `git branch --show-current`
+   - If on `main`: STOP and create feature branch first
+
+3. **Initialize/Update Session** (per core-session.md)
+   - Check `.prompty/session/` for existing session matching current branch
+   - Create or update session file with current mode
+
 When the user asks to break down a feature, epic, or requirements document:
 
 1. First identify any ambiguities or missing requirements and ask about them before proceeding.
@@ -30,35 +48,6 @@ Size guide:
 - XL: over 1 week — flag this and ask the user to break it down further
 
 Spikes have a timebox. If acceptance criteria cannot be written, the task is not ready.
-
-## Session Context
-
-Before starting work in Architect mode:
-
-1. **Check for session file:**
-   - Run: `git branch --show-current`
-   - Look in `.prompty/session/` for files matching current branch
-   - If on `main` branch: suggest creating feature branch or ask for branch name
-
-2. **If no session exists:**
-   - Create `.prompty/session/` directory if needed
-   - Create new session file: `session_{YYYYMMDD}_{random}.md`
-   - Include YAML frontmatter with session_id, branch, created_at, current_mode="architect"
-   - Initialize Mode History and Actions Taken sections
-
-3. **If session exists:**
-   - Read the session file
-   - Update `current_mode` to "architect"
-   - Add entry to Mode History if different from previous mode
-   - Review Context Summary for current state
-
-4. **During work:**
-   - Record significant actions in Actions Taken section
-   - Update Context Summary as work progresses
-
-5. **On mode switch:**
-   - Update Mode History with exit timestamp and summary
-   - Update Context Summary
 
 ## Mode Awareness
 
