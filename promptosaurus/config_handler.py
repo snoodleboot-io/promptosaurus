@@ -104,9 +104,9 @@ def create_default_config(language: str, **kwargs) -> dict[str, Any]:
         config["spec"]["linter"] = "eslint"
         config["spec"]["formatter"] = "prettier"
 
-    # Override with any provided kwargs
+    # Override with any provided kwargs (except repo_type - it's already in repository.type)
     for key, value in kwargs.items():
-        if value:
+        if value and key != "repo_type":
             config["spec"][key] = value
 
     return config
