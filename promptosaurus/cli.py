@@ -82,7 +82,7 @@ def init_prompts():
     """
     Interactively initialize prompt configuration for your project.
 
-    Walks through questions to set up .promptosaurus/configurations.yaml with
+    Walks through questions to set up .promptosaurus/.promptosaurus.yaml with
     your language, runtime, package manager, testing framework, and more.
     Then generates AI assistant configurations for selected tools.
     """
@@ -149,7 +149,7 @@ def init_prompts():
                     type=click.Choice(LANGUAGE_KEYS),
                     default="python",
                 )
-                config["defaults"]["language"] = language  # type: ignore[index]
+                config["spec"]["language"] = language  # type: ignore[index]
 
         # Save configuration
         ConfigHandler.save_config(config)

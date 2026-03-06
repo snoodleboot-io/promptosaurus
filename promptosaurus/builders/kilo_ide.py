@@ -3,10 +3,10 @@ builders/kilo_ide.py
 Kilo Code IDE builder - outputs .kilocode/rules-{mode}/ structure.
 
 Output layout:
-  {output}/.kilocode/rules/                 ← core files (always loaded)
-  {output}/.kilocode/rules-{mode}/           ← per-mode directories with files
-  {output}/.kilocodemodes                ← all mode definitions (for IDE)
-  {output}/.kiloignore                  ← ignore patterns
+  {output}/.kilocode/rules/                 <- core files (always loaded)
+  {output}/.kilocode/rules-{mode}/           <- per-mode directories with files
+  {output}/.kilocodemodes                <- all mode definitions (for IDE)
+  {output}/.kiloignore                  <- ignore patterns
 
 This format is used by the KiloCode IDE extensions (VSCode/JetBrains).
 """
@@ -16,6 +16,78 @@ from typing import Any
 
 from promptosaurus.builders.kilo import KiloCodeBuilder
 from promptosaurus.registry import registry
+
+
+def _make_dest_filename(filename: str, mode_key: str | None = None) -> str:
+    """
+    Convert prompt source path to destination filename.
+
+    Mapping rules:
+    - agents/core/core-conventions-{lang}.md -> conventions-{lang}.md (language goes to rules/)
+    - agents/core/core-{slug}.md -> {slug}.md (core files go to rules/)
+    - agents/{agent}/subagents/{agent}-{slug}.md -> {slug}.md (subagent files)
+    - agents/{agent}/{agent}.md -> {agent}.md (root agent files)
+    - Any other agents/{agent}/ path -> flatten (remove subagents folder and agent prefix)
+    """
+    # Handle core files first
+    if filename.startswith("agents/core/core-conventions-"):
+        # Language conventions: core-conventions-python.md -> conventions-python.md
+        # Remove "agents/core/" (12) + "core-" (5) = 17 chars
+        return filename[17:]  # Keep "conventions-{lang}.md"
+    elif filename.startswith("agents/core/core-"):
+        # Core files: core-session.md -> session.md
+        # Remove "agents/core/core-" (17 chars)
+        return filename[17:]  # Remove "agents/core/core-"
+
+    # Handle agent files
+    if mode_key:
+        # Check for subagents: agents/{mode}/subagents/{mode}-{slug}.md -> {slug}.md
+        subagents_prefix = f"agents/{mode_key}/subagents/{mode_key}-"
+        if filename.startswith(subagents_prefix):
+            return filename[len(subagents_prefix) :]
+
+        # Check for root agent file: agents/{mode}.md -> {mode}.md
+        root_agent_file = f"agents/{mode_key}.md"
+        if filename == root_agent_file:
+            return f"{mode_key}.md"
+
+        # For any other agents/{something}/ path, flatten it
+        # e.g., agents/code/subagents/code-feature.md -> when in migration mode
+        if filename.startswith("agents/"):
+            # Find and remove "agents/{something}/" prefix
+            slash1 = filename.find("/")
+            if slash1 > 0:
+                # Find next slash after "agents/"
+                slash2 = filename.find("/", slash1 + 1)
+                if slash2 > 0:
+                    remainder = filename[slash2 + 1 :]
+                    # Remove "subagents/" if present
+                    if remainder.startswith("subagents/"):
+                        remainder = remainder[10:]  # Remove "subagents/"
+                    # Remove any {agent}- prefix from the filename
+                    for agent_prefix in [
+                        "code-",
+                        "test-",
+                        "refactor-",
+                        "document-",
+                        "explain-",
+                        "migration-",
+                        "review-",
+                        "security-",
+                        "compliance-",
+                        "architect-",
+                        "ask-",
+                        "orchestrator-",
+                        "enforcement-",
+                        "planning-",
+                        "debug-",
+                    ]:
+                        if remainder.startswith(agent_prefix):
+                            return remainder[len(agent_prefix) :]
+                    return remainder
+
+    # Fallback: return as-is
+    return filename
 
 
 class KiloIDEBuilder(KiloCodeBuilder):
@@ -31,7 +103,7 @@ class KiloIDEBuilder(KiloCodeBuilder):
         actions: list[str] = []
 
         # Get selected language from config
-        selected_language = config.get("defaults", {}).get("language", "") if config else ""
+        selected_language = config.get("spec", {}).get("language", "") if config else ""
         language_file = (
             self.LANGUAGE_FILE_MAP.get(selected_language.lower()) if selected_language else None
         )
@@ -39,22 +111,11 @@ class KiloIDEBuilder(KiloCodeBuilder):
         # 1. Create AGENTS.md user guide
         actions.append(self._create_agents_md(output, dry_run))
 
-        # 2. Create core files in .kilocode/ (for IDE compatibility - legacy location)
-        # These are in .kilocode/ directly for IDE
+        # 2. Create core files in .kilocode/rules/
         for filename in self.BASE_FILES:
             source_path = registry.prompt_path(filename)
             if source_path.exists():
-                destination = output / ".kilocode" / filename
-                actions.append(self._copy(source_path, destination, dry_run, config))
-
-        # 2a. Create core files in .kilocode/rules/ (new location - core files without core- prefix)
-        for filename in self.BASE_FILES:
-            source_path = registry.prompt_path(filename)
-            if source_path.exists():
-                # Remove "core-" prefix from filename
-                new_filename = filename
-                if filename.startswith("core-"):
-                    new_filename = filename[5:]  # Remove "core-" prefix
+                new_filename = _make_dest_filename(filename)  # No mode_key for core files
                 destination = output / ".kilocode" / "rules" / new_filename
                 actions.append(self._copy(source_path, destination, dry_run, config))
 
@@ -62,25 +123,19 @@ class KiloIDEBuilder(KiloCodeBuilder):
         if language_file:
             source_path = registry.prompt_path(language_file)
             if source_path.exists():
-                # Remove "core-" prefix from filename for .kilocode/rules/
-                new_filename = language_file
-                if language_file.startswith("core-"):
-                    new_filename = language_file[5:]  # Remove "core-" prefix
-                # Copy to legacy location for IDE compatibility
-                destination = output / ".kilocode" / language_file
-                actions.append(self._copy(source_path, destination, dry_run, config))
-                # Copy to new .kilocode/rules/ location with renamed file
+                new_filename = _make_dest_filename(language_file)
                 destination_rules = output / ".kilocode" / "rules" / new_filename
                 actions.append(self._copy(source_path, destination_rules, dry_run, config))
 
-        # 3. Create per-mode directories with their subagent files (custom modes only)
+        # 3. Create per-mode directories with their files
         for mode_key in self.custom_modes:
             if mode_key in registry.mode_files:
                 mode_dir = output / ".kilocode" / f"rules-{mode_key}"
                 for filename in registry.mode_files[mode_key]:
                     source_path = registry.prompt_path(filename)
                     if source_path.exists():
-                        destination = mode_dir / filename
+                        new_filename = _make_dest_filename(filename, mode_key)
+                        destination = mode_dir / new_filename
                         actions.append(self._copy(source_path, destination, dry_run, config))
 
         # 4. Generate .kilocodemodes manifest

@@ -2,7 +2,7 @@ version: '1.0'
 repository:
   type: single-language
   mappings: {}
-defaults:
+spec:
   language: python
   runtime: '3.12'
   package_manager: uv
@@ -19,6 +19,5 @@ defaults:
     statement: 85
     mutation: 80
     path: 60
-  repo_type: single-language
   test_runner: pytest
   abstract_class_style: interface
