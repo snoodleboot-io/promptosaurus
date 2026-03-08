@@ -10,7 +10,7 @@ Output:
 from pathlib import Path
 from typing import Any
 
-from promptosaurus.builders._concat import build_concatenated
+from promptosaurus.builders.build_concatenated import build_concatenated
 from promptosaurus.builders.builder import Builder
 from promptosaurus.builders.ignore_generator import ClineIgnoreBuilder
 

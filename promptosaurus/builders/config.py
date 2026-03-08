@@ -82,7 +82,3 @@ class KiloConfig:
         with self._language_map_path.open(encoding="utf-8") as f:
             data = yaml.safe_load(f)
         return data.get("language_file_map", {})
-
-
-# Default config instance for backwards compatibility
-default_config = KiloConfig()

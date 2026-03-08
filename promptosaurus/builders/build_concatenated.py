@@ -1,5 +1,5 @@
 """
-builders/_concat.py
+builders/build_concatenated.py
 Shared helper: builds a single concatenated markdown string from all prompt
 files in concat_order, with section headers between each.
 
