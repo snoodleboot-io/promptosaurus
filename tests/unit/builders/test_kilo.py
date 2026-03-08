@@ -4,9 +4,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from promptosaurus.builders.kilo import KiloCodeBuilder
-from promptosaurus.builders.kilo_cli import KiloCLIBuilder
-from promptosaurus.builders.kilo_ide import KiloIDEBuilder
+from promptosaurus.builders.kilo.kilo_code_builder import KiloCodeBuilder
+from promptosaurus.builders.kilo.kilo_cli import KiloCLIBuilder
+from promptosaurus.builders.kilo.kilo_ide import KiloIDEBuilder
 
 
 class TestKiloCodeBuilderBase(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestKiloCodeBuilderBase(unittest.TestCase):
 
     def test_language_file_map(self):
         """KiloCodeBuilder should have language_file_map property loaded from YAML."""
-        from promptosaurus.builders.kilo import KiloCodeBuilder
+        from promptosaurus.builders.kilo.kilo_code_builder import KiloCodeBuilder
 
         # Test via instance to ensure YAML is loaded
         builder = KiloCLIBuilder()
@@ -25,7 +25,7 @@ class TestKiloCodeBuilderBase(unittest.TestCase):
 
     def test_base_files(self):
         """KiloCodeBuilder should have BASE_FILES."""
-        from promptosaurus.builders.kilo import KiloCodeBuilder
+        from promptosaurus.builders.kilo.kilo_code_builder import KiloCodeBuilder
         assert hasattr(KiloCodeBuilder, "BASE_FILES")
         assert "agents/core/core-system.md" in KiloCodeBuilder.BASE_FILES
         assert "agents/core/core-conventions.md" in KiloCodeBuilder.BASE_FILES

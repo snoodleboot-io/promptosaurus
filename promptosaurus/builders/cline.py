@@ -12,7 +12,7 @@ from typing import Any
 
 from promptosaurus.builders._concat import build_concatenated
 from promptosaurus.builders.builder import Builder
-from promptosaurus.registry import registry
+from promptosaurus.builders.ignore_generator import ClineIgnoreBuilder
 
 
 class ClineBuilder(Builder):
@@ -47,13 +47,4 @@ class ClineBuilder(Builder):
 
     def _build_ignore(self, output: Path, dry_run: bool) -> list[str]:
         """Generate .clineignore file."""
-        destination = output / ".clineignore"
-        content = registry.generate_clineignore()
-
-        if dry_run:
-            lines = content.count("\n")
-            return [f"[dry-run] .clineignore ({lines} lines)"]
-
-        destination.write_text(content, encoding="utf-8")
-        lines = content.count("\n")
-        return [f"✓ .clineignore ({lines} lines)"]
+        return ClineIgnoreBuilder().build(output, dry_run)
