@@ -9,6 +9,7 @@ python:
   - PythonLinterQuestion
   - PythonFormatterQuestion
   - PythonAbstractClassStyleQuestion
+  - PythonCoverageTargetsQuestion
 
 typescript:
   - TypeScriptVersionQuestion

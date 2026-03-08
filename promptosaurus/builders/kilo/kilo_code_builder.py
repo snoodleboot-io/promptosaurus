@@ -112,7 +112,41 @@ class KiloCodeBuilder(Builder):
         }
 
         # Add coverage variables
-        coverage = defaults.get("coverage", {})
+        # Coverage can be either a dict (legacy) or a string preset from the question
+        coverage_value = defaults.get("coverage", {})
+
+        # If coverage is a string preset, convert it to a dict
+        if isinstance(coverage_value, str):
+            COVERAGE_PRESETS = {
+                "strict": {
+                    "line": 90,
+                    "branch": 80,
+                    "function": 95,
+                    "statement": 90,
+                    "mutation": 85,
+                    "path": 70,
+                },
+                "standard": {
+                    "line": 80,
+                    "branch": 70,
+                    "function": 90,
+                    "statement": 85,
+                    "mutation": 80,
+                    "path": 60,
+                },
+                "minimal": {
+                    "line": 70,
+                    "branch": 60,
+                    "function": 80,
+                    "statement": 75,
+                    "mutation": 70,
+                    "path": 50,
+                },
+            }
+            coverage = COVERAGE_PRESETS.get(coverage_value, {})
+        else:
+            coverage = coverage_value if isinstance(coverage_value, dict) else {}
+
         substitutions["{{LINE_COVERAGE_%}}"] = str(coverage.get("line", 80))
         substitutions["{{BRANCH_COVERAGE_%}}"] = str(coverage.get("branch", 70))
         substitutions["{{FUNCTION_COVERAGE_%}}"] = str(coverage.get("function", 90))
