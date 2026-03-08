@@ -1,6 +1,7 @@
 """Command factory for UI pipeline."""
 
 from promptosaurus.ui.commands.confirm import ConfirmCommand
+from promptosaurus.ui.commands.explain import ExplainCommand
 from promptosaurus.ui.commands.navigate import NavigateCommand
 from promptosaurus.ui.commands.noop import NoOpCommand
 from promptosaurus.ui.commands.quit import QuitCommand
@@ -24,5 +25,7 @@ class CommandFactory:
             return ConfirmCommand()
         elif event.event_type == InputEventType.QUIT:
             return QuitCommand()
+        elif event.event_type == InputEventType.EXPLAIN:
+            return ExplainCommand()
         else:
             return NoOpCommand()

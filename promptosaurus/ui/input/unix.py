@@ -50,6 +50,14 @@ class UnixInputProvider(InputProvider):
             return InputEvent(event_type=InputEventType.QUIT)
         elif key.isdigit():
             return InputEvent(event_type=InputEventType.NUMBER, value=int(key))
+        elif key.lower() in "abcd":
+            # Map letters a-d (and A-D) to selection indices 0-3
+            letter_to_index = {"a": 0, "b": 1, "c": 2, "d": 3}
+            index = letter_to_index[key.lower()]
+            return InputEvent(event_type=InputEventType.NUMBER, value=index)
+        elif key.lower() == "e":
+            # 'e' or 'E' triggers explain mode directly
+            return InputEvent(event_type=InputEventType.EXPLAIN)
 
         return InputEvent(event_type=InputEventType.UNKNOWN, raw_key=key)
 

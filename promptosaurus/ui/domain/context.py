@@ -59,11 +59,8 @@ class PipelineContext:
 
     @property
     def display_options(self) -> list[str]:
-        """Get options to display (includes Explain)."""
-        opts = list(self._question.options)
-        if "Explain" not in opts:
-            opts.append("Explain")
-        return opts
+        """Get options to display (without Explain - use 'e' keystroke instead)."""
+        return list(self._question.options)
 
     def get_explanation(self, option: str) -> str:
         """Get explanation for option."""
