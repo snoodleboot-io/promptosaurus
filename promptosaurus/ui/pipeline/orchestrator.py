@@ -2,8 +2,8 @@
 
 from promptosaurus.ui.domain.context import PipelineContext, QuestionContext
 from promptosaurus.ui.pipeline.command_factory import CommandFactory
-from promptosaurus.ui.state.multi import MultiSelectState
-from promptosaurus.ui.state.single_select_state import SingleSelectState
+from promptosaurus.ui.state.multi_selection_state import MultiSelectionState
+from promptosaurus.ui.state.single_selection_state import SingleSelectionState
 
 
 class PipelineOrchestrator:
@@ -19,13 +19,13 @@ class PipelineOrchestrator:
     def run(self, question: QuestionContext) -> str | list[str]:
         """Run the complete pipeline for a question."""
         # Initialize state based on question type
-        initial_state: MultiSelectState | SingleSelectState
+        initial_state: MultiSelectionState | SingleSelectionState
         if question.allow_multiple:
             # Use default_indices for multi-select, fall back to default_index
             default_selections = question.default_indices or {question.default_index}
-            initial_state = MultiSelectState(default_selections, len(question.options))
+            initial_state = MultiSelectionState(default_selections, len(question.options))
         else:
-            initial_state = SingleSelectState(question.default_index, len(question.options))
+            initial_state = SingleSelectionState(question.default_index, len(question.options))
 
         context = PipelineContext(
             question=question,

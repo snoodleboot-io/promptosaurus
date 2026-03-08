@@ -2,7 +2,7 @@
 
 from promptosaurus.ui.commands.result import CommandResult
 from promptosaurus.ui.domain.context import PipelineContext
-from promptosaurus.ui.state.multi import MultiSelectState
+from promptosaurus.ui.state.multi_selection_state import MultiSelectionState
 
 
 class ConfirmCommand:
@@ -30,7 +30,7 @@ class ConfirmCommand:
                 selection = {s for s in selection if s != explain_index}
                 return CommandResult(
                     continue_pipeline=True,
-                    new_state=MultiSelectState(selection, len(context.question.options)),
+                    new_state=MultiSelectionState(selection, len(context.question.options)),
                     transition_to="explain",
                 )
             return CommandResult(

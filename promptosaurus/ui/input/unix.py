@@ -26,7 +26,8 @@ class UnixInputProvider(InputProvider):
         finally:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)  # type: ignore[attr-defined]
 
-    def _parse_key(self, key: str, stdin) -> InputEvent:
+    @staticmethod
+    def _parse_key(key: str, stdin) -> InputEvent:
         """Parse Unix key codes into events."""
         if key == "\r":
             return InputEvent(event_type=InputEventType.ENTER)

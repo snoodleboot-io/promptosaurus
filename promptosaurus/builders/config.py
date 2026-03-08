@@ -31,6 +31,14 @@ class KiloConfig:
         self._language_map_path = language_map_path or self._default_language_map_path()
         self._kilo_modes: dict[str, Any] | None = None
         self._language_file_map: dict[str, str] | None = None
+        # Internal class variable for core files (not a constant)
+        self._base_files = frozenset(
+            [
+                "agents/core/core-system.md",
+                "agents/core/core-conventions.md",
+                "agents/core/core-session.md",
+            ]
+        )
 
     @staticmethod
     def _default_modes_path() -> Path:
@@ -61,6 +69,15 @@ class KiloConfig:
         if self._language_file_map is None:
             self._language_file_map = self._load_language_map()
         return self._language_file_map
+
+    @property
+    def base_files(self) -> frozenset[str]:
+        """Return set of core base files needed for .kilocode/rules/.
+
+        Returns:
+            Frozenset of core file paths.
+        """
+        return self._base_files
 
     def _load_modes(self) -> dict[str, Any]:
         """Load custom modes from YAML file.

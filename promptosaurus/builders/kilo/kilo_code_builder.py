@@ -23,14 +23,6 @@ class KiloCodeBuilder(Builder):
         config: Optional KiloConfig instance. If not provided, uses default config.
     """
 
-    # Base files that are always included in output
-    BASE_FILES = frozenset(
-        {
-            "agents/core/core-system.md",
-            "agents/core/core-conventions.md",
-        }
-    )
-
     # Modes that are built-in to Kilo and should not be generated in output
     _kilo_builtin_modes = frozenset(
         {
@@ -41,9 +33,6 @@ class KiloCodeBuilder(Builder):
             "orchestrator",
         }
     )
-
-    # Public alias for built-in modes
-    KILO_BUILTIN_MODES = _kilo_builtin_modes
 
     def __init__(self, config: KiloConfig | None = None) -> None:
         """Initialize builder with optional config.

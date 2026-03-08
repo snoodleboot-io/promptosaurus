@@ -260,7 +260,7 @@ def switch_command(tool_name: str | None):
 
     # Get current tool
     artifact_manager = ArtifactManager()
-    current_tool = artifact_manager.get_current_tool()
+    current_tool = artifact_manager.current_tool
 
     click.echo("\n" + "=" * 60)
     click.secho("  Switching AI Tool", bold=True, fg="cyan")

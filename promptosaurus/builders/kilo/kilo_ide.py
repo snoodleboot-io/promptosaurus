@@ -110,7 +110,7 @@ class KiloIDEBuilder(KiloCodeBuilder):
         actions.append(self._create_agents_md(output, dry_run))
 
         # 2. Create core files in .kilocode/rules/
-        for filename in self.BASE_FILES:
+        for filename in self._config.base_files:
             source_path = registry.prompt_path(filename)
             if not source_path.exists():
                 continue

@@ -17,7 +17,8 @@ class WindowsInputProvider(InputProvider):
             key = msvcrt.getch()  # type: ignore[attr-defined]
             yield self._parse_key(key, msvcrt)
 
-    def _parse_key(self, key: bytes, msvcrt) -> InputEvent:
+    @staticmethod
+    def _parse_key(key: bytes, msvcrt) -> InputEvent:
         """Parse Windows key codes into events."""
         # Convert to int for easier comparison
         key_code = key[0] if key else 0

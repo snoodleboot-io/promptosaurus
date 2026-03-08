@@ -11,7 +11,8 @@ from promptosaurus.ui.domain.events import InputEvent, InputEventType
 class CommandFactory:
     """Factory for creating commands from input events."""
 
-    def create_command(self, event: InputEvent) -> object:
+    @staticmethod
+    def create_command(event: InputEvent) -> object:
         """Create command from input event."""
         if event.event_type == InputEventType.NUMBER and event.value is not None:
             return SelectCommand(event.value)

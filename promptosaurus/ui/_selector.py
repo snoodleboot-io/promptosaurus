@@ -1,10 +1,10 @@
 """Public UI API - main entry point for interactive selection."""
 
-from promptosaurus.ui._factory import UIFactory
 from promptosaurus.ui.domain.context import QuestionContext
 from promptosaurus.ui.pipeline.orchestrator import PipelineOrchestrator
 from promptosaurus.ui.pipeline.render_stage import RenderStage
 from promptosaurus.ui.pipeline.state_update_stage import StateUpdateStage
+from promptosaurus.ui.ui_factory import UIFactory
 
 
 def select_option_with_explain(
