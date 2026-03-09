@@ -6,7 +6,7 @@ Version Schema: MAJOR.MINOR.PATCH[-RUN]
 
 - MAJOR: From CI/CD environment (MAJOR_VERSION)
 - MINOR: Latest MINOR on PyPI for that MAJOR + 1
-- PATCH: PR number
+- PATCH: PR number (or timestamp hash for non-PR pushes)
 - -RUN: GitHub run number (only for TestPyPI preview builds)
 
 PyPI is queried to determine the baseline version. If PyPI query fails,
@@ -18,6 +18,7 @@ import os
 import re
 import sys
 import urllib.request
+from datetime import datetime
 
 
 class VersionCalculator:
@@ -43,8 +44,9 @@ class VersionCalculator:
                 version = data["info"]["version"]
 
                 # Parse version (handle formats like 1.2.3, 1.2.3-beta, etc.)
-                # Strip any pre-release/build suffixes
-                version = re.split(r"[+-]", version)[0]
+                # Strip any pre-release/build suffixes like .post, .dev, etc.
+                # PEP 440: X.Y.Y.devN, X.Y.YaN, X.Y.YbN, X.Y.YrcN, X.Y.Y, X.Y.Y.postN
+                version = re.split(r"[.+-]", version)[0]
                 parts = version.split(".")
 
                 major = int(parts[0]) if len(parts) > 0 else 0
@@ -61,6 +63,7 @@ class VersionCalculator:
         pr_number: str | None,
         run_number: str | None,
         is_testpypi: bool,
+        is_pr: bool,
     ) -> str:
         """
         Calculate version based on PyPI history and PR context.
@@ -70,6 +73,7 @@ class VersionCalculator:
             pr_number: PR number from GitHub event
             run_number: GitHub run number
             is_testpypi: Whether this is a TestPyPI build
+            is_pr: Whether this is a PR event
 
         Returns:
             Version string
@@ -92,10 +96,18 @@ class VersionCalculator:
             else:
                 new_minor = 1
 
-        # PATCH is PR number (required for both TestPyPI and PyPI)
+        # PATCH is PR number for PRs, or timestamp-based for non-PR pushes
         if pr_number is None:
-            print("ERROR: PR number is required for versioning")
-            sys.exit(1)
+            if is_pr:
+                print("ERROR: PR number is required for PR builds")
+                sys.exit(1)
+            # For non-PR pushes (feature branches), use timestamp-based dev version
+            # Format: 0.0.0.devHHMMSS where HHMMSS is hour/minute/second
+            now = datetime.now()
+            dev_suffix = now.strftime("%H%M%S")
+            version = f"{major}.{new_minor}.0.dev{dev_suffix}"
+            print(f"Non-PR push: using dev version {version}")
+            return version
 
         # Build version: MAJOR.MINOR.PATCH[-RUN]
         version = f"{major}.{new_minor}.{pr_number}"
@@ -150,6 +162,7 @@ def main():
         pr_number=pr_number,
         run_number=run_number,
         is_testpypi=is_testpypi,
+        is_pr=is_pr,
     )
 
     # Output for GitHub Actions
@@ -164,6 +177,7 @@ def main():
     print(f"Publish PyPI: {is_pypi}")
     print(f"PR Number: {pr_number}")
     print(f"Major: {major}")
+    print(f"Is PR: {is_pr}")
 
     return version
 
