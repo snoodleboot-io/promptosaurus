@@ -102,13 +102,21 @@ class VersionCalculator:
             if is_pr:
                 print("ERROR: PR number is required for PR builds")
                 sys.exit(1)
-            # For non-PR pushes (feature branches), use timestamp-based dev version
-            # Format: 0.0.0.devHHMMSS where HHMMSS is hour/minute/second
-            now = datetime.now()
-            dev_suffix = now.strftime("%H%M%S")
-            version = f"{major}.{new_minor}.0.dev{dev_suffix}"
-            print(f"Non-PR push: using dev version {version}")
-            return version
+            # Check if we are on the main branch
+            github_ref = os.environ.get("GITHUB_REF", "").strip()
+            if github_ref == "refs/heads/main":
+                # For pushes to main, use a release version (without dev suffix)
+                version = f"{major}.{new_minor}.0"
+                print(f"Push to main: using release version {version}")
+                return version
+            else:
+                # For non-PR pushes (feature branches), use timestamp-based dev version
+                # Format: 0.0.0.devHHMMSS where HHMMSS is hour/minute/second
+                now = datetime.now()
+                dev_suffix = now.strftime("%H%M%S")
+                version = f"{major}.{new_minor}.0.dev{dev_suffix}"
+                print(f"Non-PR push: using dev version {version}")
+                return version
 
         # Build version: MAJOR.MINOR.PATCH[-RUN]
         version = f"{major}.{new_minor}.{pr_number}"
@@ -121,67 +129,72 @@ class VersionCalculator:
         return version
 
 
-def main():
-    """Main entry point for CI/CD integration."""
-    # Get package name from environment or use default (strip whitespace)
-    package_name = os.environ.get("PACKAGE_NAME", "promptosaurus").strip()
+    def main():
+        """Main entry point for CI/CD integration."""
+        # Get package name from environment or use default (strip whitespace)
+        package_name = os.environ.get("PACKAGE_NAME", "promptosaurus").strip()
 
-    # Get MAJOR version from environment
-    env_major = os.environ.get("MAJOR_VERSION", "0").strip()
-    try:
-        major = int(env_major)
-    except ValueError:
-        print(f"ERROR: Invalid MAJOR_VERSION '{env_major}', defaulting to 0")
-        major = 0
+        # Get MAJOR version from environment
+        env_major = os.environ.get("MAJOR_VERSION", "0").strip()
+        try:
+            major = int(env_major)
+        except ValueError:
+            print(f"ERROR: Invalid MAJOR_VERSION '{env_major}', defaulting to 0")
+            major = 0
 
-    # Get GitHub context
-    event_name = os.environ.get("GITHUB_EVENT_NAME", "push").strip()
-    action = os.environ.get("GITHUB_ACTION", "").strip()
-    base_ref = os.environ.get("GITHUB_BASE_REF", "").strip()
-    run_number = os.environ.get("GITHUB_RUN_NUMBER", "").strip()
+        # Get GitHub context
+        event_name = os.environ.get("GITHUB_EVENT_NAME", "push").strip()
+        action = os.environ.get("GITHUB_ACTION", "").strip()
+        base_ref = os.environ.get("GITHUB_BASE_REF", "").strip()
+        run_number = os.environ.get("GITHUB_RUN_NUMBER", "").strip()
+        github_ref = os.environ.get("GITHUB_REF", "").strip()
 
-    # Determine if this is a PR
-    is_pr = event_name == "pull_request"
-    is_pr_to_main = base_ref == "refs/heads/main" or base_ref == "main"
+        # Determine if this is a PR
+        is_pr = event_name == "pull_request"
+        is_pr_to_main = base_ref == "refs/heads/main" or base_ref == "main"
 
-    # Extract PR number from event
-    pr_number = None
-    if is_pr:
-        # Try to get PR number from GITHUB_REF (format: refs/pull/28/merge)
-        ref = os.environ.get("GITHUB_REF", "").strip()
-        match = re.search(r"refs/pull/(\d+)/", ref)
-        if match:
-            pr_number = match.group(1)
+        # Extract PR number from event
+        pr_number = None
+        if is_pr:
+            # Try to get PR number from GITHUB_REF (format: refs/pull/28/merge)
+            ref = os.environ.get("GITHUB_REF", "").strip()
+            match = re.search(r"refs/pull/(\d+)/", ref)
+            if match:
+                pr_number = match.group(1)
 
-    # Determine publishing targets
-    is_testpypi = is_pr and is_pr_to_main and action != "closed"
-    is_pypi = is_pr and action == "closed" and is_pr_to_main
+        # Determine publishing targets
+        is_testpypi = is_pr and is_pr_to_main and action != "closed"
+        is_pypi = is_pr and action == "closed" and is_pr_to_main
 
-    # Calculate version
-    calculator = VersionCalculator(package_name)
-    version = calculator.calculate_version(
-        major=major,
-        pr_number=pr_number,
-        run_number=run_number,
-        is_testpypi=is_testpypi,
-        is_pr=is_pr,
-    )
+        # Debug information
+        print(f"DEBUG: GITHUB_REF='{github_ref}', GITHUB_EVENT_NAME='{event_name}', GITHUB_ACTION='{action}', GITHUB_BASE_REF='{base_ref}', GITHUB_RUN_NUMBER='{run_number}'")
+        print(f"DEBUG: is_pr={is_pr}, is_pr_to_main={is_pr_to_main}, pr_number={pr_number}, is_testpypi={is_testpypi}, is_pypi={is_pypi}")
 
-    # Output for GitHub Actions
-    if "GITHUB_OUTPUT" in os.environ:
-        with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-            f.write(f"version={version}\n")
-            f.write(f"should_publish_testpypi={str(is_testpypi).lower()}\n")
-            f.write(f"should_publish_pypi={str(is_pypi).lower()}\n")
+        # Calculate version
+        calculator = VersionCalculator(package_name)
+        version = calculator.calculate_version(
+            major=major,
+            pr_number=pr_number,
+            run_number=run_number,
+            is_testpypi=is_testpypi,
+            is_pr=is_pr,
+        )
 
-    print(f"Version: {version}")
-    print(f"Publish TestPyPI: {is_testpypi}")
-    print(f"Publish PyPI: {is_pypi}")
-    print(f"PR Number: {pr_number}")
-    print(f"Major: {major}")
-    print(f"Is PR: {is_pr}")
+        # Output for GitHub Actions
+        if "GITHUB_OUTPUT" in os.environ:
+            with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                f.write(f"version={version}\n")
+                f.write(f"should_publish_testpypi={str(is_testpypi).lower()}\n")
+                f.write(f"should_publish_pypi={str(is_pypi).lower()}\n")
 
-    return version
+        print(f"Version: {version}")
+        print(f"Publish TestPyPI: {is_testpypi}")
+        print(f"Publish PyPI: {is_pypi}")
+        print(f"PR Number: {pr_number}")
+        print(f"Major: {major}")
+        print(f"Is PR: {is_pr}")
+
+        return version
 
 
 if __name__ == "__main__":
