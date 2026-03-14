@@ -47,11 +47,11 @@ class VersionCalculator:
                 # We want to extract the major and minor version numbers
                 # Split on '.' to get parts
                 parts = version.split(".")
-                
+
                 if len(parts) < 2:
                     # Not enough parts for major.minor
                     return None
-                    
+
                 # Extract major (first part)
                 try:
                     major = int(parts[0])
@@ -66,7 +66,7 @@ class VersionCalculator:
                     if not major_str:
                         return None
                     major = int(major_str)
-                
+
                 # Extract minor (second part)
                 try:
                     minor = int(parts[1])
@@ -83,7 +83,7 @@ class VersionCalculator:
                         minor = 0
                     else:
                         minor = int(minor_str)
-                
+
                 return (major, minor)
         except Exception as e:
             print(f"PyPI query failed: {e}", file=sys.stderr)
@@ -136,12 +136,12 @@ class VersionCalculator:
             # Check if we are on the main branch
             github_ref = os.environ.get("GITHUB_REF", "").strip()
             is_main_branch = github_ref == "refs/heads/main"
-            
+
             # Also check IS_MAIN environment variable as fallback
             is_main_env = os.environ.get("IS_MAIN", "").strip().lower()
             if is_main_env == "true":
                 is_main_branch = True
-                
+
             if is_main_branch:
                 # For pushes to main, use a release version (without dev suffix)
                 version = f"{major}.{new_minor}.0.0"
