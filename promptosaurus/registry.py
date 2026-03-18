@@ -257,6 +257,7 @@ class Registry(BaseModel):
         ],
         "planning": [
             "agents/project_planning/planning.md",
+            "agents/project_planning/methodology.md",
         ],
     }
 
@@ -297,6 +298,7 @@ class Registry(BaseModel):
         ("META / PROCESS", "agents/orchestrator/subagents/orchestrator-meta.md"),
         ("ENFORCEMENT", "agents/enforcement/enforcement.md"),
         ("PLANNING", "agents/project_planning/planning.md"),
+        ("PLANNING METHODOLOGY", "agents/project_planning/methodology.md"),
     ]
 
     # ── Default ignore patterns for all agents ─────────────────────────────
