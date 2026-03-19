@@ -14,13 +14,90 @@ Example:
     ...     def build(self, output, config=None, dry_run=False):
     ...         # Implementation
     ...         return ["Created config files"]
-"""
+    """
 
+from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, List, Callable, Optional
+
+from promptosaurus.builders.template_handlers.template_handler import TemplateHandler
 
 from promptosaurus.registry import registry
+
+
+@runtime_checkable
+class TemplateVariableHandler(Protocol):
+    """Protocol for template variable handlers."""
+
+    def can_handle(self, variable_name: str) -> bool:
+        """Determine if this handler can process the given variable.
+
+        Args:
+            variable_name: The name of the template variable (without braces)
+
+        Returns:
+            True if this handler can process the variable, False otherwise
+        """
+        ...
+
+    def handle(self, variable_name: str, config: Dict[str, Any]) -> str:
+        """Handle the template variable substitution.
+
+        Args:
+            variable_name: The name of the template variable (without braces)
+            config: The configuration dictionary
+
+        Returns:
+            The substituted value for the template variable
+        """
+        ...
+
+
+class TemplateHandlerRegistry:
+    """Registry for template variable handlers."""
+
+    def __init__(self):
+        self._handlers: List[TemplateVariableHandler] = []
+
+    def register_handler(self, handler: TemplateVariableHandler) -> None:
+        """Register a template variable handler.
+
+        Args:
+            handler: The handler to register
+        """
+        self._handlers.append(handler)
+
+    def unregister_handler(self, handler: TemplateVariableHandler) -> None:
+        """Unregister a template variable handler.
+
+        Args:
+            handler: The handler to unregister
+        """
+        if handler in self._handlers:
+            self._handlers.remove(handler)
+
+    def get_handlers(self) -> List[TemplateVariableHandler]:
+        """Get all registered handlers.
+
+        Returns:
+            List of registered template variable handlers
+        """
+        return self._handlers.copy()
+
+    def get_handler_for_variable(self, variable_name: str) -> Optional[TemplateVariableHandler]:
+        """Get the first handler that can handle the given variable.
+
+        Args:
+            variable_name: The name of the template variable (without braces)
+
+        Returns:
+            The handler that can process the variable, or None if no handler can
+        """
+        for handler in self._handlers:
+            if handler.can_handle(variable_name):
+                return handler
+        return None
 
 
 class Builder:
@@ -46,6 +123,16 @@ class Builder:
         "agents/core/core-session.md",
     ]
 
+    def __init__(self, template_handler_factory: Callable[[], List[TemplateHandler]] = None):
+        """Initialize the builder with a template handler factory.
+
+        Args:
+            template_handler_factory: Optional factory that returns a list of TemplateHandler instances.
+                                      If None, uses default factory with standard handlers.
+        """
+        self._template_handler_factory = template_handler_factory or self._get_default_template_handler_factory()
+        self._template_handlers = self._template_handler_factory()
+
     def build(
         self, output: Path, config: dict[str, Any] | None = None, dry_run: bool = False
     ) -> list[str]:
@@ -60,22 +147,38 @@ class Builder:
             dry_run: If True, preview what would be written without touching filesystem.
 
         Returns:
-            List of action strings describing what was done.
-
-        Raises:
-            NotImplementedError: If subclass doesn't implement this method.
+            List of messages describing what was done (or would have been done).
         """
-        raise NotImplementedError("Subclasses must implement build()")
+        raise NotImplementedError
 
-    @classmethod
-    def _build_concatenated(cls, tool_comment: str, config: dict[str, Any] | None = None) -> str:
-        """Returns the full text of a concatenated rules file.
+    def build(
+        self, output: Path, config: dict[str, Any] | None = None, dry_run: bool = False
+    ) -> list[str]:
+        """Build output configs.
 
-        This helper method creates a concatenated rules file by combining all
-        prompts in the registry's concat_order, with section headers.
+        This method should be overridden by subclasses to generate tool-specific
+        configuration files.
 
         Args:
-            tool_comment: First-line comment identifying the tool (e.g., '# .clinerules').
+            output: Directory to write output into.
+            config: Optional configuration dict with template variables.
+            dry_run: If True, preview what would be written without touching filesystem.
+
+        Returns:
+            List of messages describing what was done (or would have been done).
+        """
+        raise NotImplementedError
+
+    def _build_concatenated_content(
+        cls, tool_comment: str, config: dict[str, Any] | None = None
+    ) -> str:
+        """Create concatenated rules file content.
+
+        This method creates the content for a concatenated rules file by
+        combining all the prompt files in the registry's concat_order.
+
+        Args:
+            tool_comment: Comment string to identify the tool (e.g., '# .clinerules').
             config: Optional configuration dict with template variables.
 
         Returns:
@@ -116,92 +219,191 @@ class Builder:
 
         return "\n".join(lines) + "\n"
 
-    def _substitute_template_variables(self, content: str, config: dict[str, Any]) -> str:
+    def _substitute_template_variables(self, content: str, config: dict[str, Any] | None = None) -> str:
         """Replace {{VARIABLE}} templates with values from config.
 
         This method performs template variable substitution on content,
         replacing placeholders like {{LANGUAGE}} with actual values
-        from the configuration.
+        from the configuration. It uses registered template variable handlers
+        to determine how to substitute each variable.
 
         Args:
             content: The template content with {{VARIABLE}} placeholders.
-            config: Configuration dict containing spec values.
+            config: Optional configuration dict containing spec values.
 
         Returns:
             Content with all template variables replaced.
         """
-        defaults = config.get("spec", {}) if config else {}
+        if config is None:
+            config = {}
+
         # Handle both single-language (dict) and multi-language (list) configs
-        if isinstance(defaults, list):
+        if isinstance(config.get("spec"), list):
             # Multi-language monorepo: get config from first folder
-            defaults = defaults[0] if defaults else {}
-
-        def format_value(value: Any) -> str:
-            """Format a value for substitution, handling lists."""
-            if isinstance(value, list):
-                return ", ".join(str(v) for v in value)
-            return str(value) if value is not None else ""
-
-        # Build mapping of template variables to config values
-        substitutions: dict[str, str] = {
-            "{{LANGUAGE}}": format_value(defaults.get("language", "")),
-            "{{RUNTIME}}": format_value(defaults.get("runtime", "")),
-            "{{PACKAGE_MANAGER}}": format_value(defaults.get("package_manager", "")),
-            "{{LINTER}}": format_value(defaults.get("linter", "")),
-            "{{FORMATTER}}": format_value(defaults.get("formatter", "")),
-            "{{ABSTRACT_CLASS_STYLE}}": format_value(defaults.get("abstract_class_style", "")),
-            "{{TESTING_FRAMEWORK}}": format_value(defaults.get("test_framework", "")),
-            "{{TEST_RUNNER}}": format_value(defaults.get("test_runner", "")),
-        }
-
-        # Add coverage variables
-        # Coverage can be either a dict (legacy) or a string preset from the question
-        coverage_value = defaults.get("coverage", {})
-
-        # If coverage is a string preset, convert it to a dict
-        if isinstance(coverage_value, str):
-            COVERAGE_PRESETS = {
-                "strict": {
-                    "line": 90,
-                    "branch": 80,
-                    "function": 95,
-                    "statement": 90,
-                    "mutation": 85,
-                    "path": 70,
-                },
-                "standard": {
-                    "line": 80,
-                    "branch": 70,
-                    "function": 90,
-                    "statement": 85,
-                    "mutation": 80,
-                    "path": 60,
-                },
-                "minimal": {
-                    "line": 70,
-                    "branch": 60,
-                    "function": 80,
-                    "statement": 75,
-                    "mutation": 70,
-                    "path": 50,
-                },
-            }
-            coverage = COVERAGE_PRESETS.get(coverage_value, {})
+            config = config.get("spec", [{}])[0] if config.get("spec") else {}
         else:
-            coverage = coverage_value if isinstance(coverage_value, dict) else {}
+            config = config.get("spec", {})
 
-        substitutions["{{LINE_COVERAGE_%}}"] = str(coverage.get("line", 80))
-        substitutions["{{BRANCH_COVERAGE_%}}"] = str(coverage.get("branch", 70))
-        substitutions["{{FUNCTION_COVERAGE_%}}"] = str(coverage.get("function", 90))
-        substitutions["{{STATEMENT_COVERAGE_%}}"] = str(coverage.get("statement", 85))
-        substitutions["{{MUTATION_COVERAGE_%}}"] = str(coverage.get("mutation", 80))
-        substitutions["{{PATH_COVERAGE_%}}"] = str(coverage.get("path", 60))
+        # Import regex here to avoid top-level import if not used
+        import re
+
+        # Find all template variables in the content
+        template_pattern = r'\{\{([A-Z_][A-Z0-9_]*)\}\}'
+        matches = re.findall(template_pattern, content)
+
+        # Process each unique template variable
+        substitutions = {}
+        for var_name in set(matches):
+            template_var = f"{{{{{var_name}}}}}"
+            value = self._get_variable_value(var_name, config)
+            if value is not None:  # Only substitute if we have a value
+                substitutions[template_var] = value
 
         # Perform substitutions
         for template_var, value in substitutions.items():
             content = content.replace(template_var, value)
 
         return content
+
+    def _get_variable_value(self, variable_name: str, config: Dict[str, Any]) -> str:
+        """Get the value for a template variable by consulting registered handlers.
+
+        Args:
+            variable_name: The name of the template variable (without braces)
+            config: The configuration dictionary
+
+        Returns:
+            The substituted value, or None if no handler can process the variable
+        """
+        handler = self._template_handler_registry.get_handler_for_variable(variable_name)
+        if handler:
+            return handler.handle(variable_name, config)
+        return None
+
+    def register_template_handler(self, handler: TemplateVariableHandler) -> None:
+        """Register a custom template variable handler.
+
+        Args:
+            handler: The handler to register
+        """
+        self._template_handler_registry.register_handler(handler)
+
+    def unregister_template_handler(self, handler: TemplateVariableHandler) -> None:
+        """Unregister a template variable handler.
+
+        Args:
+            handler: The handler to unregister
+        """
+        self._template_handler_registry.unregister_handler(handler)
+
+    def _get_default_template_handler_registry(self) -> TemplateHandlerRegistry:
+        """Get the default template variable handler registry by dynamically loading them.
+
+        Returns:
+            TemplateHandlerRegistry with default template variable handlers
+        """
+        registry = TemplateHandlerRegistry()
+
+        # Import and instantiate all handler classes from the template_handlers package
+        try:
+            import pkg_resources
+            from promptosaurus.builders.template_handlers import (
+                language_handler,
+                runtime_handler,
+                package_manager_handler,
+                linter_handler,
+                formatter_handler,
+                abstract_class_style_handler,
+                mocking_library_handler,
+                coverage_tool_handler,
+                mutation_tool_handler,
+                framework_handler,
+                e2e_tool_handler,
+                testing_framework_handler,
+                test_runner_handler,
+                coverage_handler
+            )
+
+            # Get all handler classes from the modules
+            handler_classes = []
+
+            # Language handler
+            if hasattr(language_handler, 'LanguageHandler'):
+                handler_classes.append(language_handler.LanguageHandler)
+
+            # Runtime handler
+            if hasattr(runtime_handler, 'RuntimeHandler'):
+                handler_classes.append(runtime_handler.RuntimeHandler)
+
+            # Package manager handler
+            if hasattr(package_manager_handler, 'PackageManagerHandler'):
+                handler_classes.append(package_manager_handler.PackageManagerHandler)
+
+            # Linter handler
+            if hasattr(linter_handler, 'LinterHandler'):
+                handler_classes.append(linter_handler.LinterHandler)
+
+            # Formatter handler
+            if hasattr(formatter_handler, 'FormatterHandler'):
+                handler_classes.append(formatter_handler.FormatterHandler)
+
+            # Abstract class style handler
+            if hasattr(abstract_class_style_handler, 'AbstractClassStyleHandler'):
+                handler_classes.append(abstract_class_style_handler.AbstractClassStyleHandler)
+
+            # Mocking library handler
+            if hasattr(mocking_library_handler, 'MockingLibraryHandler'):
+                handler_classes.append(mocking_library_handler.MockingLibraryHandler)
+
+            # Coverage tool handler
+            if hasattr(coverage_tool_handler, 'CoverageToolHandler'):
+                handler_classes.append(coverage_tool_handler.CoverageToolHandler)
+
+            # Mutation tool handler
+            if hasattr(mutation_tool_handler, 'MutationToolHandler'):
+                handler_classes.append(mutation_tool_handler.MutationToolHandler)
+
+            # Framework handler
+            if hasattr(framework_handler, 'FrameworkHandler'):
+                handler_classes.append(framework_handler.FrameworkHandler)
+
+            # E2E tool handler
+            if hasattr(e2e_tool_handler, 'E2EToolHandler'):
+                handler_classes.append(e2e_tool_handler.E2EToolHandler)
+
+            # Testing framework handler
+            if hasattr(testing_framework_handler, 'TestingFrameworkHandler'):
+                handler_classes.append(testing_framework_handler.TestingFrameworkHandler)
+
+            # Test runner handler
+            if hasattr(test_runner_handler, 'TestRunnerHandler'):
+                handler_classes.append(test_runner_handler.TestRunnerHandler)
+
+            # Coverage handler
+            if hasattr(coverage_handler, 'CoverageHandler'):
+                handler_classes.append(coverage_handler.CoverageHandler)
+
+            # Instantiate all handler classes and register them
+            for cls in handler_classes:
+                registry.register_handler(cls())
+
+        except ImportError as e:
+            # Fallback to original handlers if dynamic loading fails
+            fallback_handlers = [
+                LanguageHandler(),
+                RuntimeHandler(),
+                PackageManagerHandler(),
+                LinterHandler(),
+                FormatterHandler(),
+                AbstractClassStyleHandler(),
+                TestingFrameworkHandler(),
+                TestRunnerHandler(),
+                CoverageHandler()
+            ]
+            for handler in fallback_handlers:
+                registry.register_handler(handler)
+
+        return registry
 
     def _copy(
         self,
@@ -241,3 +443,4 @@ class Builder:
             shutil.copy2(source_path, destination)
 
         return f"✓ {source_path.name} → {label}"
+
