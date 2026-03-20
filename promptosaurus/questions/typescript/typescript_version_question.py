@@ -20,3 +20,11 @@ class TypeScriptVersionQuestion(Question):
 
 - Newer versions have better inference and more features
 - Older versions have better ecosystem compatibility"""
+
+    @property
+    def options(self) -> list[str]:
+        return ["5.4", "5.x", "5.3", "5.0", "4.x", "3.x"]
+
+    @property
+    def default(self) -> str:
+        return "5.x"
