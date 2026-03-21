@@ -555,7 +555,8 @@ def init_prompts():
             click.echo("-" * 60)
 
             output_path = Path(".")
-            builder_class = _get_builder(selected_tool)  # type: ignore[arg-type]
+            normalized_tool = normalize_tool_name(selected_tool)
+            builder_class = _get_builder(normalized_tool)  # type: ignore[arg-type]
             if builder_class:
                 builder = builder_class()
                 actions = builder.build(output_path, config=config, dry_run=False)
@@ -813,8 +814,21 @@ def _get_builder(tool: str) -> type[Builder]:
         The builder class for the given tool, or None if tool is not recognized.
 
     """
+    # Map normalized display names to actual class names expected by the factory
+    TOOL_TO_CLASS_MAPPING = {
+        "kilo-cli": "KiloCLIBuilder",
+        "kilo-ide": "KiloIDEBuilder",
+        "cline": "ClineBuilder",
+        "cursor": "CursorBuilder",
+        "copilot": "CopilotBuilder",
+    }
 
-    return cast(type[Builder], AbstractInverterFactory[Builder].create(key=tool))
+    # Get the class name from the mapping
+    class_name = TOOL_TO_CLASS_MAPPING.get(tool)
+    if not class_name:
+        raise ValueError(f"Unknown tool: {tool}")
+
+    return cast(type[Builder], AbstractInverterFactory[Builder].create(key=class_name))
 
 
 # ── validate ───────────────────────────────────────────────────────────────────
