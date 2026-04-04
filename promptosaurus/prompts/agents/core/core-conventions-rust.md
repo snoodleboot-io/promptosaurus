@@ -1,11 +1,11 @@
 <!-- path: promptosaurus/prompts/agents/core/core-conventions-rust.md -->
 # Core Conventions Rust
 
-Language:             {{LANGUAGE}}           e.g., Rust 1.75
-Runtime:              {{RUNTIME}}            e.g., Native, WASM
-Package Manager:      {{PACKAGE_MANAGER}}        e.g., Cargo
-Linter:               {{LINTER}}             e.g., Clippy
-Formatter:           {{FORMATTER}}          e.g., rustfmt
+Language:             {{config.language}}           e.g., Rust 1.75
+Runtime:              {{config.runtime}}            e.g., Native, WASM
+Package Manager:      {{config.package_manager}}        e.g., Cargo
+Linter:               {{config.linter}}             e.g., Clippy
+Formatter:           {{config.formatter}}          e.g., rustfmt
 
 ### Naming Conventions
 
@@ -39,12 +39,12 @@ Environment vars:   UPPER_SNAKE_CASE always
 ### Testing
 
 #### Coverage Targets
-Line:           {{LINE_COVERAGE_%}}          e.g., 80%
-Branch:         {{BRANCH_COVERAGE_%}}        e.g., 70%
-Function:       {{FUNCTION_COVERAGE_%}}       e.g., 90%
-Statement:      {{STATEMENT_COVERAGE_%}}      e.g., 85%
-Mutation:       {{MUTATION_COVERAGE_%}}       e.g., 80%
-Path:           {{PATH_COVERAGE_%}}           e.g., 60%
+Line:           {{config.coverage.line}}          e.g., 80%
+Branch:         {{config.coverage.branch}}        e.g., 70%
+Function:       {{config.coverage.function}}       e.g., 90%
+Statement:      {{config.coverage.statement}}      e.g., 85%
+Mutation:       {{config.coverage.mutation}}       e.g., 80%
+Path:           {{config.coverage.path}}           e.g., 60%
 
 #### Test Types
 
@@ -68,10 +68,10 @@ Path:           {{PATH_COVERAGE_%}}           e.g., 60%
 - Test parsing and input validation
 
 #### Framework & Tools
-Framework:       {{TESTING_FRAMEWORK}}        e.g., built-in, rstest
-Property tool:   {{PROPERTY_TOOL}}        e.g., proptest, quickcheck
-Coverage tool:  {{COVERAGE_TOOL}}              e.g., tarpaulin, grcov
-Fuzz tool:      {{FUZZ_TOOL}}            e.g., cargo-fuzz
+Framework:       {{config.testing_framework}}        e.g., built-in, rstest
+Property tool:   {{config.property_tool}}        e.g., proptest, quickcheck
+Coverage tool:  {{config.coverage_tool}}              e.g., tarpaulin, grcov
+Fuzz tool:      {{config.fuzz_tool}}            e.g., cargo-fuzz
 
 #### Scaffolding
 

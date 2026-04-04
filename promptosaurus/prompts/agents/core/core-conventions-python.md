@@ -1,12 +1,12 @@
 <!-- path: promptosaurus/prompts/agents/core/core-conventions-python.md -->
 # Core Conventions Python
 
-Language:             {{LANGUAGE}}           e.g., Python 3.11+
-Runtime:              {{RUNTIME}}            e.g., CPython 3.11, PyPy
-Package Manager:      {{PACKAGE_MANAGER}}        e.g., poetry, pip, uv
-Linter:               {{LINTER}}             e.g., Ruff, flake8
-Formatter:           {{FORMATTER}}          e.g., Ruff, Black
-Abstract Class Style: {{ABSTRACT_CLASS_STYLE}}  e.g., abc, interface
+Language:             {{config.language | default('python')}}           e.g., Python 3.11+
+Runtime:              {{config.runtime | default('CPython 3.11')}}            e.g., CPython 3.11, PyPy
+Package Manager:      {{config.package_manager | default('uv')}}        e.g., poetry, pip, uv
+Linter:               {{config.linter | default(['ruff', 'pyright'])}}             e.g., Ruff, flake8
+Formatter:           {{config.formatter | default(['ruff'])}}          e.g., Ruff, Black
+Abstract Class Style: {{config.abstract_class_style | default('interface')}}  e.g., abc, interface
 
 ### Naming Conventions
 
@@ -76,12 +76,12 @@ Environment vars:    UPPER_SNAKE_CASE always
 ### Testing
 
 #### Coverage Targets
-Line:           {{LINE_COVERAGE_%}}          e.g., 80%
-Branch:         {{BRANCH_COVERAGE_%}}        e.g., 70%
-Function:       {{FUNCTION_COVERAGE_%}}       e.g., 90%
-Statement:      {{STATEMENT_COVERAGE_%}}      e.g., 85%
-Mutation:       {{MUTATION_COVERAGE_%}}       e.g., 80%
-Path:           {{PATH_COVERAGE_%}}           e.g., 60%
+Line:           {{config.coverage.line}}          e.g., 80%
+Branch:         {{config.coverage.branch}}        e.g., 70%
+Function:       {{config.coverage.function}}       e.g., 90%
+Statement:      {{config.coverage.statement}}      e.g., 85%
+Mutation:       {{config.coverage.mutation}}       e.g., 80%
+Path:           {{config.coverage.path}}           e.g., 60%
 
 #### Test Types
 
@@ -108,10 +108,10 @@ Path:           {{PATH_COVERAGE_%}}           e.g., 60%
 - Test edge cases automatically generated
 
 #### Framework & Tools
-Framework:         {{TESTING_FRAMEWORK}}       e.g., pytest
-Mocking library:   {{MOCKING_LIBRARY}}             e.g., unittest.mock, pytest-mock
-Coverage tool:    {{COVERAGE_TOOL}}             e.g., pytest-cov, coverage.py
-Mutation tool:    {{MUTATION_TOOL}}        e.g., mutmut, pytest-mutmut
+Framework:         {{config.testing_framework}}       e.g., pytest
+Mocking library:   {{config.mocking_library}}             e.g., unittest.mock, pytest-mock
+Coverage tool:    {{config.coverage_tool}}             e.g., pytest-cov, coverage.py
+Mutation tool:    {{config.mutation_tool}}        e.g., mutmut, pytest-mutmut
 
 #### Scaffolding
 
@@ -370,9 +370,9 @@ def create_handler(config: dict):
 
 ### Abstract Classes and Interfaces
 
-Selected Style: **{{ABSTRACT_CLASS_STYLE}}**
+Selected Style: **{{config.abstract_class_style}}**
 
-{{#if ABSTRACT_CLASS_STYLE == "abc"}}
+{% if config.abstract_class_style == "abc" %}
 #### Using Abstract Base Classes (abc module)
 - Inherit from `abc.ABC` for abstract base classes
 - Use `@abstractmethod` decorator for methods that must be implemented
@@ -393,9 +393,9 @@ class SqlRepository(Repository):
         # Concrete implementation
         return self.session.query(Entity).get(id)
 ```
-{{/if}}
+{% endif %}
 
-{{#if ABSTRACT_CLASS_STYLE == "interface"}}
+{% if config.abstract_class_style == "interface" %}
 #### Using NotImplementedError (Informal Interfaces)
 - Raise `NotImplementedError` in methods that must be overridden
 - Document expected behavior in docstrings
@@ -413,4 +413,4 @@ class SqlRepository(Repository):
         # Concrete implementation
         return self.session.query(Entity).get(id)
 ```
-{{/if}}
+{% endif %}

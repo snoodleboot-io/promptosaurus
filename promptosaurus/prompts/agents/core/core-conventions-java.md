@@ -1,11 +1,11 @@
 <!-- path: promptosaurus/prompts/agents/core/core-conventions-java.md -->
 # Core Conventions Java
 
-Language:             {{LANGUAGE}}           e.g., Java 21
-Runtime:              {{RUNTIME}}            e.g., JDK 21, OpenJDK
-Package Manager:      {{PACKAGE_MANAGER}}        e.g., Maven, Gradle
-Linter:               {{LINTER}}             e.g., Checkstyle, SpotBugs
-Formatter:           {{FORMATTER}}          e.g., Google Java Format, Spotless
+Language:             {{config.language}}           e.g., Java 21
+Runtime:              {{config.runtime}}            e.g., JDK 21, OpenJDK
+Package Manager:      {{config.package_manager}}        e.g., Maven, Gradle
+Linter:               {{config.linter}}             e.g., Checkstyle, SpotBugs
+Formatter:           {{config.formatter}}          e.g., Google Java Format, Spotless
 
 ### Naming Conventions
 
@@ -39,12 +39,12 @@ Environment vars:   UPPER_SNAKE_CASE always
 ### Testing
 
 #### Coverage Targets
-Line:           {{LINE_COVERAGE_%}}          e.g., 80%
-Branch:         {{BRANCH_COVERAGE_%}}        e.g., 70%
-Function:       {{FUNCTION_COVERAGE_%}}       e.g., 90%
-Statement:      {{STATEMENT_COVERAGE_%}}      e.g., 85%
-Mutation:       {{MUTATION_COVERAGE_%}}       e.g., 80%
-Path:           {{PATH_COVERAGE_%}}           e.g., 60%
+Line:           {{config.coverage.line}}          e.g., 80%
+Branch:         {{config.coverage.branch}}        e.g., 70%
+Function:       {{config.coverage.function}}       e.g., 90%
+Statement:      {{config.coverage.statement}}      e.g., 85%
+Mutation:       {{config.coverage.mutation}}       e.g., 80%
+Path:           {{config.coverage.path}}           e.g., 60%
 
 #### Test Types
 
@@ -67,10 +67,10 @@ Path:           {{PATH_COVERAGE_%}}           e.g., 60%
 - Use Pitest for mutation testing
 
 #### Framework & Tools
-Framework:       {{TESTING_FRAMEWORK}}        e.g., JUnit 5, TestNG
-Mocking library: {{MOCKING_LIBRARY}}              e.g., Mockito, EasyMock
-Coverage tool:  {{COVERAGE_TOOL}}              e.g., JaCoCo, Cobertura
-Mutation tool:  {{MUTATION_TOOL}}          e.g., Pitest
+Framework:       {{config.testing_framework}}        e.g., JUnit 5, TestNG
+Mocking library: {{config.mocking_library}}              e.g., Mockito, EasyMock
+Coverage tool:  {{config.coverage_tool}}              e.g., JaCoCo, Cobertura
+Mutation tool:  {{config.mutation_tool}}          e.g., Pitest
 
 #### Scaffolding
 

@@ -8,20 +8,30 @@ Classes:
     Builder: Abstract base class for output builders.
 """
 
+import logging
+
+import jinja2
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from promptosaurus.builders.template_handlers.abstract_class_style_handler import (
     AbstractClassStyleHandler,
 )
 from promptosaurus.builders.template_handlers.coverage_handler import CoverageHandler
+from promptosaurus.builders.template_handlers.coverage_tool_handler import CoverageToolHandler
+from promptosaurus.builders.template_handlers.e2e_tool_handler import E2EToolHandler
 from promptosaurus.builders.template_handlers.formatter_handler import FormatterHandler
 from promptosaurus.builders.template_handlers.language_handler import LanguageHandler
 from promptosaurus.builders.template_handlers.linter_handler import LinterHandler
+from promptosaurus.builders.template_handlers.mocking_library_handler import MockingLibraryHandler
+from promptosaurus.builders.template_handlers.mutation_tool_handler import MutationToolHandler
 from promptosaurus.builders.template_handlers.package_manager_handler import PackageManagerHandler
 from promptosaurus.builders.template_handlers.runtime_handler import RuntimeHandler
+from promptosaurus.builders.template_handlers.resolvers.jinja2_template_renderer import (
+    Jinja2TemplateRenderer,
+)
 from promptosaurus.builders.template_handlers.template_handler import (
     TemplateHandler,
     TemplateVariableHandler,
@@ -31,6 +41,8 @@ from promptosaurus.builders.template_handlers.testing_framework_handler import (
     TestingFrameworkHandler,
 )
 from promptosaurus.registry import registry
+
+logger = logging.getLogger(__name__)
 
 
 class TemplateHandlerRegistry:
@@ -92,7 +104,7 @@ class Builder:
     Methods:
         build: Generate output configuration files.
         _build_concatenated: Create concatenated rules file content.
-        _substitute_template_variables: Replace {{VARIABLE}} templates with values from config.
+        _substitute_template_variables: Replace {{config.variable}} templates with values from config.
         _copy: Copy a source file to destination with optional template substitution.
     """
 
@@ -117,6 +129,37 @@ class Builder:
 
         # Protocol Extensions: Factory integration for template handlers
         self._initialize_handlers()
+
+        # Initialize Jinja2 environment and renderer for advanced templating
+        self._jinja2_environment = self._create_jinja2_environment()
+        self._jinja2_renderer = Jinja2TemplateRenderer(self._jinja2_environment)
+
+    def _create_jinja2_environment(self) -> jinja2.Environment:
+        """Create and configure Jinja2 environment for template rendering.
+
+        Returns:
+            Configured Jinja2 Environment instance
+        """
+        # Configure Jinja2 environment with sensible defaults for promptosaurus
+        environment = jinja2.Environment(
+            # Use {{variable}} syntax (same as existing templates)
+            variable_start_string="{{",
+            variable_end_string="}}",
+            # Enable autoescape for safety (though most content is code/config)
+            autoescape=False,  # We handle escaping in handlers if needed
+            # Trim blocks for cleaner template syntax
+            trim_blocks=True,
+            lstrip_blocks=True,
+            # Cache compiled templates for performance
+            cache_size=400,
+            # Use StrictUndefined to raise errors when accessing missing keys
+            undefined=jinja2.StrictUndefined,
+        )
+
+        # Add any custom filters if needed (can be extended later)
+        # environment.filters['custom_filter'] = custom_filter_function
+
+        return environment
 
     def build(
         self, output: Path, config: dict[str, Any] | None = None, dry_run: bool = False
@@ -201,75 +244,46 @@ class Builder:
     def _substitute_template_variables(
         self, content: str, config: dict[str, Any] | None = None
     ) -> str:
-        """Replace {{VARIABLE}} templates with values from config.
+        """Replace template variables using Jinja2 with handler-resolved context.
 
-        This method performs template variable substitution on content,
-        replacing placeholders like {{LANGUAGE}} with actual values
-        from the configuration. It uses registered template variable handlers
-        to determine how to substitute each variable, and allows subclasses
-        to add custom substitutions via _get_template_substitutions.
-
-        Args:
-            content: The template content with {{VARIABLE}} placeholders.
-            config: Optional configuration dict containing spec values.
-
-        Returns:
-            Content with all template variables replaced.
+        Supports both {{config.variable}} syntax and legacy {{VARIABLE}} syntax
+        by resolving variables through registered template handlers.
         """
         if config is None:
             config = {}
-
-        # Handle both single-language (dict) and multi-language (list) configs
         if isinstance(config.get("spec"), list):
-            # Multi-language monorepo: get config from first folder
-            spec = config.get("spec", [{}])
-            config = spec[0] if spec and len(spec) > 0 else {}
+            spec_config = config["spec"][0] if config["spec"] else {}
         else:
-            config = config.get("spec", {})
+            spec_config = config.get("spec", {})
 
-        # Import regex here to avoid top-level import if not used
-        import re
+        # Build context from registered handlers
+        context: dict[str, Any] = {"config": spec_config}
+        known_variables = [
+            "LANGUAGE",
+            "RUNTIME",
+            "PACKAGE_MANAGER",
+            "LINTER",
+            "FORMATTER",
+            "ABSTRACT_CLASS_STYLE",
+            "TESTING_FRAMEWORK",
+            "TEST_RUNNER",
+            "E2E_TOOL",
+            "MOCKING_LIBRARY",
+            "COVERAGE_TOOL",
+            "MUTATION_TOOL",
+            "LINE_COVERAGE_%",
+            "BRANCH_COVERAGE_%",
+            "FUNCTION_COVERAGE_%",
+            "STATEMENT_COVERAGE_%",
+            "MUTATION_COVERAGE_%",
+            "PATH_COVERAGE_%",
+        ]
+        for var_name in known_variables:
+            handler = self._template_handler_registry.get_handler_for_variable(var_name)
+            if handler:
+                context[var_name] = handler.handle(var_name, spec_config)
 
-        # Find all template variables in the content
-        template_pattern = r"\{\{([A-Z_][A-Z0-9_%]*)\}\}"
-        matches = re.findall(template_pattern, content)
-
-        # Get custom substitutions from subclass (if any)
-        # Provide default empty dict if config is None to satisfy type checker
-        config = config or {}
-        substitutions = self._get_template_substitutions(cast(dict[str, Any], config), lambda x: x)
-
-        # Process each unique template variable
-        for var_name in set(matches):
-            template_var = f"{{{{{var_name}}}}}"
-            # Skip if already handled by subclass
-            if template_var in substitutions:
-                continue
-            if config is not None:
-                value = self._get_variable_value(var_name, config)
-                if value is not None:  # Only substitute if we have a value
-                    substitutions[template_var] = value
-
-        # Perform substitutions
-        for template_var, value in substitutions.items():
-            content = content.replace(template_var, value)
-
-        return content
-
-    def _get_variable_value(self, variable_name: str, config: dict[str, Any]) -> str | None:
-        """Get the value for a template variable by consulting registered handlers.
-
-        Args:
-            variable_name: The name of the template variable (without braces)
-            config: The configuration dictionary
-
-        Returns:
-            The substituted value, or None if no handler can process the variable
-        """
-        handler = self._template_handler_registry.get_handler_for_variable(variable_name)
-        if handler:
-            return handler.handle(variable_name, config)
-        return None
+        return self._jinja2_renderer.handle(content, context)
 
     def register_template_handler(self, handler: TemplateVariableHandler) -> None:
         """Register a custom template variable handler.
@@ -303,6 +317,8 @@ class Builder:
             TestingFrameworkHandler(),
             TestRunnerHandler(),
             CoverageHandler(),
+            E2EToolHandler(),
+            MockingLibraryHandler(),
         ]
 
     def _get_default_template_handler_registry(self) -> TemplateHandlerRegistry:
@@ -324,6 +340,10 @@ class Builder:
             TestingFrameworkHandler(),
             TestRunnerHandler(),
             CoverageHandler(),
+            E2EToolHandler(),
+            MockingLibraryHandler(),
+            CoverageToolHandler(),
+            MutationToolHandler(),
         ]
         for handler in fallback_handlers:
             registry.register_handler(handler)

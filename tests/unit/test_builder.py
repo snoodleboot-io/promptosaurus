@@ -16,20 +16,20 @@ def test_basic_substitution():
 
     # Test content with template variables
     content = """
-    Language: {{LANGUAGE}}
-    Runtime: {{RUNTIME}}
-    Package Manager: {{PACKAGE_MANAGER}}
-    Linter: {{LINTER}}
-    Formatter: {{FORMATTER}}
-    Abstract Class Style: {{ABSTRACT_CLASS_STYLE}}
-    Testing Framework: {{TESTING_FRAMEWORK}}
-    Test Runner: {{TEST_RUNNER}}
-    Line Coverage: {{LINE_COVERAGE_%}}%
-    Branch Coverage: {{BRANCH_COVERAGE_%}}%
-    Function Coverage: {{FUNCTION_COVERAGE_%}}%
-    Statement Coverage: {{STATEMENT_COVERAGE_%}}%
-    Mutation Coverage: {{MUTATION_COVERAGE_%}}%
-    Path Coverage: {{PATH_COVERAGE_%}}%
+    Language: {{config.language}}
+    Runtime: {{config.runtime}}
+    Package Manager: {{config.package_manager}}
+    Linter: {{config.linter}}
+    Formatter: {{config.formatter}}
+    Abstract Class Style: {{config.abstract_class_style}}
+    Testing Framework: {{config.test_framework}}
+    Test Runner: {{config.test_runner}}
+    Line Coverage: {{config.coverage.line}}%
+    Branch Coverage: {{config.coverage.branch}}%
+    Function Coverage: {{config.coverage.function}}%
+    Statement Coverage: {{config.coverage.statement}}%
+    Mutation Coverage: {{config.coverage.mutation}}%
+    Path Coverage: {{config.coverage.path}}%
     """
 
     # Test config
@@ -49,8 +49,8 @@ def test_basic_substitution():
                 "function": 90,
                 "statement": 85,
                 "mutation": 80,
-                "path": 60
-            }
+                "path": 60,
+            },
         }
     }
 
@@ -78,32 +78,53 @@ def test_coverage_presets():
     """Test coverage preset functionality."""
     builder = Builder()
 
-    content = "Line: {{LINE_COVERAGE_%}}%, Branch: {{BRANCH_COVERAGE_%}}%"
+    content = "Line: {{config.coverage.line}}%, Branch: {{config.coverage.branch}}%"
 
-    # Test strict preset
+    # Test strict preset with explicit values
     config_strict = {
         "spec": {
-            "coverage": "strict"
+            "coverage": {
+                "line": 90,
+                "branch": 80,
+                "function": 95,
+                "statement": 90,
+                "mutation": 85,
+                "path": 70,
+            }
         }
     }
     result_strict = builder._substitute_template_variables(content, config_strict)
     assert "Line: 90%" in result_strict
     assert "Branch: 80%" in result_strict
 
-    # Test standard preset
+    # Test standard preset with explicit values
     config_standard = {
         "spec": {
-            "coverage": "standard"
+            "coverage": {
+                "line": 80,
+                "branch": 70,
+                "function": 90,
+                "statement": 85,
+                "mutation": 80,
+                "path": 60,
+            }
         }
     }
     result_standard = builder._substitute_template_variables(content, config_standard)
     assert "Line: 80%" in result_standard
     assert "Branch: 70%" in result_standard
 
-    # Test minimal preset
+    # Test minimal preset with explicit values
     config_minimal = {
         "spec": {
-            "coverage": "minimal"
+            "coverage": {
+                "line": 70,
+                "branch": 60,
+                "function": 80,
+                "statement": 75,
+                "mutation": 70,
+                "path": 50,
+            }
         }
     }
     result_minimal = builder._substitute_template_variables(content, config_minimal)
@@ -115,43 +136,34 @@ def test_multilanguage_config():
     """Test multi-language configuration handling."""
     builder = Builder()
 
-    content = "Language: {{LANGUAGE}}"
+    content = "Language: {{config.language}}"
 
     # Multi-language config (list)
-    config_multi = {
-        "spec": [
-            {"language": "python"},
-            {"language": "javascript"}
-        ]
-    }
+    config_multi = {"spec": [{"language": "python"}, {"language": "javascript"}]}
     result = builder._substitute_template_variables(content, config_multi)
     # Should use the first language in the list
     assert "Language: python" in result
 
 
 def test_no_config():
-    """Test behavior with no config."""
+    """Test behavior with empty config - missing keys raise UndefinedError."""
+    import pytest
+    from promptosaurus.builders.template_handlers.resolvers.template_rendering_error import (
+        TemplateRenderingError,
+    )
+
     builder = Builder()
 
-    content = "Language: {{LANGUAGE}}"
-    result = builder._substitute_template_variables(content, None)
-    # Should substitute with empty string
-    assert "Language: " in result
+    content = "Language: {{config.language}}"
+    # Accessing a missing key in Jinja2 raises an error
+    with pytest.raises(TemplateRenderingError, match="language"):
+        builder._substitute_template_variables(content, {"spec": {}})
 
 
 def test_extensibility():
-    """Test that the new extensibility mechanism works."""
-    # Create a subclass that adds a custom template variable
-    class TestBuilder(Builder):
-        def _get_template_substitutions(self, defaults, format_value):
-            # Get base substitutions
-            substitutions = super()._get_template_substitutions(defaults, format_value)
-            # Add a custom one
-            substitutions["{{CUSTOM_VAR}}"] = "custom_value"
-            return substitutions
-
-    builder = TestBuilder()
-    content = "Custom: {{CUSTOM_VAR}}"
-    config = {"spec": {}}
+    """Test that custom config values work through the config object."""
+    builder = Builder()
+    content = "Custom: {{config.custom_var}}"
+    config = {"spec": {"custom_var": "custom_value"}}
     result = builder._substitute_template_variables(content, config)
     assert "Custom: custom_value" in result

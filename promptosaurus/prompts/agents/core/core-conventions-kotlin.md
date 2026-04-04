@@ -1,11 +1,11 @@
 <!-- path: promptosaurus/prompts/agents/core/core-conventions-kotlin.md -->
 # Core Conventions Kotlin
 
-Language:             {{LANGUAGE}}           e.g., Kotlin 1.9
-Runtime:              {{RUNTIME}}            e.g., JVM 21, Kotlin/JS, Kotlin/Native
-Package Manager:      {{PACKAGE_MANAGER}}        e.g., Gradle, Maven
-Linter:               {{LINTER}}             e.g., ktlint, detekt
-Formatter:           {{FORMATTER}}          e.g., ktlint
+Language:             {{config.language}}           e.g., Kotlin 1.9
+Runtime:              {{config.runtime}}            e.g., JVM 21, Kotlin/JS, Kotlin/Native
+Package Manager:      {{config.package_manager}}        e.g., Gradle, Maven
+Linter:               {{config.linter}}             e.g., ktlint, detekt
+Formatter:           {{config.formatter}}          e.g., ktlint
 
 ### Naming Conventions
 
@@ -38,11 +38,11 @@ Environment vars:   UPPER_SNAKE_CASE always
 ### Testing
 
 #### Coverage Targets
-Line:           {{LINE_COVERAGE_%}}          e.g., 80%
-Branch:         {{BRANCH_COVERAGE_%}}        e.g., 70%
-Function:       {{FUNCTION_COVERAGE_%}}       e.g., 90%
-Statement:      {{STATEMENT_COVERAGE_%}}      e.g., 85%
-Path:           {{PATH_COVERAGE_%}}           e.g., 60%
+Line:           {{config.coverage.line}}          e.g., 80%
+Branch:         {{config.coverage.branch}}        e.g., 70%
+Function:       {{config.coverage.function}}       e.g., 90%
+Statement:      {{config.coverage.statement}}      e.g., 85%
+Path:           {{config.coverage.path}}           e.g., 60%
 
 #### Test Types
 
@@ -59,10 +59,10 @@ Path:           {{PATH_COVERAGE_%}}           e.g., 60%
 - Use Kotest property-based testing
 
 #### Framework & Tools
-Framework:       {{TESTING_FRAMEWORK}}        e.g., JUnit 5, Kotest
-Mocking:        {{MOCKING_LIBRARY}}              e.g., MockK
-Property tool:   {{PROPERTY_TOOL}}        e.g., Kotest
-Coverage tool:  {{COVERAGE_TOOL}}              e.g., JaCoCo
+Framework:       {{config.testing_framework}}        e.g., JUnit 5, Kotest
+Mocking:        {{config.mocking_library}}              e.g., MockK
+Property tool:   {{config.property_tool}}        e.g., Kotest
+Coverage tool:  {{config.coverage_tool}}              e.g., JaCoCo
 
 #### Scaffolding
 

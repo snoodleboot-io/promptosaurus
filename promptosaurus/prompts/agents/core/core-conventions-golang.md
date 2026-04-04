@@ -1,11 +1,11 @@
 <!-- path: promptosaurus/prompts/agents/core/core-conventions-golang.md -->
 # Core Conventions Golang
 
-Language:             {{LANGUAGE}}           e.g., Go 1.22
-Runtime:              {{RUNTIME}}            e.g., Go runtime
-Package Manager:      {{PACKAGE_MANAGER}}        e.g., go mod
-Linter:               {{LINTER}}             e.g., golangci-lint
-Formatter:           {{FORMATTER}}          e.g., gofmt, goimports
+Language:             {{config.language}}           e.g., Go 1.22
+Runtime:              {{config.runtime}}            e.g., Go runtime
+Package Manager:      {{config.package_manager}}        e.g., go mod
+Linter:               {{config.linter}}             e.g., golangci-lint
+Formatter:           {{config.formatter}}          e.g., gofmt, goimports
 
 ### Naming Conventions
 
@@ -38,12 +38,12 @@ Environment vars:   UPPER_SNAKE_CASE always
 ### Testing
 
 #### Coverage Targets
-Line:           {{LINE_COVERAGE_%}}          e.g., 80%
-Branch:         {{BRANCH_COVERAGE_%}}        e.g., 70%
-Function:       {{FUNCTION_COVERAGE_%}}       e.g., 90%
-Statement:      {{STATEMENT_COVERAGE_%}}      e.g., 85%
-Mutation:       {{MUTATION_COVERAGE_%}}       e.g., 80%
-Path:           {{PATH_COVERAGE_%}}           e.g., 60%
+Line:           {{config.coverage.line}}          e.g., 80%
+Branch:         {{config.coverage.branch}}        e.g., 70%
+Function:       {{config.coverage.function}}       e.g., 90%
+Statement:      {{config.coverage.statement}}      e.g., 85%
+Mutation:       {{config.coverage.mutation}}       e.g., 80%
+Path:           {{config.coverage.path}}           e.g., 60%
 
 #### Test Types
 
@@ -72,10 +72,10 @@ Path:           {{PATH_COVERAGE_%}}           e.g., 60%
 - Run after unit tests pass
 
 #### Framework & Tools
-Framework:       {{TESTING_FRAMEWORK}}        e.g., Go test
-Mocking library: {{MOCKING_LIBRARY}}              e.g., testify, gomock
-Coverage tool:  {{COVERAGE_TOOL}}              e.g., go test -cover, gocov
-Fuzz tool:      {{FUZZ_TOOL}}             e.g., go-fuzz, testing/fuzz
+Framework:       {{config.testing_framework}}        e.g., Go test
+Mocking library: {{config.mocking_library}}              e.g., testify, gomock
+Coverage tool:  {{config.coverage_tool}}              e.g., go test -cover, gocov
+Fuzz tool:      {{config.fuzz_tool}}             e.g., go-fuzz, testing/fuzz
 
 #### Scaffolding
 

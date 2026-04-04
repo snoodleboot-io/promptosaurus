@@ -1,11 +1,11 @@
 <!-- path: promptosaurus/prompts/agents/core/core-conventions-ruby.md -->
 # Core Conventions Ruby
 
-Language:             {{LANGUAGE}}           e.g., Ruby 3.3
-Runtime:              {{RUNTIME}}            e.g., MRI, JRuby
-Package Manager:      {{PACKAGE_MANAGER}}        e.g., Bundler
-Linter:               {{LINTER}}             e.g., RuboCop
-Formatter:           {{FORMATTER}}          e.g., Rufo, RuboCop
+Language:             {{config.language}}           e.g., Ruby 3.3
+Runtime:              {{config.runtime}}            e.g., MRI, JRuby
+Package Manager:      {{config.package_manager}}        e.g., Bundler
+Linter:               {{config.linter}}             e.g., RuboCop
+Formatter:           {{config.formatter}}          e.g., Rufo, RuboCop
 
 ### Naming Conventions
 
@@ -36,9 +36,9 @@ Environment vars:   UPPER_SNAKE_CASE always
 ### Testing
 
 #### Coverage Targets
-Line:           {{LINE_COVERAGE_%}}          e.g., 80%
-Branch:         {{BRANCH_COVERAGE_%}}        e.g., 70%
-Method:         {{METHOD_COVERAGE_%}}         e.g., 90%
+Line:           {{config.coverage.line}}          e.g., 80%
+Branch:         {{config.coverage.branch}}        e.g., 70%
+Method:         {{config.coverage.method}}         e.g., 90%
 
 #### Test Types
 
@@ -55,9 +55,9 @@ Method:         {{METHOD_COVERAGE_%}}         e.g., 90%
 - Use Capybara for browser testing
 
 #### Framework & Tools
-Framework:       {{TESTING_FRAMEWORK}}        e.g., RSpec, Minitest
-Mocking:        {{MOCKING_LIBRARY}}              e.g., RSpec mocks, RR
-Coverage tool:  {{COVERAGE_TOOL}}              e.g., SimpleCov
+Framework:       {{config.testing_framework}}        e.g., RSpec, Minitest
+Mocking:        {{config.mocking_library}}              e.g., RSpec mocks, RR
+Coverage tool:  {{config.coverage_tool}}              e.g., SimpleCov
 
 #### Scaffolding
 
