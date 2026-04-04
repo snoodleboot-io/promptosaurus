@@ -93,12 +93,14 @@ class SingleLanguageSpecHandler(SpecHandler):
             LANGUAGE_DEFAULTS.get(language.lower()) or LANGUAGE_DEFAULTS.get("python") or {}
         )
 
+        linter = defaults.get("linter", "")
         spec: dict[str, Any] = {
             "language": language,
             "runtime": defaults.get("runtime", ""),
             "package_manager": defaults.get("package_manager", ""),
             "test_framework": defaults.get("test_framework", ""),
-            "linter": defaults.get("linter", ""),
+            "linter": linter,
+            "linters": [linter] if linter else [],  # List version for advanced templating
             "formatter": defaults.get("formatter", ""),
             "coverage": DEFAULT_COVERAGE.copy(),
         }

@@ -6,7 +6,12 @@ from pathlib import Path
 # Add the promptosaurus directory to the path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+import pytest
+
 from promptosaurus.builders.builder import Builder
+from promptosaurus.builders.template_handlers.resolvers.template_rendering_error import (
+    TemplateRenderingError,
+)
 
 
 def test_basic_substitution():
@@ -147,11 +152,6 @@ def test_multilanguage_config():
 
 def test_no_config():
     """Test behavior with empty config - missing keys raise UndefinedError."""
-    import pytest
-    from promptosaurus.builders.template_handlers.resolvers.template_rendering_error import (
-        TemplateRenderingError,
-    )
-
     builder = Builder()
 
     content = "Language: {{config.language}}"
@@ -167,3 +167,259 @@ def test_extensibility():
     config = {"spec": {"custom_var": "custom_value"}}
     result = builder._substitute_template_variables(content, config)
     assert "Custom: custom_value" in result
+
+
+def test_list_iteration():
+    """Test that list values in config can be iterated over in templates."""
+    builder = Builder()
+
+    content = """
+{% for linter in config.linters %}
+- {{ linter }}
+{% endfor %}
+"""
+
+    config = {"spec": {"linters": ["ruff", "flake8", "pylint"]}}
+
+    result = builder._substitute_template_variables(content, config)
+
+    # Check that all linters are listed
+    assert "- ruff" in result
+    assert "- flake8" in result
+    assert "- pylint" in result
+
+
+def test_nested_object_access():
+    """Test nested object access in config."""
+    builder = Builder()
+
+    content = """
+Database Host: {{config.database.host}}
+Database Port: {{config.database.port}}
+"""
+
+    config = {"spec": {"database": {"host": "localhost", "port": 5432}}}
+
+    result = builder._substitute_template_variables(content, config)
+
+    assert "Database Host: localhost" in result
+    assert "Database Port: 5432" in result
+
+
+def test_mixed_types_in_config():
+    """Test config with mixed types: strings, numbers, booleans, lists, objects."""
+    builder = Builder()
+
+    content = """
+Language: {{config.language}} ({{config.language_type}})
+Version: {{config.version}}
+Active: {{config.active}}
+Linters: {% for linter in config.linters %}{{ linter }}{% if not loop.last %}, {% endif %}{% endfor %}
+Database: {{config.database.host}}:{{config.database.port}}
+"""
+
+    config = {
+        "spec": {
+            "language": "python",
+            "language_type": "dynamic",
+            "version": 3.11,
+            "active": True,
+            "linters": ["ruff", "mypy"],
+            "database": {"host": "db.example.com", "port": 5432},
+        }
+    }
+
+    result = builder._substitute_template_variables(content, config)
+
+    assert "Language: python (dynamic)" in result
+    assert "Version: 3.11" in result
+    assert "Active: True" in result
+    assert "Linters: ruff, mypy" in result
+    assert "Database: db.example.com:5432" in result
+
+
+def test_jinja2_filters():
+    """Test Jinja2 built-in filters work with config data."""
+    builder = Builder()
+
+    content = """
+Default missing: {{ config.missing_var | default('fallback') }}
+Default database: {{ config.database.host | default('localhost') }}
+Join linters: {{ config.linters | join(', ') }}
+Upper project: {{ config.project_name | upper }}
+Default boolean: {{ config.optional_setting | default(false) }}
+"""
+
+    config = {
+        "spec": {
+            "linters": ["ruff", "flake8"],
+            "project_name": "Promptosaurus",
+            "database": {"host": "db.example.com"},
+            # optional_setting is missing
+        }
+    }
+
+    result = builder._substitute_template_variables(content, config)
+
+    assert "Default missing: fallback" in result
+    assert "Default database: db.example.com" in result
+    assert "Join linters: ruff, flake8" in result
+    assert "Upper project: PROMPTOSAURUS" in result
+    assert "Default boolean: False" in result
+
+
+def test_jinja2_conditionals():
+    """Test Jinja2 conditional logic works with config data."""
+    builder = Builder()
+
+    content = """
+{% if config.use_typescript %}TypeScript setup{% endif %}
+{% if config.linters | length > 0 %}Linters: {{ config.linters | join(', ') }}{% endif %}
+{% if config.database.host == 'localhost' %}Development DB{% else %}Production DB{% endif %}
+{% if config.debug and config.verbose %}Debug mode enabled{% endif %}
+{% if config.database.port in [5432, 3306] %}Standard port{% else %}Custom port{% endif %}
+{% if config.optional_setting is defined %}Optional is set{% else %}Optional not set{% endif %}
+{% if config.linters %}Has linters{% elif config.formatters %}Has formatters{% else %}No tools{% endif %}
+"""
+
+    config = {
+        "spec": {
+            "use_typescript": True,
+            "linters": ["ruff", "flake8"],
+            "database": {"host": "localhost", "port": 5432},
+            "debug": True,
+            "verbose": False,
+            "formatters": ["black"],
+            # optional_setting is missing
+        }
+    }
+
+    result = builder._substitute_template_variables(content, config)
+
+    # Basic if
+    assert "TypeScript setup" in result
+    # If with filter
+    assert "Linters: ruff, flake8" in result
+    # If-else with comparison
+    assert "Development DB" in result
+    assert "Production DB" not in result
+    # And operator
+    assert "Debug mode enabled" not in result  # verbose is False
+    # In operator
+    assert "Standard port" in result
+    # Is defined
+    assert "Optional not set" in result
+    # If-elif-else
+    assert "Has linters" in result
+    assert "Has formatters" not in result
+    assert "No tools" not in result
+
+
+def test_jinja2_loop_variables():
+    """Test Jinja2 loop variables like loop.index, loop.first, loop.last."""
+    builder = Builder()
+
+    content = """
+{% for linter in config.linters %}
+{{ loop.index }}. {{ linter }}{% if loop.first %} (first){% endif %}{% if loop.last %} (last){% endif %}
+{% endfor %}
+Total: {{ config.linters | length }}
+"""
+
+    config = {
+        "spec": {
+            "linters": ["ruff", "flake8", "pylint"],
+        }
+    }
+
+    result = builder._substitute_template_variables(content, config)
+
+    # Check loop.index
+    assert "1. ruff (first)" in result
+    assert "2. flake8" in result
+    assert "3. pylint (last)" in result
+    # Check loop.length via filter
+    assert "Total: 3" in result
+
+
+def test_jinja2_nested_loops():
+    """Test nested loops with complex data structures."""
+    builder = Builder()
+
+    content = """
+{% for db in config.databases %}
+Database: {{ db.name }}
+{% for table in db.tables %}
+  - {{ table.name }} ({{ table.type }})
+{% endfor %}
+{% endfor %}
+"""
+
+    config = {
+        "spec": {
+            "databases": [
+                {
+                    "name": "users_db",
+                    "tables": [
+                        {"name": "users", "type": "primary"},
+                        {"name": "sessions", "type": "secondary"},
+                    ],
+                },
+                {
+                    "name": "orders_db",
+                    "tables": [
+                        {"name": "orders", "type": "primary"},
+                        {"name": "items", "type": "secondary"},
+                    ],
+                },
+            ]
+        }
+    }
+
+    result = builder._substitute_template_variables(content, config)
+
+    assert "Database: users_db" in result
+    assert "  - users (primary)" in result
+    assert "  - sessions (secondary)" in result
+    assert "Database: orders_db" in result
+    assert "  - orders (primary)" in result
+    assert "  - items (secondary)" in result
+
+
+def test_jinja2_complex_loop_logic():
+    """Test complex loop logic with conditionals and filters inside loops."""
+    builder = Builder()
+
+    content = """
+{% for item in config.database.connections %}
+{% if loop.first %}First connection: {% endif %}
+{{ item.host }}:{{ item.port }}{% if item.ssl %} (SSL){% endif %}
+{% if loop.last and loop.index > 1 %}Total: {{ loop.length }} connections{% endif %}
+{% endfor %}
+
+Filtered hosts: {% for conn in config.database.connections | selectattr('ssl') %}{{ conn.host }}{% if not loop.last %}, {% endif %}{% endfor %}
+"""
+
+    config = {
+        "spec": {
+            "database": {
+                "connections": [
+                    {"host": "db1.example.com", "port": 5432, "ssl": True},
+                    {"host": "db2.example.com", "port": 5433, "ssl": False},
+                    {"host": "db3.example.com", "port": 5434, "ssl": True},
+                ]
+            }
+        }
+    }
+
+    result = builder._substitute_template_variables(content, config)
+
+    # Check loop.first
+    assert "First connection: db1.example.com:5432 (SSL)" in result
+    # Check conditional SSL flag
+    assert "db2.example.com:5433" in result  # No (SSL)
+    assert "db3.example.com:5434 (SSL)" in result
+    # Check loop.last with condition
+    assert "Total: 3 connections" in result
+    # Check complex filter in loop
+    assert "Filtered hosts: db1.example.com, db3.example.com" in result

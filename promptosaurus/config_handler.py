@@ -160,6 +160,7 @@ DEFAULT_CONFIG_TEMPLATE = {
         "package_manager": "",
         "test_framework": "",
         "linter": "",
+        "linters": [],  # List of linters for advanced templating
         "formatter": "",
         "coverage": {
             "line": 80,

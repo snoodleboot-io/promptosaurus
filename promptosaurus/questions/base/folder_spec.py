@@ -82,7 +82,8 @@ class FolderSpec:
         runtime: The runtime version
         package_manager: The package manager
         test_framework: The testing framework
-        linter: The linter tool
+        linter: The linter tool (single string for backwards compatibility)
+        linters: List of linter tools for advanced templating
         formatter: The formatter tool
         coverage: Coverage targets
     """
@@ -95,6 +96,7 @@ class FolderSpec:
     package_manager: str = ""
     test_framework: str = ""
     linter: str = ""
+    linters: list[str] = field(default_factory=list)  # List of linters for advanced templating
     formatter: str = ""
     coverage: dict[str, int] = field(default_factory=lambda: DEFAULT_COVERAGE.copy())
 
@@ -126,6 +128,8 @@ class FolderSpec:
             self.test_framework = defaults.get("test_framework", "")
         if not self.linter:
             self.linter = defaults.get("linter", "")
+        if not self.linters and self.linter:
+            self.linters = [self.linter]  # Initialize linters list from linter
         if not self.formatter:
             self.formatter = defaults.get("formatter", "")
 
@@ -144,6 +148,7 @@ class FolderSpec:
             "package_manager": self.package_manager,
             "test_framework": self.test_framework,
             "linter": self.linter,
+            "linters": self.linters.copy(),  # List of linters for advanced templating
             "formatter": self.formatter,
             "coverage": self.coverage.copy(),
         }
