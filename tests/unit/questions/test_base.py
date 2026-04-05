@@ -2,7 +2,7 @@
 
 import pytest
 
-from promptosaurus.questions.base.constants import RepositoryTypes, REPO_TYPES
+from promptosaurus.questions.base.constants import REPO_TYPES, RepositoryTypes
 from promptosaurus.questions.base.folder_mapping_question import FolderMappingQuestion
 from promptosaurus.questions.base.question import Question
 from promptosaurus.questions.base.repository_type_question import RepositoryTypeQuestion

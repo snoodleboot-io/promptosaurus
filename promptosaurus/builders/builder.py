@@ -9,12 +9,12 @@ Classes:
 """
 
 import logging
-
-import jinja2
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+import jinja2
 
 from promptosaurus.builders.template_handlers.abstract_class_style_handler import (
     AbstractClassStyleHandler,
@@ -28,10 +28,13 @@ from promptosaurus.builders.template_handlers.linter_handler import LinterHandle
 from promptosaurus.builders.template_handlers.mocking_library_handler import MockingLibraryHandler
 from promptosaurus.builders.template_handlers.mutation_tool_handler import MutationToolHandler
 from promptosaurus.builders.template_handlers.package_manager_handler import PackageManagerHandler
-from promptosaurus.builders.template_handlers.runtime_handler import RuntimeHandler
 from promptosaurus.builders.template_handlers.resolvers.jinja2_template_renderer import (
     Jinja2TemplateRenderer,
 )
+from promptosaurus.builders.template_handlers.resolvers.registry_template_loader import (
+    RegistryTemplateLoader,
+)
+from promptosaurus.builders.template_handlers.runtime_handler import RuntimeHandler
 from promptosaurus.builders.template_handlers.template_handler import (
     TemplateHandler,
     TemplateVariableHandler,
@@ -140,8 +143,13 @@ class Builder:
         Returns:
             Configured Jinja2 Environment instance
         """
+        # Create registry loader for template inheritance support
+        loader = RegistryTemplateLoader()
+
         # Configure Jinja2 environment with sensible defaults for promptosaurus
         environment = jinja2.Environment(
+            # Use registry loader for template inheritance support
+            loader=loader,
             # Use {{variable}} syntax (same as existing templates)
             variable_start_string="{{",
             variable_end_string="}}",

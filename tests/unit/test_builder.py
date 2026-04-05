@@ -423,3 +423,239 @@ Filtered hosts: {% for conn in config.database.connections | selectattr('ssl') %
     assert "Total: 3 connections" in result
     # Check complex filter in loop
     assert "Filtered hosts: db1.example.com, db3.example.com" in result
+
+
+def test_jinja2_template_inheritance():
+    """Test Jinja2 template inheritance with {% extends %} and {% block %}."""
+    from unittest.mock import patch
+
+    # Create a builder instance
+    builder = Builder()
+
+    # Mock registry to return test templates
+    base_template = """Base Template
+{% block header %}Default Header{% endblock %}
+{% block content %}Default Content{% endblock %}
+{% block footer %}Default Footer{% endblock %}"""
+
+    child_template = """{% extends "base-template.md" %}
+{% block header %}Custom Header{% endblock %}
+{% block content %}
+Child content here.
+{{config.language}}
+{% endblock %}"""
+
+    def mock_prompt_body(filename: str) -> str:
+        if filename == "base-template.md":
+            return base_template
+        elif filename == "child-template.md":
+            return child_template
+        else:
+            raise FileNotFoundError(f"Template {filename} not found")
+
+    with patch("promptosaurus.registry.registry.prompt_body", side_effect=mock_prompt_body):
+        # Test rendering child template that extends base
+        result = builder._substitute_template_variables(
+            child_template, {"spec": {"language": "python"}}
+        )
+
+        # Check that inheritance worked
+        assert "Base Template" in result
+        assert "Custom Header" in result
+        assert "Child content here." in result
+        assert "python" in result
+        assert "Default Footer" in result
+
+        # Check that default content was overridden
+        assert "Default Content" not in result
+
+
+def test_jinja2_template_inheritance_by_name():
+    """Test name-based template rendering with inheritance."""
+    from unittest.mock import patch
+
+    # Create a builder instance
+    builder = Builder()
+
+    # Mock registry to return test templates
+    base_template = """Base Template
+{% block content %}Default Content{% endblock %}"""
+
+    child_template = """{% extends "base-template.md" %}
+{% block content %}Overridden Content{% endblock %}"""
+
+    def mock_prompt_body(filename: str) -> str:
+        if filename == "base-template.md":
+            return base_template
+        elif filename == "child-template.md":
+            return child_template
+        else:
+            raise FileNotFoundError(f"Template {filename} not found")
+
+    with patch("promptosaurus.registry.registry.prompt_body", side_effect=mock_prompt_body):
+        # Test rendering by name using the new handle_by_name method
+        result = builder._jinja2_renderer.handle_by_name("child-template.md", {"config": {}})
+
+        # Check that inheritance worked
+        assert "Base Template" in result
+        assert "Overridden Content" in result
+        assert "Default Content" not in result
+
+
+def test_jinja2_circular_inheritance_detection():
+    """Test that circular template inheritance is detected and prevented."""
+    from unittest.mock import patch
+
+    # Create a builder instance
+    builder = Builder()
+
+    # Mock registry to return circular templates
+    template_a = """{% extends "template-b.md" %}{% block content %}A{% endblock %}"""
+    template_b = """{% extends "template-a.md" %}{% block content %}B{% endblock %}"""
+
+    def mock_prompt_body(filename: str) -> str:
+        if filename == "template-a.md":
+            return template_a
+        elif filename == "template-b.md":
+            return template_b
+        else:
+            raise FileNotFoundError(f"Template {filename} not found")
+
+    with patch("promptosaurus.registry.registry.prompt_body", side_effect=mock_prompt_body):
+        # Test that circular inheritance raises an error
+        with pytest.raises(TemplateRenderingError):
+            builder._jinja2_renderer.handle_by_name("template-a.md", {})
+
+
+def test_jinja2_multi_level_inheritance():
+    """Test multi-level template inheritance (child -> parent -> grandparent)."""
+    from unittest.mock import patch
+
+    # Create a builder instance
+    builder = Builder()
+
+    # Mock registry to return three-level inheritance
+    grandparent = """Grandparent Template
+{% block header %}Default Header{% endblock %}
+{% block content %}Grandparent Content{% endblock %}
+{% block footer %}Default Footer{% endblock %}"""
+
+    parent = """{% extends "grandparent.md" %}
+{% block header %}Parent Header{% endblock %}
+{% block content %}Parent Content{% endblock %}"""
+
+    child = """{% extends "parent.md" %}
+{% block content %}Child Content{{config.language}}{% endblock %}
+{% block footer %}Child Footer{% endblock %}"""
+
+    def mock_prompt_body(filename: str) -> str:
+        if filename == "grandparent.md":
+            return grandparent
+        elif filename == "parent.md":
+            return parent
+        elif filename == "child.md":
+            return child
+        else:
+            raise FileNotFoundError(f"Template {filename} not found")
+
+    with patch("promptosaurus.registry.registry.prompt_body", side_effect=mock_prompt_body):
+        # Test multi-level inheritance
+        result = builder._substitute_template_variables(child, {"spec": {"language": "python"}})
+
+        # Check inheritance worked across all levels
+        assert "Grandparent Template" in result
+        assert "Parent Header" in result  # Overridden by parent
+        assert "Child Contentpython" in result  # Overridden by child
+        assert "Child Footer" in result  # Overridden by child
+
+        # Check that intermediate content was properly overridden
+        assert "Grandparent Content" not in result
+        assert "Parent Content" not in result
+
+
+def test_jinja2_complex_block_structures():
+    """Test complex block structures with nested blocks and super() calls."""
+    from unittest.mock import patch
+
+    # Create a builder instance
+    builder = Builder()
+
+    # Mock registry with complex block structures
+    base = """Base Template
+{% block content %}
+Base content start
+{% block inner %}Default inner{% endblock %}
+Base content end
+{% endblock %}
+{% block footer %}Base footer{% endblock %}"""
+
+    child = """{% extends "base.md" %}
+{% block content %}
+Child content start
+{% block inner %}Child inner{% endblock %}
+{% super() %}
+Child content end
+{% endblock %}
+{% block footer %}{% super() %} + Child footer{% endblock %}"""
+
+    def mock_prompt_body(filename: str) -> str:
+        if filename == "base.md":
+            return base
+        elif filename == "child.md":
+            return child
+        else:
+            raise FileNotFoundError(f"Template {filename} not found")
+
+    with patch("promptosaurus.registry.registry.prompt_body", side_effect=mock_prompt_body):
+        # Test complex block structures with super() calls
+        result = builder._substitute_template_variables(child, {})
+
+        # Check that nested blocks work
+        assert "Base Template" in result
+        assert "Child content start" in result
+        assert "Child inner" in result
+        assert "Base content start" in result
+        assert "Default inner" in result  # Should be overridden
+        assert "Base content end" in result
+        assert "Child content end" in result
+        assert "Base footer" in result
+        assert "Child footer" in result
+
+
+def test_jinja2_inheritance_error_handling():
+    """Test error handling for malformed inheritance structures."""
+    from unittest.mock import patch
+
+    # Create a builder instance
+    builder = Builder()
+
+    # Test missing base template
+    child_template = """{% extends "missing-template.md" %}
+{% block content %}Content{% endblock %}"""
+
+    with patch(
+        "promptosaurus.registry.registry.prompt_body",
+        side_effect=FileNotFoundError("Template not found"),
+    ):
+        with pytest.raises(TemplateRenderingError) as exc_info:
+            builder._substitute_template_variables(child_template, {})
+        assert "Failed to load base template" in str(exc_info.value)
+
+    # Test malformed block syntax
+    malformed_template = """{% extends "base.md" %}
+{% block content %}Content{% endblock"""  # Missing closing %}
+
+    base_template = """Base{% block content %}Default{% endblock %}"""
+
+    def mock_prompt_body(filename: str) -> str:
+        if filename == "base.md":
+            return base_template
+        else:
+            raise FileNotFoundError(f"Template {filename} not found")
+
+    with patch("promptosaurus.registry.registry.prompt_body", side_effect=mock_prompt_body):
+        with pytest.raises(TemplateRenderingError) as exc_info:
+            builder._substitute_template_variables(malformed_template, {})
+        assert "Malformed block syntax" in str(exc_info.value)
+
+        assert "Circular template inheritance detected" in str(exc_info.value)

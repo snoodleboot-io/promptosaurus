@@ -1,5 +1,8 @@
 import unittest
-from promptosaurus.builders.template_handlers.testing_framework_handler import TestingFrameworkHandler
+
+from promptosaurus.builders.template_handlers.testing_framework_handler import (
+    TestingFrameworkHandler,
+)
 
 
 class TestTestingFrameworkHandler(unittest.TestCase):

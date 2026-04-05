@@ -1,5 +1,8 @@
 import unittest
-from promptosaurus.builders.template_handlers.abstract_class_style_handler import AbstractClassStyleHandler
+
+from promptosaurus.builders.template_handlers.abstract_class_style_handler import (
+    AbstractClassStyleHandler,
+)
 
 
 class TestAbstractClassStyleHandler(unittest.TestCase):
