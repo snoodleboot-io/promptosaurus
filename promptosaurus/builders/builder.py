@@ -28,6 +28,9 @@ from promptosaurus.builders.template_handlers.linter_handler import LinterHandle
 from promptosaurus.builders.template_handlers.mocking_library_handler import MockingLibraryHandler
 from promptosaurus.builders.template_handlers.mutation_tool_handler import MutationToolHandler
 from promptosaurus.builders.template_handlers.package_manager_handler import PackageManagerHandler
+from promptosaurus.builders.template_handlers.resolvers.custom_filters import (
+    register_custom_filters,
+)
 from promptosaurus.builders.template_handlers.resolvers.jinja2_template_renderer import (
     Jinja2TemplateRenderer,
 )
@@ -164,8 +167,8 @@ class Builder:
             undefined=jinja2.StrictUndefined,
         )
 
-        # Add any custom filters if needed (can be extended later)
-        # environment.filters['custom_filter'] = custom_filter_function
+        # Register custom filters for code generation and string transformations
+        register_custom_filters(environment)
 
         return environment
 

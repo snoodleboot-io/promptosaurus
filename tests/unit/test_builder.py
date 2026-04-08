@@ -659,3 +659,483 @@ def test_jinja2_inheritance_error_handling():
         assert "Malformed block syntax" in str(exc_info.value)
 
         assert "Circular template inheritance detected" in str(exc_info.value)
+
+
+# ============================================================================
+# WAVE 3: Custom Jinja2 Extensions Tests
+# ============================================================================
+
+
+class TestCustomFilters:
+    """Tests for custom Jinja2 filters."""
+
+    def test_kebab_case_filter(self):
+        """Test kebab_case filter for various inputs."""
+        builder = Builder()
+
+        test_cases = [
+            ("my variable name", "my-variable-name"),
+            ("MyClassName", "my-class-name"),
+            ("snake_case_var", "snake-case-var"),
+            ("SCREAMING_SNAKE", "screaming-snake"),
+            ("camelCaseVar", "camel-case-var"),
+            ("Already-kebab-case", "already-kebab-case"),
+            ("multiple   spaces", "multiple-spaces"),
+            ("trailing-spaces   ", "trailing-spaces"),
+        ]
+
+        for input_val, expected in test_cases:
+            content = f"{{{{ '{input_val}' | kebab_case }}}}"
+            result = builder._substitute_template_variables(content, {})
+            assert result.strip() == expected, f"Failed for input: {input_val}"
+
+    def test_snake_case_filter(self):
+        """Test snake_case filter for various inputs."""
+        builder = Builder()
+
+        test_cases = [
+            ("my variable name", "my_variable_name"),
+            ("MyClassName", "my_class_name"),
+            ("kebab-case-var", "kebab_case_var"),
+            ("camelCaseVar", "camel_case_var"),
+            ("SCREAMING_SNAKE", "screaming_snake"),
+            ("mixed-case_variable", "mixed_case_variable"),
+            ("multiple   spaces", "multiple_spaces"),
+        ]
+
+        for input_val, expected in test_cases:
+            content = f"{{{{ '{input_val}' | snake_case }}}}"
+            result = builder._substitute_template_variables(content, {})
+            assert result.strip() == expected, f"Failed for input: {input_val}"
+
+    def test_pascal_case_filter(self):
+        """Test pascal_case filter for various inputs."""
+        builder = Builder()
+
+        test_cases = [
+            ("my variable name", "MyVariableName"),
+            ("snake_case_var", "SnakeCaseVar"),
+            ("kebab-case-var", "KebabCaseVar"),
+            ("camelCaseVar", "CamelCaseVar"),
+            ("already pascal case", "AlreadyPascalCase"),
+            ("single", "Single"),
+            ("", ""),
+        ]
+
+        for input_val, expected in test_cases:
+            content = f"{{{{ '{input_val}' | pascal_case }}}}"
+            result = builder._substitute_template_variables(content, {})
+            assert result.strip() == expected, f"Failed for input: {input_val}"
+
+    def test_camel_case_filter(self):
+        """Test camel_case filter for various inputs."""
+        builder = Builder()
+
+        test_cases = [
+            ("my variable name", "myVariableName"),
+            ("snake_case_var", "snakeCaseVar"),
+            ("kebab-case-var", "kebabCaseVar"),
+            ("MyPascalCase", "myPascalCase"),
+            ("single", "single"),
+        ]
+
+        for input_val, expected in test_cases:
+            content = f"{{{{ '{input_val}' | camel_case }}}}"
+            result = builder._substitute_template_variables(content, {})
+            assert result.strip() == expected, f"Failed for input: {input_val}"
+
+    def test_title_case_filter(self):
+        """Test title_case filter for various inputs."""
+        builder = Builder()
+
+        test_cases = [
+            ("my variable name", "My Variable Name"),
+            ("snake_case_var", "Snake Case Var"),
+            ("kebab-case-var", "Kebab Case Var"),
+            ("camelCaseVar", "Camel Case Var"),
+            ("multiple   spaces", "Multiple Spaces"),
+        ]
+
+        for input_val, expected in test_cases:
+            content = f"{{{{ '{input_val}' | title_case }}}}"
+            result = builder._substitute_template_variables(content, {})
+            assert result.strip() == expected, f"Failed for input: {input_val}"
+
+    def test_indent_filter(self):
+        """Test indent filter with various widths."""
+        builder = Builder()
+
+        # Test basic indentation
+        content = "{{ 'line1\nline2\nline3' | indent(4) }}"
+        result = builder._substitute_template_variables(content, {})
+        lines = result.split("\n")
+        # First line should not be indented by default
+        assert lines[0] == "line1", f"Expected 'line1', got '{lines[0]}'"
+        # Other lines should be indented
+        assert lines[1].startswith("    "), f"Expected indentation, got '{lines[1]}'"
+        assert lines[2].startswith("    "), f"Expected indentation, got '{lines[2]}'"
+
+    def test_pluralize_filter(self):
+        """Test pluralize filter for simple pluralization."""
+        builder = Builder()
+
+        # Test simple pluralization
+        test_cases = [
+            ("file", "files"),
+            ("box", "boxes"),
+            ("class", "classes"),
+            ("dish", "dishes"),
+            ("wish", "wishes"),
+            ("baby", "babies"),
+            ("person", "persons"),
+        ]
+
+        for input_val, expected in test_cases:
+            content = f"{{{{ '{input_val}' | pluralize }}}}"
+            result = builder._substitute_template_variables(content, {})
+            assert result.strip() == expected, f"Failed for input: {input_val}"
+
+        # Test with count parameter
+        content = "{{ 'file' | pluralize(count=1) }}"
+        result = builder._substitute_template_variables(content, {})
+        assert result.strip() == "file"
+
+        content = "{{ 'file' | pluralize(count=5) }}"
+        result = builder._substitute_template_variables(content, {})
+        assert result.strip() == "files"
+
+    def test_multiple_filters_chain(self):
+        """Test chaining multiple filters together."""
+        builder = Builder()
+
+        # Chain kebab_case then upper
+        content = "{{ 'my variable name' | kebab_case | upper }}"
+        result = builder._substitute_template_variables(content, {})
+        assert result.strip() == "MY-VARIABLE-NAME"
+
+        # Chain snake_case with default
+        content = "{{ undefined_var | default('default_value') | snake_case }}"
+        result = builder._substitute_template_variables(content, {})
+        assert result.strip() == "default_value"
+
+
+class TestSetTag:
+    """Tests for Jinja2 {% set %} tag for template-level variables."""
+
+    def test_simple_set_assignment(self):
+        """Test simple variable assignment with {% set %}."""
+        builder = Builder()
+
+        content = """
+        {% set var_name = 'my-test' %}
+        Variable: {{ var_name }}
+        """
+        result = builder._substitute_template_variables(content, {})
+        assert "my-test" in result
+        assert "Variable: my-test" in result
+
+    def test_set_with_filter(self):
+        """Test {% set %} with filter application."""
+        builder = Builder()
+
+        content = """
+        {% set formatted = 'my_variable_name' | kebab_case %}
+        Formatted: {{ formatted }}
+        """
+        result = builder._substitute_template_variables(content, {})
+        assert "my-variable-name" in result
+
+    def test_set_with_config_variable(self):
+        """Test {% set %} using config values."""
+        builder = Builder()
+
+        config = {
+            "spec": {
+                "language": "python",
+                "package_manager": "uv",
+            }
+        }
+
+        content = """
+        {% set lang = config.language %}
+        {% set pkg_mgr = config.package_manager %}
+        Language: {{ lang }}
+        Package Manager: {{ pkg_mgr }}
+        """
+        result = builder._substitute_template_variables(content, config)
+        assert "Language: python" in result
+        assert "Package Manager: uv" in result
+
+    def test_set_block_assignment(self):
+        """Test block assignment with {% set %}...{% endset %}."""
+        builder = Builder()
+
+        content = """
+        {% set message %}
+        This is a multi-line
+        message content that spans
+        multiple lines
+        {% endset %}
+        Result: {{ message | trim }}
+        """
+        result = builder._substitute_template_variables(content, {})
+        assert "This is a multi-line" in result
+
+    def test_set_with_arithmetic(self):
+        """Test {% set %} with arithmetic operations."""
+        builder = Builder()
+
+        content = """
+        {% set total = 5 + 3 %}
+        Total: {{ total }}
+        {% set doubled = total * 2 %}
+        Doubled: {{ doubled }}
+        """
+        result = builder._substitute_template_variables(content, {})
+        assert "Total: 8" in result
+        assert "Doubled: 16" in result
+
+    def test_set_with_list_and_loop(self):
+        """Test {% set %} with list variables and loops."""
+        builder = Builder()
+
+        config = {
+            "spec": {
+                "linters": ["ruff", "mypy", "pylint"],
+            }
+        }
+
+        content = """
+        {% set linter_list = config.linters %}
+        Linters: {{ linter_list | join(', ') }}
+        Count: {{ linter_list | length }}
+        """
+        result = builder._substitute_template_variables(content, config)
+        assert "Linters: ruff, mypy, pylint" in result
+        assert "Count: 3" in result
+
+    def test_set_variable_scope(self):
+        """Test that set variables are scoped to template."""
+        builder = Builder()
+
+        content = """
+        {% set my_var = 'value1' %}
+        Before: {{ my_var }}
+        {% if true %}
+            {% set my_var = 'value2' %}
+            Inside: {{ my_var }}
+        {% endif %}
+        After: {{ my_var }}
+        """
+        result = builder._substitute_template_variables(content, {})
+        # In Jinja2, set modifies the variable in the current scope
+        assert "Before: value1" in result
+        assert "Inside: value2" in result
+
+
+class TestWithBlocks:
+    """Tests for Jinja2 {% with %} blocks for variable scoping."""
+
+    def test_simple_with_block(self):
+        """Test basic {% with %} block for variable scoping."""
+        builder = Builder()
+
+        content = """
+        {% set outer = 'outer_value' %}
+        Outer: {{ outer }}
+        {% with inner = 'inner_value' %}
+            Inner: {{ inner }}
+            Outer accessible: {{ outer }}
+        {% endwith %}
+        After block: {{ outer }}
+        """
+        result = builder._substitute_template_variables(content, {})
+        assert "Outer: outer_value" in result
+        assert "Inner: inner_value" in result
+        assert "Outer accessible: outer_value" in result
+
+    def test_with_config_values(self):
+        """Test {% with %} using config values."""
+        builder = Builder()
+
+        config = {
+            "spec": {
+                "database": {
+                    "host": "localhost",
+                    "port": 5432,
+                }
+            }
+        }
+
+        content = """
+        {% with db_host = config.database.host, db_port = config.database.port %}
+            Connecting to {{ db_host }}:{{ db_port }}
+        {% endwith %}
+        """
+        result = builder._substitute_template_variables(content, config)
+        assert "Connecting to localhost:5432" in result
+
+    def test_with_multiple_assignments(self):
+        """Test {% with %} with multiple variable assignments."""
+        builder = Builder()
+
+        # In Jinja2, multiple assignments in with need separate statements
+        content = """
+        {% with var1 = 'value1' %}
+            {% with var2 = 'value2' %}
+                Var1: {{ var1 }}
+                Var2: {{ var2 }}
+            {% endwith %}
+        {% endwith %}
+        """
+        result = builder._substitute_template_variables(content, {})
+        assert "Var1: value1" in result
+        assert "Var2: value2" in result
+
+    def test_with_filter_application(self):
+        """Test {% with %} applying filters to variables."""
+        builder = Builder()
+
+        content = """
+        {% with kebab = 'my_variable_name' | kebab_case %}
+            Original format applied: {{ kebab }}
+        {% endwith %}
+        """
+        result = builder._substitute_template_variables(content, {})
+        assert "my-variable-name" in result
+
+    def test_nested_with_blocks(self):
+        """Test nested {% with %} blocks."""
+        builder = Builder()
+
+        content = """
+        {% with outer = 'outer' %}
+            Outer: {{ outer }}
+            {% with inner = 'inner' %}
+                Outer in inner: {{ outer }}
+                Inner: {{ inner }}
+            {% endwith %}
+        {% endwith %}
+        """
+        result = builder._substitute_template_variables(content, {})
+        assert "Outer: outer" in result
+        assert "Outer in inner: outer" in result
+        assert "Inner: inner" in result
+
+    def test_with_in_conditional(self):
+        """Test {% with %} blocks inside conditionals."""
+        builder = Builder()
+
+        config = {
+            "spec": {
+                "use_typescript": True,
+            }
+        }
+
+        content = """
+        {% if config.use_typescript %}
+            {% with lang = 'TypeScript' %}
+                Language: {{ lang }}
+            {% endwith %}
+        {% else %}
+            {% with lang = 'JavaScript' %}
+                Language: {{ lang }}
+            {% endwith %}
+        {% endif %}
+        """
+        result = builder._substitute_template_variables(content, config)
+        assert "Language: TypeScript" in result
+
+    def test_with_in_loop(self):
+        """Test {% with %} blocks inside loops."""
+        builder = Builder()
+
+        config = {"spec": {"list_items": ["item1", "item2", "item3"]}}
+
+        content = """
+        {% for item in config.list_items %}
+            {% with formatted = item | upper %}
+                Processing: {{ formatted }}
+            {% endwith %}
+        {% endfor %}
+        """
+        result = builder._substitute_template_variables(content, config)
+        assert "Processing: ITEM1" in result
+        assert "Processing: ITEM2" in result
+        assert "Processing: ITEM3" in result
+
+    def test_with_variable_isolation(self):
+        """Test that with block variables don't leak outside."""
+        builder = Builder()
+
+        content = """
+        {% set shared = 'shared_value' %}
+        {% with scoped = 'scoped_value' %}
+            In block - scoped: {{ scoped }}
+        {% endwith %}
+        After block - shared still works: {{ shared }}
+        """
+        result = builder._substitute_template_variables(content, {})
+        assert "In block - scoped: scoped_value" in result
+        assert "After block - shared still works: shared_value" in result
+
+
+class TestCombinedFeatures:
+    """Tests combining custom filters, set tag, and with blocks."""
+
+    def test_filters_in_set_and_with(self):
+        """Test custom filters working together with set and with blocks."""
+        builder = Builder()
+
+        config = {
+            "spec": {
+                "project_name": "my awesome project",
+            }
+        }
+
+        content = """
+        {% set class_name = config.project_name | pascal_case %}
+        {% with snake_name = config.project_name | snake_case %}
+            Class: {{ class_name }}
+            Variable: {{ snake_name }}
+            Kebab: {{ config.project_name | kebab_case }}
+        {% endwith %}
+        """
+        result = builder._substitute_template_variables(content, config)
+        assert "Class: MyAwesomeProject" in result
+        assert "Variable: my_awesome_project" in result
+        assert "Kebab: my-awesome-project" in result
+
+    def test_code_generation_example(self):
+        """Test realistic code generation scenario with all Wave 3 features."""
+        builder = Builder()
+
+        config = {
+            "spec": {
+                "class_name": "user_manager",
+                "methods": ["create", "update", "delete"],
+            }
+        }
+
+        content = """
+        {% set py_class = config.class_name | pascal_case %}
+        {% set py_file = config.class_name | snake_case %}
+        class {{ py_class }}:
+            \"\"\"Managing {{ config.class_name }}.\"\"\"
+            
+            {% for method in config.methods %}
+            {% with method_name = method | camel_case %}
+            def {{ method_name }}(self):
+                \"\"\"{{ method | title_case }} operation.\"\"\"
+                pass
+            {% endwith %}
+            {% endfor %}
+        
+        # File: {{ py_file }}.py
+        """
+        result = builder._substitute_template_variables(content, config)
+        assert "class UserManager:" in result
+        assert "# File: user_manager.py" in result
+        assert "def create(self):" in result
+        assert "def update(self):" in result
+        assert "def delete(self):" in result
