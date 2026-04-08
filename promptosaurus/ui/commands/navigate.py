@@ -16,22 +16,9 @@ class NavigateCommand(Command):
     def execute(self, context: PipelineContext) -> CommandResult:
         """Execute navigate command.
 
-        Uses column-aware navigation if multi-column layout is active,
-        otherwise uses standard linear navigation.
+        Moves selection up or down.
         """
-        # Use column-aware navigation if multi-column layout is active
-        if (
-            context.layout_columns
-            and isinstance(context.state, SingleSelectionState)
-            and context.items_per_column is not None
-        ):
-            # Multi-column layout: navigate within columns
-            new_state = context.state.navigate_with_columns(
-                self.direction, context.items_per_column
-            )
-        else:
-            # Single-column layout: standard linear navigation
-            new_state = context.state.navigate(self.direction)
+        new_state = context.state.navigate(self.direction)
 
         return CommandResult(
             continue_pipeline=True,
