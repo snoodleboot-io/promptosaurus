@@ -128,11 +128,13 @@ class RenderStage:
             if y < max_y - 1:
                 y += 1
 
-            # Add explanation if present
+            # Add explanation if present (split on newlines to handle multi-line text)
             if question.question_explanation and y < max_y - 1:
-                explanation_text = question.question_explanation
-                self._stdscr.addstr(y, 0, explanation_text)
-                y += 1
+                explanation_lines = question.question_explanation.split("\n")
+                for exp_line in explanation_lines:
+                    if y < max_y - 1:
+                        self._stdscr.addstr(y, 0, exp_line)
+                        y += 1
 
             # Add blank line
             if y < max_y - 1:
