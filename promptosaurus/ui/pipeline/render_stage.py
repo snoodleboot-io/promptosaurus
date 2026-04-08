@@ -1,6 +1,9 @@
 """Render stage for UI pipeline."""
 
+import sys
+import time
 from collections.abc import Callable
+from platform import system
 
 from promptosaurus.ui.domain.context import PipelineContext
 
@@ -13,8 +16,14 @@ class RenderStage:
 
     def render(self, context: PipelineContext) -> None:
         """Render current state."""
-        # Clear screen
+        # Clear screen with ANSI escape codes and ensure immediate delivery
         print("\033[2J\033[H", end="")
+        sys.stdout.flush()
+
+        # Add small delay on Linux to give terminal time to process escape sequence
+        # This prevents race conditions in terminal rendering
+        if system() == "Linux":
+            time.sleep(0.01)
 
         # Show question and explanation at the top
         question = context.question
