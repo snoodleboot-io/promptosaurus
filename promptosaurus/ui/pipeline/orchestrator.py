@@ -8,8 +8,6 @@ Classes:
     PipelineOrchestrator: Orchestrates the complete UI pipeline.
 """
 
-import curses
-
 from promptosaurus.ui.domain.context import PipelineContext, QuestionContext
 from promptosaurus.ui.pipeline.command_factory import CommandFactory
 from promptosaurus.ui.state.multi_selection_state import MultiSelectionState
@@ -99,44 +97,37 @@ class PipelineOrchestrator:
             mode="select",
         )
 
-        try:
-            # Get event generator
-            events = self.input_provider.events
+        # Get event generator
+        events = self.input_provider.events
 
-            while True:
-                # Render current state
-                self.render_stage.render(context)
+        while True:
+            # Render current state
+            self.render_stage.render(context)
 
-                # Get next event and convert to command
-                event = next(events)
-                command = self.command_factory.create_command(event)
+            # Get next event and convert to command
+            event = next(events)
+            command = self.command_factory.create_command(event)
 
-                # Execute command
-                result = self.state_update_stage.apply(command, context)
+            # Execute command
+            result = self.state_update_stage.apply(command, context)
 
-                # Handle transitions
-                if result.transition_to:
-                    context.mode = result.transition_to
-                    if result.transition_to == "explain":
-                        self._handle_explain_mode(context, events)
-                        context.mode = "select"
-                        if result.new_state:
-                            context.state = result.new_state
-                    continue
+            # Handle transitions
+            if result.transition_to:
+                context.mode = result.transition_to
+                if result.transition_to == "explain":
+                    self._handle_explain_mode(context, events)
+                    context.mode = "select"
+                    if result.new_state:
+                        context.state = result.new_state
+                continue
 
-                # Update state
-                if result.new_state:
-                    context.state = result.new_state
+            # Update state
+            if result.new_state:
+                context.state = result.new_state
 
-                # Check for completion
-                if not result.continue_pipeline:
-                    return result.output_value  # type: ignore[no-any-return]
-        finally:
-            # Ensure curses is cleaned up even if user presses 'q' or exception occurs
-            try:
-                curses.endwin()
-            except Exception:
-                pass  # Curses may already be cleaned up
+            # Check for completion
+            if not result.continue_pipeline:
+                return result.output_value  # type: ignore[no-any-return]
 
     def _handle_explain_mode(self, context: PipelineContext, events) -> None:
         """Handle explain mode - wait for any key.

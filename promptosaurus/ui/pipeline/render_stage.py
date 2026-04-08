@@ -14,6 +14,10 @@ class RenderStage:
     Uses Python's curses library for proper terminal state management,
     clearing, and cursor positioning. Curses is the standard, proven way
     to handle terminal operations reliably across all ANSI-compliant terminals.
+
+    Curses also handles input via stdscr.getch(), which eliminates the
+    stdin conflicts that occur when mixing curses rendering with manual
+    stdin reading for input.
     """
 
     def __init__(self, renderer_selector: Callable[[PipelineContext], object]):
@@ -21,27 +25,32 @@ class RenderStage:
         self._stdscr: Any = None
         self._initialized: bool = False
 
+    @property
+    def stdscr(self) -> Any:
+        """Get the curses window object.
+
+        Returns:
+            The curses window (stdscr) if initialized, None otherwise.
+        """
+        return self._stdscr
+
     def _init_curses(self) -> None:
         """Initialize curses terminal control on first render.
 
         This is called once on the first render() call to set up
         the terminal for proper rendering. Subsequent calls reuse
         the same curses window.
-
-        Note: We do NOT call curses.noecho(), curses.raw(), or curses.cbreak()
-        here. The input provider (UnixInputProvider) handles terminal mode
-        configuration. Curses is used only for rendering operations.
-
-        We also do NOT call keypad(True) here. The UnixInputProvider handles
-        arrow key parsing manually by reading raw escape sequences. Curses
-        keypad mode interferes with this by changing how the terminal reports
-        arrow keys, so we let the input provider have full control.
         """
         if self._initialized:
             return
 
         try:
             self._stdscr = curses.initscr()
+            # Configure curses: no echo, raw input mode
+            curses.noecho()
+            curses.raw()
+            # Enable keypad to handle arrow keys properly
+            self._stdscr.keypad(True)
             self._initialized = True
         except Exception:
             # Fallback to non-curses mode if initialization fails
@@ -49,14 +58,12 @@ class RenderStage:
             self._initialized = False
 
     def _cleanup_curses(self) -> None:
-        """Clean up curses and release the window.
-
-        Note: We do NOT restore terminal modes (echo, cbreak) here since
-        we never set them in the first place. The input provider manages
-        terminal modes independently.
-        """
+        """Clean up curses and restore terminal to normal state."""
         if self._stdscr and self._initialized:
             try:
+                curses.echo()
+                curses.nocbreak()
+                self._stdscr.keypad(False)
                 curses.endwin()
             except Exception:
                 pass  # Curses already cleaned up
@@ -193,6 +200,14 @@ class RenderStage:
             selection_text = self._format_current_selection(context)
             print(f"\nCurrent selection: {selection_text}")
             print("\nControls: Numbers to select, Enter to confirm, q to quit, ? for help")
+
+    def cleanup(self) -> None:
+        """Clean up curses on pipeline exit.
+
+        This should be called when the pipeline completes to restore
+        the terminal to normal state.
+        """
+        self._cleanup_curses()
 
     @staticmethod
     def _format_current_selection(context: PipelineContext) -> str:

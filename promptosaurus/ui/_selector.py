@@ -11,6 +11,7 @@ Functions:
 """
 
 from promptosaurus.ui.domain.context import QuestionContext
+from promptosaurus.ui.input.curses_provider import CursesInputProvider
 from promptosaurus.ui.pipeline.orchestrator import PipelineOrchestrator
 from promptosaurus.ui.pipeline.render_stage import RenderStage
 from promptosaurus.ui.pipeline.state_update_stage import StateUpdateStage
@@ -62,8 +63,25 @@ def select_option_with_explain(
         none_index=none_index,
     )
 
-    input_provider = UIFactory.create_input_provider()
     render_stage = RenderStage(renderer_selector=UIFactory.create_renderer)
+
+    # Create input provider using curses window from render_stage
+    # First render call initializes curses, so we need to trigger that
+    # Actually, we'll initialize curses inline and create the input provider
+    try:
+        # Initialize curses first to get the window
+        render_stage._init_curses()
+
+        # Now create curses-based input provider
+        if render_stage.stdscr:
+            input_provider = CursesInputProvider(render_stage.stdscr)
+        else:
+            # Fallback if curses init failed
+            input_provider = UIFactory.create_input_provider()
+    except Exception:
+        # Fallback if any error during setup
+        input_provider = UIFactory.create_input_provider()
+
     state_update = StateUpdateStage()
 
     pipeline = PipelineOrchestrator(
@@ -72,7 +90,11 @@ def select_option_with_explain(
         state_update_stage=state_update,
     )
 
-    return pipeline.run(context)
+    try:
+        return pipeline.run(context)
+    finally:
+        # Ensure curses is cleaned up on exit
+        render_stage.cleanup()
 
 
 def confirm_interactive(prompt: str, default: bool = True) -> bool:
