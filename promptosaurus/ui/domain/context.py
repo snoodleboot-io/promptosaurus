@@ -8,7 +8,7 @@ Classes:
     PipelineContext: Mutable context passed through pipeline stages.
 """
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class QuestionContext(BaseModel):
@@ -32,6 +32,8 @@ class QuestionContext(BaseModel):
         frozen: True - instances are immutable after creation.
     """
 
+    model_config = ConfigDict(frozen=True)
+
     question: str
     options: list[str]
     explanations: dict[str, str]
@@ -40,9 +42,6 @@ class QuestionContext(BaseModel):
     default_indices: set[int] = {0}
     allow_multiple: bool = False
     none_index: int | None = None  # Index of option that is mutually exclusive (e.g., 'none')
-
-    class Config:
-        frozen = True
 
 
 class PipelineContext:

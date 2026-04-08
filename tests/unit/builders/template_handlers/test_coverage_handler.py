@@ -18,7 +18,7 @@ class TestCoverageHandler(unittest.TestCase):
             "FUNCTION_COVERAGE_%",
             "STATEMENT_COVERAGE_%",
             "MUTATION_COVERAGE_%",
-            "PATH_COVERAGE_%"
+            "PATH_COVERAGE_%",
         ]
         for var in coverage_vars:
             with self.subTest(variable=var):
@@ -39,7 +39,7 @@ class TestCoverageHandler(unittest.TestCase):
                 "function": 92,
                 "statement": 88,
                 "mutation": 82,
-                "path": 65
+                "path": 65,
             }
         }
         self.assertEqual(self.handler.handle("LINE_COVERAGE_%", config), "85")
@@ -107,5 +107,5 @@ class TestCoverageHandler(unittest.TestCase):
         self.assertEqual(self.handler.handle("LINE_COVERAGE_%", config), "80")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -10,7 +10,7 @@ Classes:
 
 from enum import Enum, auto
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class InputEventType(Enum):
@@ -54,9 +54,8 @@ class InputEvent(BaseModel):
         frozen: True - instances are immutable after creation.
     """
 
+    model_config = ConfigDict(frozen=True)
+
     event_type: InputEventType
     value: int | None = None  # For NUMBER events
     raw_key: str | bytes = ""
-
-    class Config:
-        frozen = True

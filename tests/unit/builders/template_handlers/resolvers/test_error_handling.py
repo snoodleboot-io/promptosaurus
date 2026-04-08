@@ -9,30 +9,31 @@ This test module validates:
 - Error logging and recovery strategies
 """
 
-import pytest
-import jinja2
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
+import jinja2
+import pytest
+
+from promptosaurus.builders.template_handlers.resolvers.error_recovery import (
+    ErrorContextBuilder,
+    SafeAccessor,
+    TemplateCache,
+)
 from promptosaurus.builders.template_handlers.resolvers.jinja2_template_renderer import (
     Jinja2TemplateRenderer,
-)
-from promptosaurus.builders.template_handlers.resolvers.template_rendering_error import (
-    TemplateRenderingError,
 )
 from promptosaurus.builders.template_handlers.resolvers.registry_template_loader import (
     RegistryTemplateLoader,
 )
-from promptosaurus.builders.template_handlers.resolvers.error_recovery import (
-    SafeAccessor,
-    TemplateCache,
-    ErrorContextBuilder,
-)
 from promptosaurus.builders.template_handlers.resolvers.safe_filters import (
     safe_get,
-    safe_list,
     safe_int,
-    safe_str,
     safe_json,
+    safe_list,
+    safe_str,
+)
+from promptosaurus.builders.template_handlers.resolvers.template_rendering_error import (
+    TemplateRenderingError,
 )
 
 

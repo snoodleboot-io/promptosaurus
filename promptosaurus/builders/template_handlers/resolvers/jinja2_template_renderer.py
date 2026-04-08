@@ -7,9 +7,8 @@ from typing import Any
 import jinja2
 
 from promptosaurus.builders.template_handlers.resolvers.error_recovery import (
-    SafeAccessor,
-    TemplateCache,
     ErrorContextBuilder,
+    SafeAccessor,
 )
 from promptosaurus.builders.template_handlers.resolvers.template_rendering_error import (
     TemplateRenderingError,

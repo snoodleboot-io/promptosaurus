@@ -39,5 +39,5 @@ class TestRuntimeHandler(unittest.TestCase):
         self.assertEqual(result, "None")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

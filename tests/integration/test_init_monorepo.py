@@ -3,7 +3,6 @@
 These tests exercise the actual CLI flow to catch bugs in the full user journey.
 """
 
-
 from promptosaurus.questions.base.folder_spec import FolderSpec
 
 
@@ -65,7 +64,10 @@ class TestMonorepoConfig:
 
         assert "repository" in DEFAULT_MULTI_LANGUAGE_CONFIG_TEMPLATE
         assert "spec" in DEFAULT_MULTI_LANGUAGE_CONFIG_TEMPLATE
-        assert DEFAULT_MULTI_LANGUAGE_CONFIG_TEMPLATE["repository"]["type"] == "multi-language-monorepo"
+        assert (
+            DEFAULT_MULTI_LANGUAGE_CONFIG_TEMPLATE["repository"]["type"]
+            == "multi-language-monorepo"
+        )
 
     def test_spec_list_structure(self):
         """Verify spec can be a list of folder specs."""
