@@ -1,6 +1,6 @@
 """Render stage for UI pipeline."""
 
-import os
+import subprocess
 import sys
 from collections.abc import Callable
 from platform import system
@@ -16,13 +16,17 @@ class RenderStage:
 
     def render(self, context: PipelineContext) -> None:
         """Render current state."""
-        # Clear screen - use system clear command on Linux for reliability,
-        # ANSI codes as fallback for other systems
-        if system() == "Linux":
-            os.system("clear")  # More reliable on Linux than ANSI escape codes
+        # Clear screen using subprocess for reliability across all terminals.
+        # subprocess.run() is more reliable than os.system() as it doesn't
+        # interact unpredictably with Python's print() function.
+        if system() in ("Linux", "Darwin"):
+            # Use 'clear' command on Unix-like systems
+            subprocess.run(["clear"], check=False)
         else:
-            # Fallback to ANSI codes for Windows, macOS, and other systems
-            print("\033[2J\033[H", end="")
+            # Fallback to ANSI escape codes for Windows and other systems.
+            # Use sys.stdout.write() directly (not print()) and flush immediately
+            # to ensure codes are processed before subsequent output.
+            sys.stdout.write("\033[2J\033[H")
             sys.stdout.flush()
 
         # Show question and explanation at the top
