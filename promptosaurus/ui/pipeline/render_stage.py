@@ -1,7 +1,7 @@
 """Render stage for UI pipeline."""
 
+import os
 import sys
-import time
 from collections.abc import Callable
 from platform import system
 
@@ -16,14 +16,14 @@ class RenderStage:
 
     def render(self, context: PipelineContext) -> None:
         """Render current state."""
-        # Clear screen with ANSI escape codes and ensure immediate delivery
-        print("\033[2J\033[H", end="")
-        sys.stdout.flush()
-
-        # Add small delay on Linux to give terminal time to process escape sequence
-        # This prevents race conditions in terminal rendering
+        # Clear screen - use system clear command on Linux for reliability,
+        # ANSI codes as fallback for other systems
         if system() == "Linux":
-            time.sleep(0.01)
+            os.system("clear")  # More reliable on Linux than ANSI escape codes
+        else:
+            # Fallback to ANSI codes for Windows, macOS, and other systems
+            print("\033[2J\033[H", end="")
+            sys.stdout.flush()
 
         # Show question and explanation at the top
         question = context.question
