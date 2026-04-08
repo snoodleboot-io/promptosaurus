@@ -27,5 +27,15 @@ class PythonPackageManagerQuestion(Question):
         return ["pip", "uv", "poetry", "pipenv", "conda"]
 
     @property
+    def option_explanations(self) -> dict[str, str]:
+        return {
+            "pip": "Simplest, built-in package manager for Python",
+            "uv": "Ultra-fast modern replacement for pip, instant installations",
+            "poetry": "Dependency management with lock files, publish to PyPI",
+            "pipenv": "Combines pip and virtualenv, integrates environment management",
+            "conda": "Cross-platform, handles non-Python dependencies",
+        }
+
+    @property
     def default(self) -> str:
         return "uv"
