@@ -1,24 +1,27 @@
-"""Kilo Code IDE builder - outputs .kilocode/rules-{mode}/ structure.
+"""Kilo Code IDE builder - outputs .kilo/agents/*.md structure (new format).
 
 This module provides the KiloIDEBuilder class that generates the configuration
-files for Kilo Code in IDE format (used by VSCode/JetBrains extensions).
+files for Kilo in the new format (individual agent markdown files).
 
 Output layout:
   {output}/.kilocode/rules/                 <- core files (always loaded)
-  {output}/.kilocode/rules-{mode}/           <- per-mode directories with files
-  {output}/.kilocodemodes                <- all mode definitions (for IDE)
-  {output}/.kiloignore                  <- ignore patterns
+  {output}/.kilo/agents/                    <- individual agent files (new format)
+  {output}/.kiloignore                      <- ignore patterns
 
-This format is used by the KiloCode IDE extensions (VSCode/JetBrains).
+This format is used by the current Kilo platform (>= 2.0).
+
+Note: Legacy .kilocode/rules-{mode}/ and .kilocodemodes are no longer generated.
 
 Functions:
     _make_dest_filename: Convert prompt source path to destination filename.
     _flatten_agent_path: Flatten agent path by removing mode prefix dynamically.
 
 Classes:
-    KiloIDEBuilder: Builder for Kilo Code .kilocode/rules-{mode}/ directory structure.
+    KiloIDEBuilder: Builder for Kilo .kilo/agents/*.md directory structure.
 """
 
+import re
+import yaml
 from pathlib import Path
 from typing import Any
 
@@ -114,35 +117,49 @@ def _flatten_agent_path(filename: str, mode_key: str) -> str:
 
 
 class KiloIDEBuilder(KiloCodeBuilder):
-    """Builder for Kilo Code .kilocode/rules-{mode}/ directory structure (IDE format).
+    """Builder for Kilo .kilo/agents/*.md directory structure (new format).
 
-    This builder creates the IDE-format configuration used by the KiloCode
-    VSCode and JetBrains extensions. It generates:
+    This builder creates the new-format configuration for Kilo IDE (>= 2.0).
+    It generates:
     - AGENTS.md: User guide
     - .kilocode/rules/: Core convention files (always loaded)
-    - .kilocode/rules-{mode}/: Per-mode directories with individual files
-    - .kilocodemodes: All mode definitions
+    - .kilo/agents/{agent-name}.md: Individual agent files with YAML frontmatter
     - .kiloignore: Ignore patterns
 
-    The IDE format keeps each prompt as a separate file in mode-specific
-    directories, allowing for more granular control.
+    The new format uses individual markdown files with YAML frontmatter,
+    replacing the legacy .kilocode/rules-{mode}/ directory structure.
 
     Attributes:
         Inherits all attributes from KiloCodeBuilder.
     """
 
+    # Map mode slugs to colors for UI theming
+    MODE_COLORS = {
+        "architect": "#FF9500",
+        "test": "#7C3AED",
+        "refactor": "#059669",
+        "document": "#06B6D4",
+        "explain": "#14B8A6",
+        "migration": "#3B82F6",
+        "review": "#EC4899",
+        "security": "#EF4444",
+        "compliance": "#8B5CF6",
+        "enforcement": "#F59E0B",
+        "planning": "#6366F1",
+        "general": "#4B5563",
+    }
+
     def build(
         self, output: Path, config: dict[str, Any] | None = None, dry_run: bool = False
     ) -> list[str]:
-        """Write the Kilo .kilocode/rules-{mode}/ structure under `output`.
+        """Write the Kilo .kilo/agents/*.md structure under `output`.
 
-        Generates the IDE-format configuration by:
+        Generates the new-format configuration by:
         1. Creating AGENTS.md user guide
         2. Creating core files in .kilocode/rules/
         3. Adding language-specific conventions if selected
-        4. Creating per-mode directories with individual files
-        5. Generating .kilocodemodes manifest
-        6. Building .kiloignore
+        4. Creating individual agent files in .kilo/agents/
+        5. Building .kiloignore
 
         Args:
             output: Directory path where files will be created.
@@ -198,25 +215,237 @@ class KiloIDEBuilder(KiloCodeBuilder):
                     actions.append(self._copy(source_path, destination_rules, dry_run, config))
                     languages_added.add(selected_language.lower())
 
-        # 3. Create per-mode directories with their files (ALL 15 modes for IDE)
-        for mode_key in self.kilo_modes.keys():
-            if mode_key not in registry.mode_files:
-                continue
-            mode_dir = output / ".kilocode" / f"rules-{mode_key}"
-            for filename in registry.mode_files[mode_key]:
-                source_path = registry.prompt_path(filename)
-                if source_path.exists():
-                    new_filename = _make_dest_filename(filename, mode_key)
-                    destination = mode_dir / new_filename
-                    actions.append(self._copy(source_path, destination, dry_run, config))
+        # 3. Create individual agent files in .kilo/agents/ (NEW FORMAT)
+        actions.extend(self._write_agents_md_files(output, dry_run))
 
-        # 4. Generate .kilocodemodes manifest
-        actions.append(self._write_manifest(output / ".kilocodemodes", dry_run))
-
-        # 5. Build .kiloignore
+        # 4. Build .kiloignore
         actions.extend(self._build_ignore(output, dry_run))
 
         return actions
+
+    def _write_agents_md_files(self, output: Path, dry_run: bool) -> list[str]:
+        """Generate individual .kilo/agents/{agent-name}.md files from kilo_modes.yaml.
+
+        Reads the kilo_modes.yaml file and creates individual markdown files
+        for each mode, with YAML frontmatter containing metadata and permissions.
+
+        Args:
+            output: Output directory path.
+            dry_run: If True, return preview without writing.
+
+        Returns:
+            List of action strings describing generated files.
+        """
+        actions: list[str] = []
+        agents_dir = output / ".kilo" / "agents"
+
+        # Read kilo_modes.yaml to get mode definitions
+        kilo_modes_path = Path(__file__).parent / "kilo_modes.yaml"
+        if not kilo_modes_path.exists():
+            return [f"[ERROR] kilo_modes.yaml not found at {kilo_modes_path}"]
+
+        try:
+            with open(kilo_modes_path, encoding="utf-8") as f:
+                kilo_data = yaml.safe_load(f)
+        except Exception as e:
+            return [f"[ERROR] Failed to parse kilo_modes.yaml: {e}"]
+
+        custom_modes = kilo_data.get("customModes", [])
+        if not custom_modes:
+            return ["[WARNING] No customModes found in kilo_modes.yaml"]
+
+        # Generate one .md file per mode
+        for mode_def in custom_modes:
+            slug = mode_def.get("slug", "").lower()
+            if not slug:
+                continue
+
+            # Extract mode metadata
+            description = mode_def.get("description", "")
+            role_definition = mode_def.get("roleDefinition", "")
+            when_to_use = mode_def.get("whenToUse", "")
+            groups = mode_def.get("groups", [])
+
+            # Map permissions from old format to new format
+            permission_obj = self._map_groups_to_permissions(groups)
+
+            # Get color for this mode
+            color = self.MODE_COLORS.get(slug, "#4B5563")  # Default: gray
+
+            # Build YAML frontmatter
+            frontmatter = self._build_frontmatter(
+                description=description,
+                mode="primary",
+                permission=permission_obj,
+                color=color,
+            )
+
+            # Build markdown body (roleDefinition + whenToUse)
+            body_parts = []
+            if role_definition:
+                body_parts.append(role_definition.strip())
+            if when_to_use:
+                body_parts.append(when_to_use.strip())
+            body = "\n\n".join(body_parts) if body_parts else ""
+
+            # Combine frontmatter and body
+            if body:
+                file_content = f"{frontmatter}\n\n{body}"
+            else:
+                file_content = frontmatter
+
+            # Write to file
+            if dry_run:
+                actions.append(f"[dry-run] .kilo/agents/{slug}.md")
+            else:
+                destination = agents_dir / f"{slug}.md"
+                try:
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.write_text(file_content, encoding="utf-8")
+                    actions.append(f"✓ .kilo/agents/{slug}.md")
+                except Exception as e:
+                    actions.append(f"[ERROR] Failed to write {slug}.md: {e}")
+
+        return actions
+
+    def _map_groups_to_permissions(self, groups: list[Any]) -> dict[str, Any]:
+        """Map old 'groups' format to new 'permission' object format.
+
+        Converts the legacy groups array format to the new permission object format:
+        - Old: [["read"], ["edit", [{fileRegex: "..."}]], ["command"]]
+        - New: {read: {*: allow}, edit: {...}, bash: allow}
+
+        Args:
+            groups: The groups array from kilo_modes.yaml.
+
+        Returns:
+            Permission object dict suitable for YAML frontmatter.
+        """
+        permission: dict[str, Any] = {}
+
+        # Process each group entry
+        for group_entry in groups:
+            if isinstance(group_entry, str):
+                # Simple permission: "read", "edit", "command", "browser"
+                if group_entry == "read":
+                    permission["read"] = {"*": "allow"}
+                elif group_entry == "edit":
+                    # Unrestricted edit
+                    permission["edit"] = {"*": "allow"}
+                elif group_entry == "command":
+                    # Allow bash commands
+                    permission["bash"] = "allow"
+                elif group_entry == "browser":
+                    # Browser access (not directly in permission object)
+                    pass  # Ignore for now, can be added if needed
+
+            elif isinstance(group_entry, list) and len(group_entry) >= 2:
+                # Complex permission with restrictions: ["edit", [{fileRegex: "..."}]]
+                perm_type = group_entry[0]
+                restrictions = group_entry[1]
+
+                if perm_type == "edit":
+                    permission["edit"] = {}
+                    # Add file patterns from restrictions
+                    if isinstance(restrictions, list):
+                        for restriction in restrictions:
+                            if isinstance(restriction, dict):
+                                file_regex = restriction.get("fileRegex", "")
+                                # Convert regex patterns to glob-like patterns
+                                glob_pattern = self._regex_to_glob(file_regex)
+                                if glob_pattern:
+                                    permission["edit"][glob_pattern] = "allow"
+                    # Deny by default
+                    permission["edit"]["*"] = "deny"
+
+        # Ensure read permission exists (if not explicitly set)
+        if "read" not in permission:
+            permission["read"] = {"*": "allow"}
+
+        return permission
+
+    def _regex_to_glob(self, regex_pattern: str) -> str:
+        """Convert regex file pattern to glob pattern.
+
+        Attempts to convert regex patterns to glob patterns for readability.
+        Falls back to regex pattern if conversion is complex.
+
+        Args:
+            regex_pattern: Regex pattern string.
+
+        Returns:
+            Glob-style pattern string.
+        """
+        # Simple conversions
+        # Replace regex escape sequences with glob patterns
+        pattern = regex_pattern
+
+        # Handle common patterns
+        # (docs|path)/something.md$ -> docs/**/*.md or path/**/*.md
+        if pattern.startswith("(") and "|" in pattern:
+            # Extract alternatives: (docs|path)/...
+            match = re.match(r"\(([^)]+)\)", pattern)
+            if match:
+                alts = match.group(1).split("|")
+                # For now, use first alternative (could extend to generate multiple)
+                pattern = pattern.replace(f"({match.group(1)})", alts[0])
+
+        # Remove common regex anchors
+        pattern = pattern.rstrip("$")
+        pattern = pattern.lstrip("^")
+
+        # Convert regex . to * (with caution)
+        if pattern.startswith("."):
+            pattern = pattern.replace(".", "")
+
+        # Unescape common patterns
+        pattern = pattern.replace(r"\.", ".")
+        pattern = pattern.replace(r"\/", "/")
+        pattern = pattern.replace(r"\d+", "*")
+        pattern = pattern.replace(r"\w+", "*")
+
+        # If pattern still has regex metacharacters, keep it as-is
+        if re.search(r"[\\^$|?+\(\)\[\]{}]", pattern.replace("*", "")):
+            return regex_pattern
+
+        # Clean up any remaining oddities
+        pattern = pattern.strip()
+        if pattern.endswith("/"):
+            pattern += "**"
+
+        return pattern if pattern else regex_pattern
+
+    def _build_frontmatter(
+        self,
+        description: str,
+        mode: str,
+        permission: dict[str, Any],
+        color: str,
+    ) -> str:
+        """Build YAML frontmatter for an agent markdown file.
+
+        Args:
+            description: Agent description.
+            mode: Agent mode ("primary", "subagent", etc).
+            permission: Permission object dict.
+            color: Hex color code.
+
+        Returns:
+            YAML frontmatter string (with leading/trailing ---).
+        """
+        # Build YAML dict
+        frontmatter_dict = {
+            "description": description,
+            "mode": mode,
+            "permission": permission,
+            "color": color,
+        }
+
+        # Serialize to YAML
+        yaml_str = yaml.dump(frontmatter_dict, default_flow_style=False, sort_keys=False)
+
+        # Return wrapped in --- markers
+        return f"---\n{yaml_str}---"
 
     def _get_agents_md_content(self) -> str:
         """Get the AGENTS.md content for IDE format by reading from template file.
@@ -231,3 +460,4 @@ class KiloIDEBuilder(KiloCodeBuilder):
         if not path.exists():
             raise ValueError("The AGENTS.md file was not found.")
         return path.read_text(encoding="utf-8")
+
