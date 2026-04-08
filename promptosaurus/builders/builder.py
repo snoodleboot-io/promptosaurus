@@ -170,6 +170,13 @@ class Builder:
         # Register custom filters for code generation and string transformations
         register_custom_filters(environment)
 
+        # Register safe filters for error-tolerant template rendering
+        from promptosaurus.builders.template_handlers.resolvers.safe_filters import (
+            register_safe_filters,
+        )
+
+        register_safe_filters(environment)
+
         return environment
 
     def build(
