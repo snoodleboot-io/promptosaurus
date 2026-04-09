@@ -28,6 +28,7 @@ from src.builders.component_selector import (
     ComponentSelector,
 )
 from src.builders.component_composer import ComponentComposer
+from src.builders.kilo_builder import KiloBuilder
 
 __all__ = [
     "AbstractBuilder",
@@ -48,4 +49,5 @@ __all__ = [
     "ComponentBundle",
     "ComponentSelector",
     "ComponentComposer",
+    "KiloBuilder",
 ]
