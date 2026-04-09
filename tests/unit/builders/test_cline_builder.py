@@ -1,22 +1,24 @@
 """Unit tests for ClineBuilder class.
 
 Tests cover:
-- Markdown output generation (no YAML frontmatter)
-- Skill activation instruction generation
-- use_skill invocation pattern
-- Subagent delegation with skill context
-- Tool dependency handling
+- Markdown header generation
+- System prompt as prose formatting
+- Tools section generation
+- Skills section with use_skill invocation pattern
+- Workflows section generation
+- Subagents section generation
 - Agent validation
+- Component loading with variants
 - Error handling
+- Output format verification
 """
 
 import pytest
 from pathlib import Path
-from unittest.mock import Mock
+from tempfile import TemporaryDirectory
 
 from src.builders.cline_builder import ClineBuilder
 from src.builders.base import BuildOptions
-from src.builders.component_selector import ComponentBundle, Variant
 from src.builders.errors import BuilderValidationError
 from src.ir.models import Agent
 
@@ -41,6 +43,11 @@ class TestClineBuilderInitialization:
         builder = ClineBuilder(agents_dir=path)
         assert builder.agents_dir == path
 
+    def test_selector_initialized(self) -> None:
+        """Test that ComponentSelector is initialized."""
+        builder = ClineBuilder()
+        assert builder.selector is not None
+
 
 class TestClineBuilderValidation:
     """Tests for Agent validation."""
@@ -63,7 +70,8 @@ class TestClineBuilderValidation:
             description="Test agent with all required fields",
             system_prompt="Valid system prompt",
             tools=["read", "write"],
-            skills=["test-first-implementation"],
+            skills=["skill1"],
+            workflows=["workflow1"],
             subagents=["subagent1"],
         )
         builder = ClineBuilder()
@@ -71,529 +79,567 @@ class TestClineBuilderValidation:
         assert isinstance(errors, list)
         assert len(errors) == 0
 
-    def test_validate_all_required_fields_present(self) -> None:
-        """Test validation checks for all required fields."""
-        agent = Agent(
-            name="valid",
-            description="Valid description",
-            system_prompt="Valid system prompt",
-        )
+
+class TestClineBuilderFormatting:
+    """Tests for section formatting methods."""
+
+    def test_format_header(self) -> None:
+        """Test markdown header generation."""
         builder = ClineBuilder()
-        errors = builder.validate(agent)
-        # Should have no errors if all required fields are present
-        assert errors == []
+        agent = Agent(
+            name="code",
+            description="Code agent",
+            system_prompt="You are a code assistant",
+        )
+        header = builder._format_header(agent)
+        assert header == "# code Rules"
 
+    def test_format_header_with_special_characters(self) -> None:
+        """Test header generation with special characters in name."""
+        builder = ClineBuilder()
+        agent = Agent(
+            name="test-agent-name",
+            description="Test agent",
+            system_prompt="You are a test assistant",
+        )
+        header = builder._format_header(agent)
+        assert header == "# test-agent-name Rules"
 
-class TestClineBuilderToolFormatting:
-    """Tests for tools formatting."""
+    def test_format_system_prompt_prose(self) -> None:
+        """Test system prompt formatting as prose."""
+        builder = ClineBuilder()
+        prompt = "You are an expert code assistant."
+        result = builder._format_system_prompt_prose(prompt)
+        assert result == "You are an expert code assistant."
 
-    def test_format_tools_single(self) -> None:
+    def test_format_system_prompt_prose_strips_whitespace(self) -> None:
+        """Test system prompt formatting strips leading/trailing whitespace."""
+        builder = ClineBuilder()
+        prompt = "  \n  You are an expert code assistant.  \n  "
+        result = builder._format_system_prompt_prose(prompt)
+        assert result == "You are an expert code assistant."
+
+    def test_format_system_prompt_prose_preserves_internal_whitespace(self) -> None:
+        """Test system prompt formatting preserves internal content."""
+        builder = ClineBuilder()
+        prompt = "You are an expert code assistant.\n\nYour responsibilities:\n- Code\n- Tests"
+        result = builder._format_system_prompt_prose(prompt)
+        assert "Your responsibilities:" in result
+        assert "- Code" in result
+
+    def test_format_tools_section_single_tool(self) -> None:
         """Test formatting single tool."""
         builder = ClineBuilder()
-        result = builder._format_tools(["read"])
-        assert "- read" in result
+        result = builder._format_tools_section(["read"])
+        assert "## Tools" in result
+        assert "- **read**:" in result
 
-    def test_format_tools_multiple(self) -> None:
+    def test_format_tools_section_multiple_tools(self) -> None:
         """Test formatting multiple tools."""
         builder = ClineBuilder()
-        result = builder._format_tools(["read", "write", "bash"])
-        assert "- read" in result
-        assert "- write" in result
-        assert "- bash" in result
+        result = builder._format_tools_section(["read", "grep", "bash"])
+        assert "## Tools" in result
+        assert "- **read**:" in result
+        assert "- **grep**:" in result
+        assert "- **bash**:" in result
 
-    def test_format_tools_empty(self) -> None:
-        """Test formatting empty tools list."""
+    def test_format_tools_section_empty(self) -> None:
+        """Test formatting with empty tools list."""
         builder = ClineBuilder()
-        result = builder._format_tools([])
-        assert result == ""
+        result = builder._format_tools_section([])
+        assert "## Tools" in result
 
-    def test_format_tools_preserves_order(self) -> None:
-        """Test tool formatting preserves list order."""
+    def test_format_skills_section(self) -> None:
+        """Test skills section formatting."""
         builder = ClineBuilder()
-        tools = ["first", "second", "third"]
-        result = builder._format_tools(tools)
-        lines = result.split("\n")
-        assert lines[0] == "- first"
-        assert lines[1] == "- second"
-        assert lines[2] == "- third"
-
-
-class TestClineSkillActivation:
-    """Tests for skill activation instruction generation."""
-
-    def test_build_skill_activation_instructions_includes_skill_name(self) -> None:
-        """Test activation instructions include the skill name."""
-        builder = ClineBuilder()
-        result = builder._build_skill_activation_instructions("test-first-implementation")
-        assert "test-first-implementation" in result
-        assert "Test First Implementation" in result
-
-    def test_build_skill_activation_uses_use_skill_syntax(self) -> None:
-        """Test activation instructions use use_skill invocation pattern."""
-        builder = ClineBuilder()
-        result = builder._build_skill_activation_instructions("code-review-audit")
-        assert "use_skill code-review-audit" in result
-
-    def test_build_skill_activation_includes_location(self) -> None:
-        """Test activation instructions include skill location reference."""
-        builder = ClineBuilder()
-        result = builder._build_skill_activation_instructions("refactor-code-module")
-        assert ".kilo/skills/refactor-code-module.md" in result
-
-    def test_build_skill_activation_includes_when_to_use(self) -> None:
-        """Test activation instructions explain when to use the skill."""
-        builder = ClineBuilder()
-        result = builder._build_skill_activation_instructions("test-first-implementation")
-        assert "When to use" in result or "when to use" in result.lower()
-
-    def test_build_skill_activation_includes_invocation_instructions(self) -> None:
-        """Test activation instructions explain how to invoke."""
-        builder = ClineBuilder()
-        result = builder._build_skill_activation_instructions("documentation-generation")
-        assert "How to invoke" in result or "invoke" in result.lower()
-
-    def test_build_skill_activation_normalizes_skill_name(self) -> None:
-        """Test skill names are properly normalized in output."""
-        builder = ClineBuilder()
-        result = builder._build_skill_activation_instructions("test-first-implementation")
-        # Should convert to title case for display
-        assert "Test First Implementation" in result
-
-    def test_build_skill_activation_includes_direct_and_delegation_options(self) -> None:
-        """Test activation instructions include direct and delegation invocation."""
-        builder = ClineBuilder()
-        result = builder._build_skill_activation_instructions("code-review-audit")
-        assert "Direct:" in result or "direct" in result.lower()
-        assert "Delegation:" in result or "delegation" in result.lower()
-
-    def test_build_skill_activation_multiple_skills(self) -> None:
-        """Test activation instructions for multiple skill types."""
-        builder = ClineBuilder()
-        skills = [
-            "test-first-implementation",
-            "refactor-code-module",
-            "code-review-audit",
-        ]
-        for skill in skills:
-            result = builder._build_skill_activation_instructions(skill)
-            assert f"use_skill {skill}" in result
-            assert ".kilo/skills/" in result
-
-
-class TestClineSkillsFormatting:
-    """Tests for skills section with activation."""
-
-    def test_format_skills_with_activation_empty(self) -> None:
-        """Test formatting empty skills content."""
-        builder = ClineBuilder()
-        result = builder._format_skills_with_activation("", [])
-        assert result == ""
-
-    def test_format_skills_with_activation_includes_header(self) -> None:
-        """Test skills section includes explanatory header."""
-        builder = ClineBuilder()
-        skills_content = "Sample skill content"
-        result = builder._format_skills_with_activation(skills_content, ["test-skill"])
-        assert "available" in result.lower()
+        skills_content = "Available skills for implementation"
+        skill_names = ["test-implementation", "code-review"]
+        result = builder._format_skills_section(skills_content, skill_names)
+        assert "## Skills" in result
         assert "use_skill" in result
 
-    def test_format_skills_with_activation_single_skill(self) -> None:
-        """Test skills section with single skill."""
+    def test_format_skills_section_use_skill_invocation(self) -> None:
+        """Test skills section includes use_skill invocation pattern."""
         builder = ClineBuilder()
-        skills_content = "Skill content here"
-        result = builder._format_skills_with_activation(
-            skills_content, ["test-first-implementation"]
+        skills_content = ""
+        skill_names = ["my-skill"]
+        result = builder._format_skills_section(skills_content, skill_names)
+        assert "use_skill" in result
+
+    def test_format_skills_section_empty_names(self) -> None:
+        """Test skills section with empty skill names."""
+        builder = ClineBuilder()
+        skills_content = "No skills available"
+        skill_names = []
+        result = builder._format_skills_section(skills_content, skill_names)
+        assert "## Skills" in result
+
+    def test_format_skills_section_preserves_content(self) -> None:
+        """Test skills section preserves provided content."""
+        builder = ClineBuilder()
+        skills_content = "### Skill 1\nDo something\n### Skill 2\nDo something else"
+        skill_names = ["skill1"]
+        result = builder._format_skills_section(skills_content, skill_names)
+        assert "Do something" in result
+
+    def test_format_workflows_section(self) -> None:
+        """Test workflows section formatting."""
+        builder = ClineBuilder()
+        workflow_content = (
+            "### Workflow: Feature Implementation\n\n1. Read code\n2. Plan\n3. Implement"
         )
-        assert "use_skill test-first-implementation" in result
-        assert "## Skill:" in result
+        result = builder._format_workflows_section(workflow_content)
+        assert "## Workflows" in result
+        assert "Feature Implementation" in result
+        assert "1. Read code" in result
 
-    def test_format_skills_with_activation_multiple_skills(self) -> None:
-        """Test skills section with multiple skills."""
+    def test_format_workflows_section_strips_whitespace(self) -> None:
+        """Test workflows section strips excess whitespace."""
         builder = ClineBuilder()
-        skills_content = "Shared skill content"
-        agent_skills = [
-            "test-first-implementation",
-            "refactor-code-module",
-            "code-review-audit",
-        ]
-        result = builder._format_skills_with_activation(skills_content, agent_skills)
+        workflow_content = "  \n  Workflow steps  \n  "
+        result = builder._format_workflows_section(workflow_content)
+        assert result.startswith("## Workflows")
+        assert "Workflow steps" in result
 
-        for skill in agent_skills:
-            assert f"use_skill {skill}" in result
-
-    def test_format_skills_includes_original_content(self) -> None:
-        """Test skills section preserves original component content."""
-        builder = ClineBuilder()
-        skills_content = "Original skill definitions here"
-        result = builder._format_skills_with_activation(
-            skills_content, ["test-skill"]
-        )
-        assert "Original skill definitions here" in result
-
-    def test_format_skills_properly_separated(self) -> None:
-        """Test skills section has proper spacing between skills."""
-        builder = ClineBuilder()
-        result = builder._format_skills_with_activation(
-            "content", ["skill1", "skill2"]
-        )
-        # Each skill should have its own section
-        assert result.count("## Skill:") == 2
-
-
-class TestClineSubagentSkillMapping:
-    """Tests for subagent to skill mapping."""
-
-    def test_get_subagent_skills_test_subagent(self) -> None:
-        """Test skill mapping for test subagent."""
-        builder = ClineBuilder()
-        skills = builder._get_subagent_skills(
-            "test", ["test-first-implementation", "code-review-audit"]
-        )
-        assert "test-first-implementation" in skills
-
-    def test_get_subagent_skills_refactor_subagent(self) -> None:
-        """Test skill mapping for refactor subagent."""
-        builder = ClineBuilder()
-        skills = builder._get_subagent_skills(
-            "refactor", ["refactor-code-module", "test-first-implementation"]
-        )
-        assert "refactor-code-module" in skills
-
-    def test_get_subagent_skills_review_subagent(self) -> None:
-        """Test skill mapping for review subagent."""
-        builder = ClineBuilder()
-        skills = builder._get_subagent_skills(
-            "review", ["code-review-audit", "test-first-implementation"]
-        )
-        assert "code-review-audit" in skills
-
-    def test_get_subagent_skills_unknown_subagent(self) -> None:
-        """Test skill mapping for unknown subagent returns empty."""
-        builder = ClineBuilder()
-        skills = builder._get_subagent_skills(
-            "unknown-subagent", ["test-first-implementation"]
-        )
-        assert skills == []
-
-    def test_get_subagent_skills_filters_unavailable_skills(self) -> None:
-        """Test that only available agent skills are included."""
-        builder = ClineBuilder()
-        # Ask for test subagent skills but don't include them in agent
-        skills = builder._get_subagent_skills("test", ["code-review-audit"])
-        # test subagent would want test-first-implementation but it's not in agent skills
-        assert "test-first-implementation" not in skills
-
-    def test_get_subagent_skills_case_insensitive(self) -> None:
-        """Test skill mapping is case-insensitive."""
-        builder = ClineBuilder()
-        skills1 = builder._get_subagent_skills(
-            "TEST", ["test-first-implementation"]
-        )
-        skills2 = builder._get_subagent_skills(
-            "test", ["test-first-implementation"]
-        )
-        assert skills1 == skills2
-
-
-class TestClineSubagentFormatting:
-    """Tests for subagent delegation section."""
-
-    def test_format_subagents_with_skills_empty(self) -> None:
-        """Test subagent formatting with empty list."""
-        builder = ClineBuilder()
-        result = builder._format_subagents_with_skills([], [])
-        assert result == ""
-
-    def test_format_subagents_with_skills_includes_header(self) -> None:
-        """Test subagent section includes delegation header."""
-        builder = ClineBuilder()
-        result = builder._format_subagents_with_skills(
-            ["test"], ["test-first-implementation"]
-        )
-        assert "delegate" in result.lower()
-        assert "specialist" in result.lower()
-
-    def test_format_subagents_single_subagent(self) -> None:
+    def test_format_subagents_section_single(self) -> None:
         """Test formatting single subagent."""
         builder = ClineBuilder()
-        result = builder._format_subagents_with_skills(
-            ["test"], ["test-first-implementation"]
-        )
-        assert "### Subagent:" in result
-        assert "test" in result.lower()
+        result = builder._format_subagents_section(["code-test"])
+        assert "## Subagents" in result
+        assert "code-test" in result
+        assert "use_skill" in result
 
-    def test_format_subagents_multiple_subagents(self) -> None:
+    def test_format_subagents_section_multiple(self) -> None:
         """Test formatting multiple subagents."""
         builder = ClineBuilder()
-        result = builder._format_subagents_with_skills(
-            ["test", "refactor", "review"],
-            ["test-first-implementation", "refactor-code-module", "code-review-audit"],
-        )
-        assert result.count("### Subagent:") == 3
+        result = builder._format_subagents_section(["code-test", "code-review", "code-refactor"])
+        assert "## Subagents" in result
+        assert "code-test" in result
+        assert "code-review" in result
+        assert "code-refactor" in result
 
-    def test_format_single_subagent_with_skills_includes_name(self) -> None:
-        """Test subagent entry includes normalized name."""
+    def test_format_subagents_section_invocation(self) -> None:
+        """Test subagents section includes invocation instructions."""
         builder = ClineBuilder()
-        result = builder._format_single_subagent_with_skills("test-code", [])
-        assert "Test Code" in result
+        result = builder._format_subagents_section(["test-agent"])
+        assert "use_skill" in result
 
-    def test_format_single_subagent_with_skills_includes_use_skill_syntax(self) -> None:
-        """Test subagent entry includes use_skill invocation."""
+    def test_format_subagents_section_empty(self) -> None:
+        """Test formatting with empty subagents list."""
         builder = ClineBuilder()
-        result = builder._format_single_subagent_with_skills(
-            "test", ["test-first-implementation"]
-        )
-        assert "use_skill test" in result
-
-    def test_format_single_subagent_with_skills_lists_available_skills(self) -> None:
-        """Test subagent entry lists its available skills."""
-        builder = ClineBuilder()
-        result = builder._format_single_subagent_with_skills(
-            "test",
-            ["test-first-implementation", "code-review-audit"],
-        )
-        assert "Available skills:" in result
-        assert "use_skill test-first-implementation" in result
-
-    def test_format_single_subagent_with_skills_no_skills(self) -> None:
-        """Test subagent entry without skills still formats correctly."""
-        builder = ClineBuilder()
-        result = builder._format_single_subagent_with_skills("unknown", [])
-        assert "### Subagent:" in result
-        assert "Unknown" in result
-
-    def test_format_single_subagent_delegates_invocation_syntax(self) -> None:
-        """Test subagent entry includes both invocation syntaxes."""
-        builder = ClineBuilder()
-        result = builder._format_single_subagent_with_skills("code", [])
-        assert "use_skill code" in result
-        assert "code subagent" in result.lower()
+        result = builder._format_subagents_section([])
+        assert "## Subagents" in result
 
 
-class TestClineBuilderBuildOutput:
-    """Tests for complete build output."""
+class TestClineBuilderBuild:
+    """Tests for full build process."""
 
-    def test_build_includes_system_prompt_section_header(self) -> None:
-        """Test build output includes system prompt section header."""
-        builder = ClineBuilder()
+    @pytest.fixture
+    def temp_agents_dir(self):
+        """Create temporary agents directory structure."""
+        with TemporaryDirectory() as tmpdir:
+            tmppath = Path(tmpdir)
+
+            # Create agent directory with minimal variant
+            agent_dir = tmppath / "code" / "minimal"
+            agent_dir.mkdir(parents=True, exist_ok=True)
+
+            # Create required files
+            (agent_dir / "prompt.md").write_text("You are an expert code assistant")
+            (agent_dir / "skills.md").write_text("## Test Skill\nTest skill content")
+            (agent_dir / "workflow.md").write_text("## Test Workflow\nTest workflow content")
+
+            yield tmpdir, tmppath
+
+    def test_build_returns_string(self, temp_agents_dir) -> None:
+        """Test build method returns string."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
         agent = Agent(
             name="code",
             description="Code agent",
             system_prompt="You are a code assistant",
         )
-        # Mock the selector to avoid filesystem dependencies
-        mock_bundle = ComponentBundle(
-            variant=Variant.VERBOSE,
-            prompt="System prompt content",
-            skills="",
-            workflow="",
-            fallback_used=False,
-        )
-        builder.selector.select = lambda *args, **kwargs: mock_bundle
-
-        options = BuildOptions()
+        options = BuildOptions(variant="minimal")
         result = builder.build(agent, options)
-        assert "# System Prompt" in result
+        assert isinstance(result, str)
 
-    def test_build_no_yaml_frontmatter(self) -> None:
-        """Test build output has no YAML frontmatter (unlike Kilo)."""
-        builder = ClineBuilder()
+    def test_build_includes_header(self, temp_agents_dir) -> None:
+        """Test build output includes agent name header."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
         agent = Agent(
             name="code",
             description="Code agent",
             system_prompt="You are a code assistant",
         )
-        # Mock the selector
-        mock_bundle = ComponentBundle(
-            variant=Variant.VERBOSE,
-            prompt="Content here",
-            skills="",
-            workflow="",
-            fallback_used=False,
-        )
-        builder.selector.select = lambda *args, **kwargs: mock_bundle
-
-        options = BuildOptions()
+        options = BuildOptions(variant="minimal")
         result = builder.build(agent, options)
-        # Should not start with ---
-        assert not result.startswith("---")
-        # Should not contain YAML frontmatter markers
-        lines = result.split("\n")
-        # First line should be a markdown header, not YAML
-        assert lines[0].startswith("#")
+        assert "# code Rules" in result
 
-    def test_build_invalid_agent_raises_error(self) -> None:
-        """Test build raises BuilderValidationError for invalid agent."""
-        builder = ClineBuilder()
-        # This will not raise during Agent creation, but during build validation
-        agent = Agent(name="test", description="test", system_prompt="test")
-        
-        # The validate method should return empty list if all required fields present
-        options = BuildOptions()
-        errors = builder.validate(agent)
-        assert errors == []  # All required fields are present
-
-    def test_build_handles_empty_tools_gracefully(self) -> None:
-        """Test build handles missing tools."""
-        builder = ClineBuilder()
+    def test_build_includes_system_prompt(self, temp_agents_dir) -> None:
+        """Test build output includes system prompt."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
         agent = Agent(
             name="code",
             description="Code agent",
-            system_prompt="You are a code assistant",
-            tools=[],
+            system_prompt="You are an expert code assistant",
         )
-        mock_bundle = ComponentBundle(
-            variant=Variant.VERBOSE,
-            prompt="Content",
-            skills="",
-            workflow="",
-            fallback_used=False,
-        )
-        builder.selector.select = lambda *args, **kwargs: mock_bundle
-
-        options = BuildOptions(include_tools=True)
+        options = BuildOptions(variant="minimal")
         result = builder.build(agent, options)
-        # Should not include Tools section if empty
-        assert "# Tools" not in result
+        assert "You are an expert code assistant" in result
 
-    def test_build_includes_tools_when_present(self) -> None:
-        """Test build includes tools section when tools are present."""
-        builder = ClineBuilder()
+    def test_build_with_tools(self, temp_agents_dir) -> None:
+        """Test build includes tools section when requested."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
         agent = Agent(
             name="code",
             description="Code agent",
             system_prompt="You are a code assistant",
             tools=["read", "write"],
         )
-        mock_bundle = ComponentBundle(
-            variant=Variant.VERBOSE,
-            prompt="Content",
-            skills="",
-            workflow="",
-            fallback_used=False,
-        )
-        builder.selector.select = lambda *args, **kwargs: mock_bundle
-
-        options = BuildOptions(include_tools=True)
+        options = BuildOptions(variant="minimal", include_tools=True)
         result = builder.build(agent, options)
-        assert "# Tools" in result
-        assert "- read" in result
+        assert "## Tools" in result
+        assert "read" in result
+        assert "write" in result
 
-    def test_build_includes_skills_when_present(self) -> None:
-        """Test build includes skills section when skills are present."""
-        builder = ClineBuilder()
+    def test_build_without_tools(self, temp_agents_dir) -> None:
+        """Test build excludes tools section when not requested."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
         agent = Agent(
             name="code",
             description="Code agent",
             system_prompt="You are a code assistant",
-            skills=["test-first-implementation"],
+            tools=["read", "write"],
         )
-        mock_bundle = ComponentBundle(
-            variant=Variant.VERBOSE,
-            prompt="Content",
-            skills="Skill definitions",
-            workflow="",
-            fallback_used=False,
-        )
-        builder.selector.select = lambda *args, **kwargs: mock_bundle
-
-        options = BuildOptions(include_skills=True)
+        options = BuildOptions(variant="minimal", include_tools=False)
         result = builder.build(agent, options)
-        assert "# Skills" in result
-        assert "use_skill" in result
+        assert "## Tools" not in result
 
-    def test_build_includes_subagents_when_present(self) -> None:
-        """Test build includes subagents section when subagents are present."""
-        builder = ClineBuilder()
+    def test_build_with_subagents(self, temp_agents_dir) -> None:
+        """Test build includes subagents section when requested."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
         agent = Agent(
             name="code",
             description="Code agent",
             system_prompt="You are a code assistant",
-            subagents=["test"],
-            skills=["test-first-implementation"],
+            subagents=["code-test"],
         )
-        mock_bundle = ComponentBundle(
-            variant=Variant.VERBOSE,
-            prompt="Content",
-            skills="",
-            workflow="",
-            fallback_used=False,
-        )
-        builder.selector.select = lambda *args, **kwargs: mock_bundle
-
-        options = BuildOptions(include_subagents=True)
+        options = BuildOptions(variant="minimal", include_subagents=True)
         result = builder.build(agent, options)
-        assert "# Subagents" in result
-        assert "### Subagent:" in result
+        assert "## Subagents" in result
 
-    def test_build_respects_include_options(self) -> None:
-        """Test build respects include_* options."""
-        builder = ClineBuilder()
+    def test_build_without_subagents(self, temp_agents_dir) -> None:
+        """Test build excludes subagents section when not requested."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
         agent = Agent(
             name="code",
             description="Code agent",
             system_prompt="You are a code assistant",
-            tools=["read"],
-            skills=["test-skill"],
+            subagents=["code-test"],
         )
-        mock_bundle = ComponentBundle(
-            variant=Variant.VERBOSE,
-            prompt="Content",
-            skills="Skills",
-            workflow="",
-            fallback_used=False,
+        options = BuildOptions(variant="minimal", include_subagents=False)
+        result = builder.build(agent, options)
+        assert "## Subagents" not in result
+
+    def test_build_minimal_variant(self, temp_agents_dir) -> None:
+        """Test build with minimal variant."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
+        agent = Agent(
+            name="code",
+            description="Code agent",
+            system_prompt="You are a code assistant",
         )
-        builder.selector.select = lambda *args, **kwargs: mock_bundle
+        options = BuildOptions(variant="minimal")
+        result = builder.build(agent, options)
+        assert isinstance(result, str)
+        assert len(result) > 0
 
-        # Build with tools included
-        options_with_tools = BuildOptions(include_tools=True, include_skills=False)
-        result_with_tools = builder.build(agent, options_with_tools)
-        assert "# Tools" in result_with_tools
-        assert "# Skills" not in result_with_tools
+    def test_build_verbose_variant(self, temp_agents_dir) -> None:
+        """Test build with verbose variant."""
+        tmpdir, tmppath = temp_agents_dir
+        # Add verbose variant directory
+        verbose_dir = tmppath / "code" / "verbose"
+        verbose_dir.mkdir(parents=True, exist_ok=True)
+        (verbose_dir / "prompt.md").write_text("You are an expert code assistant")
+        (verbose_dir / "skills.md").write_text("## Test Skill\nTest skill content")
+        (verbose_dir / "workflow.md").write_text("## Test Workflow\nTest workflow content")
 
-        # Build with skills included
-        options_with_skills = BuildOptions(include_tools=False, include_skills=True)
-        result_with_skills = builder.build(agent, options_with_skills)
-        assert "# Tools" not in result_with_skills
-        assert "# Skills" in result_with_skills
+        builder = ClineBuilder(agents_dir=tmppath)
+        agent = Agent(
+            name="code",
+            description="Code agent",
+            system_prompt="You are a code assistant",
+        )
+        options = BuildOptions(variant="verbose")
+        result = builder.build(agent, options)
+        assert isinstance(result, str)
+        assert len(result) > 0
+
+    def test_build_no_yaml_frontmatter(self, temp_agents_dir) -> None:
+        """Test that build output does NOT include YAML frontmatter."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
+        agent = Agent(
+            name="code",
+            description="Code agent",
+            system_prompt="You are a code assistant",
+        )
+        options = BuildOptions(variant="minimal")
+        result = builder.build(agent, options)
+        # Should not start with --- (YAML frontmatter)
+        assert not result.strip().startswith("---")
+
+    def test_build_is_pure_markdown(self, temp_agents_dir) -> None:
+        """Test that build output is pure markdown."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
+        agent = Agent(
+            name="code",
+            description="Code agent",
+            system_prompt="You are a code assistant",
+        )
+        options = BuildOptions(variant="minimal")
+        result = builder.build(agent, options)
+        # Should start with markdown header
+        assert result.strip().startswith("#")
+        # Should contain content
+        assert len(result) > 0
 
 
 class TestClineBuilderMetadata:
-    """Tests for metadata methods."""
+    """Tests for builder metadata methods."""
 
     def test_get_output_format(self) -> None:
-        """Test get_output_format returns correct format description."""
+        """Test get_output_format method."""
         builder = ClineBuilder()
-        result = builder.get_output_format()
-        assert "Cline" in result
-        assert ".clinerules" in result or "clinerules" in result.lower()
+        format_desc = builder.get_output_format()
+        assert isinstance(format_desc, str)
+        assert "Markdown" in format_desc
+        assert "Cline" in format_desc
 
     def test_get_tool_name(self) -> None:
-        """Test get_tool_name returns 'cline'."""
+        """Test get_tool_name method."""
         builder = ClineBuilder()
-        assert builder.get_tool_name() == "cline"
+        tool_name = builder.get_tool_name()
+        assert tool_name == "cline"
 
-    def test_get_tool_name_lowercase(self) -> None:
-        """Test get_tool_name returns lowercase."""
+    def test_supports_features(self) -> None:
+        """Test supports_feature method."""
         builder = ClineBuilder()
-        result = builder.get_tool_name()
-        assert result == result.lower()
+        assert builder.supports_feature("skills")
+        assert builder.supports_feature("workflows")
+        assert builder.supports_feature("subagents")
+        assert builder.supports_feature("tools")
 
 
-class TestClineBuilderWorkflowsFormatting:
-    """Tests for workflows section formatting."""
+class TestClineBuilderEdgeCases:
+    """Tests for edge cases and error conditions."""
 
-    def test_format_workflows_strips_whitespace(self) -> None:
-        """Test workflows formatting removes extra whitespace."""
+    @pytest.fixture
+    def temp_agents_dir(self):
+        """Create temporary agents directory structure."""
+        with TemporaryDirectory() as tmpdir:
+            tmppath = Path(tmpdir)
+
+            # Create agent directory with minimal variant
+            agent_dir = tmppath / "code" / "minimal"
+            agent_dir.mkdir(parents=True, exist_ok=True)
+
+            # Create required files
+            (agent_dir / "prompt.md").write_text("You are an expert code assistant")
+            (agent_dir / "skills.md").write_text("## Test Skill\nTest skill content")
+            (agent_dir / "workflow.md").write_text("## Test Workflow\nTest workflow content")
+
+            yield tmpdir, tmppath
+
+    def test_build_with_empty_tools_list(self, temp_agents_dir) -> None:
+        """Test build with empty tools list."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
+        agent = Agent(
+            name="code",
+            description="Code agent",
+            system_prompt="You are a code assistant",
+            tools=[],
+        )
+        options = BuildOptions(variant="minimal", include_tools=True)
+        result = builder.build(agent, options)
+        # Tools section should not be included if list is empty
+        assert "## Tools" not in result
+
+    def test_build_with_empty_subagents_list(self, temp_agents_dir) -> None:
+        """Test build with empty subagents list."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
+        agent = Agent(
+            name="code",
+            description="Code agent",
+            system_prompt="You are a code assistant",
+            subagents=[],
+        )
+        options = BuildOptions(variant="minimal", include_subagents=True)
+        result = builder.build(agent, options)
+        # Subagents section should not be included if list is empty
+        assert "## Subagents" not in result
+
+    def test_build_with_special_characters_in_agent_name(self, temp_agents_dir) -> None:
+        """Test build with special characters in agent name."""
+        tmpdir, tmppath = temp_agents_dir
+        # Create directory for agent with special characters
+        agent_dir = tmppath / "code-test-agent" / "minimal"
+        agent_dir.mkdir(parents=True, exist_ok=True)
+        (agent_dir / "prompt.md").write_text("You are a test assistant")
+        (agent_dir / "skills.md").write_text("## Test Skill\nTest skill content")
+        (agent_dir / "workflow.md").write_text("## Test Workflow\nTest workflow content")
+
+        builder = ClineBuilder(agents_dir=tmppath)
+        agent = Agent(
+            name="code-test-agent",
+            description="Code testing agent",
+            system_prompt="You are a test assistant",
+        )
+        options = BuildOptions(variant="minimal")
+        result = builder.build(agent, options)
+        assert "code-test-agent" in result
+
+    def test_build_with_multiline_prompt(self, temp_agents_dir) -> None:
+        """Test build with multiline system prompt."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
+        prompt = """You are an expert code assistant.
+
+Your core responsibilities:
+- Implement features
+- Write tests
+- Review code
+
+You follow core conventions."""
+        # The component prompt file contains the multiline prompt
+        agent_dir = tmppath / "code" / "minimal"
+        (agent_dir / "prompt.md").write_text(prompt)
+
+        agent = Agent(
+            name="code",
+            description="Code agent",
+            system_prompt=prompt,
+        )
+        options = BuildOptions(variant="minimal")
+        result = builder.build(agent, options)
+        assert "Your core responsibilities:" in result
+        assert "Implement features" in result
+
+    def test_build_preserves_markdown_in_prompt(self, temp_agents_dir) -> None:
+        """Test build preserves markdown formatting in system prompt."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
+        prompt = "You are an expert. **Key**: Always read code first."
+        # Update the component prompt file to include markdown
+        agent_dir = tmppath / "code" / "minimal"
+        (agent_dir / "prompt.md").write_text(prompt)
+
+        agent = Agent(
+            name="code",
+            description="Code agent",
+            system_prompt=prompt,
+        )
+        options = BuildOptions(variant="minimal")
+        result = builder.build(agent, options)
+        assert "**Key**" in result
+
+    def test_skill_name_normalization(self) -> None:
+        """Test skill names are normalized for use_skill invocation."""
         builder = ClineBuilder()
-        content = "  \n\n  Workflow content  \n\n  "
-        result = builder._format_workflows(content)
-        assert result == "Workflow content"
+        result = builder._format_skills_section("", ["Test First Implementation", "Code Review"])
+        # Should contain normalized versions
+        assert "use_skill" in result
+        # Either snake_case or hyphenated forms
+        assert "test" in result.lower()
+        assert "code" in result.lower()
 
-    def test_format_workflows_preserves_content(self) -> None:
-        """Test workflows formatting preserves content structure."""
+    def test_subagent_name_normalization(self) -> None:
+        """Test subagent names are normalized for use_skill invocation."""
         builder = ClineBuilder()
-        content = "## Workflow 1\n\nSteps here\n\n## Workflow 2\n\nMore steps"
-        result = builder._format_workflows(content)
-        assert "## Workflow 1" in result
-        assert "## Workflow 2" in result
+        result = builder._format_subagents_section(["Code Review Audit"])
+        assert "Code Review Audit" in result
+        assert "use_skill" in result
+
+
+class TestClineBuilderComparison:
+    """Tests comparing Cline format with Kilo format."""
+
+    @pytest.fixture
+    def temp_agents_dir(self):
+        """Create temporary agents directory structure."""
+        with TemporaryDirectory() as tmpdir:
+            tmppath = Path(tmpdir)
+
+            # Create agent directory with minimal variant
+            agent_dir = tmppath / "code" / "minimal"
+            agent_dir.mkdir(parents=True, exist_ok=True)
+
+            # Create required files
+            (agent_dir / "prompt.md").write_text("You are an expert code assistant")
+            (agent_dir / "skills.md").write_text("## Test Skill\nTest skill content")
+            (agent_dir / "workflow.md").write_text("## Test Workflow\nTest workflow content")
+
+            yield tmpdir, tmppath
+
+    def test_cline_no_yaml_frontmatter_unlike_kilo(self, temp_agents_dir) -> None:
+        """Test Cline output has no YAML frontmatter (unlike Kilo)."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
+        agent = Agent(
+            name="code",
+            description="Code agent",
+            system_prompt="You are a code assistant",
+        )
+        options = BuildOptions(variant="minimal")
+        result = builder.build(agent, options)
+        # Cline format is pure markdown, no YAML
+        assert not result.startswith("---")
+
+    def test_cline_system_prompt_as_prose(self, temp_agents_dir) -> None:
+        """Test Cline system prompt is prose (no separate heading)."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
+        prompt = "You are an expert code assistant with SOLID expertise."
+        agent = Agent(
+            name="code",
+            description="Code agent",
+            system_prompt=prompt,
+        )
+        options = BuildOptions(variant="minimal")
+        result = builder.build(agent, options)
+        # In Cline, prompt is prose (no "# System Prompt" heading)
+        assert "# code Rules" in result
+        assert "You are an expert" in result
+
+    def test_cline_single_file_output(self, temp_agents_dir) -> None:
+        """Test Cline build returns single file content (not dict)."""
+        tmpdir, tmppath = temp_agents_dir
+        builder = ClineBuilder(agents_dir=tmppath)
+        agent = Agent(
+            name="code",
+            description="Code agent",
+            system_prompt="You are a code assistant",
+        )
+        options = BuildOptions(variant="minimal")
+        result = builder.build(agent, options)
+        # Should return string, not dict (single .clinerules file)
+        assert isinstance(result, str)
+
+    def test_cline_skills_with_use_skill_invocation(self) -> None:
+        """Test Cline skills include use_skill invocation pattern."""
+        builder = ClineBuilder()
+        result = builder._format_skills_section("", ["test-implementation"])
+        assert "use_skill" in result
+        # This is Cline-specific pattern
+        assert "Invoke by: `use_skill" in result

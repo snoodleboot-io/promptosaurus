@@ -1,14 +1,7 @@
-"""ClineBuilder for generating Cline IDE configuration files.
+"""ClineBuilder for generating Cline AI rules files.
 
 This module implements the ClineBuilder class that translates Agent IR models
-into Cline IDE `.clinerules` files with skill activation via `use_skill` pattern.
-
-Cline format:
-- Single concatenated markdown file (`.clinerules`)
-- YAML-free (pure markdown)
-- Skills section includes activation instructions
-- Uses `use_skill {skill_name}` invocation pattern
-- Subagent delegation with skill context
+into Cline AI configuration files (.clinerules) with markdown formatting.
 """
 
 from pathlib import Path
@@ -21,32 +14,37 @@ from src.ir.models import Agent
 
 
 class ClineBuilder(AbstractBuilder):
-    """Builder for Cline IDE configurations.
+    """Builder for Cline AI configuration files.
 
-    Generates `.clinerules` files (single concatenated markdown) with
-    YAML-free format and Cline-specific `use_skill` activation pattern.
+    Generates `.clinerules` files (single markdown file) with system prompt,
+    tools, skills, workflows, and subagents sections.
 
     Output Format:
-        # System Prompt
-        [System prompt content]
+        # {Agent Name} Rules
 
-        # Tools
-        - tool1
-        - tool2
+        [System prompt as prose - no markdown formatting]
 
-        # Skills
-        The following skills are available...
-        ## Skill: {skill_name}
-        **When to use:** ...
-        **How to invoke:** use_skill {skill_name}
+        ## Tools
 
-        # Workflows
-        [Workflows content]
+        - tool1: Description and usage
+        - tool2: Description and usage
 
-        # Subagents
-        You may delegate to these specialists...
-        ### Subagent: {subagent_name}
-        ...
+        ## Skills
+
+        ### Skill: skill-name
+        Description of when and how to use this skill.
+        Invoke by: use_skill skill-name
+
+        ## Workflows
+
+        ### Workflow: workflow-name
+        Step-by-step workflow instructions...
+
+        ## Subagents
+
+        ### Subagent: subagent-name
+        Description of what this subagent does...
+        Invoke by: use_skill workflow-name or @subagent-name
     """
 
     def __init__(self, agents_dir: Path | str = "agents") -> None:
@@ -59,7 +57,7 @@ class ClineBuilder(AbstractBuilder):
         self.selector = ComponentSelector(agents_dir=agents_dir)
 
     def build(self, agent: Agent, options: BuildOptions) -> str:
-        """Build a Cline configuration file.
+        """Build a Cline AI configuration file.
 
         Args:
             agent: The Agent IR model to build from
@@ -84,40 +82,39 @@ class ClineBuilder(AbstractBuilder):
         # Load components with variant selection
         bundle = self.selector.select(agent, variant=variant)
 
-        # Compose markdown sections (no YAML frontmatter for Cline)
-        markdown_sections = []
+        # Compose markdown output as prose (no YAML frontmatter)
+        sections = []
 
-        # 1. System Prompt
-        markdown_sections.append("# System Prompt\n")
-        markdown_sections.append(bundle.prompt)
-        markdown_sections.append("")
+        # 1. Header with agent name
+        sections.append(self._format_header(agent))
+        sections.append("")
 
-        # 2. Tools (if requested)
+        # 2. System prompt as prose (first paragraph)
+        sections.append(self._format_system_prompt_prose(bundle.prompt))
+        sections.append("")
+
+        # 3. Tools section (if requested)
         if options.include_tools and agent.tools:
-            markdown_sections.append("# Tools\n")
-            markdown_sections.append(self._format_tools(agent.tools))
-            markdown_sections.append("")
+            sections.append(self._format_tools_section(agent.tools))
+            sections.append("")
 
-        # 3. Skills (if requested) - with activation instructions
+        # 4. Skills section (if requested)
         if options.include_skills and bundle.skills:
-            markdown_sections.append("# Skills\n")
-            markdown_sections.append(self._format_skills_with_activation(bundle.skills, agent.skills))
-            markdown_sections.append("")
+            sections.append(self._format_skills_section(bundle.skills, agent.skills or []))
+            sections.append("")
 
-        # 4. Workflows (if requested)
+        # 5. Workflows section (if requested)
         if options.include_workflows and bundle.workflow:
-            markdown_sections.append("# Workflows\n")
-            markdown_sections.append(self._format_workflows(bundle.workflow))
-            markdown_sections.append("")
+            sections.append(self._format_workflows_section(bundle.workflow))
+            sections.append("")
 
-        # 5. Subagents (if requested) - with skill context
+        # 6. Subagents section (if requested)
         if options.include_subagents and agent.subagents:
-            markdown_sections.append("# Subagents\n")
-            markdown_sections.append(self._format_subagents_with_skills(agent.subagents, agent.skills))
-            markdown_sections.append("")
+            sections.append(self._format_subagents_section(agent.subagents))
+            sections.append("")
 
-        markdown_content = "\n".join(markdown_sections).strip()
-
+        # Concatenate all sections
+        markdown_content = "\n".join(sections).strip()
         return markdown_content
 
     def validate(self, agent: Agent) -> list[str]:
@@ -150,7 +147,7 @@ class ClineBuilder(AbstractBuilder):
         Returns:
             Description of Cline format
         """
-        return "Cline IDE Rules File (.clinerules - Markdown)"
+        return "Cline AI Rules File (Markdown)"
 
     def get_tool_name(self) -> str:
         """Get the tool name.
@@ -160,189 +157,114 @@ class ClineBuilder(AbstractBuilder):
         """
         return "cline"
 
-    def _format_tools(self, tools: list[str]) -> str:
-        """Format tools list for display.
+    def _format_header(self, agent: Agent) -> str:
+        """Format the .clinerules header with agent name.
+
+        Args:
+            agent: The Agent IR model
+
+        Returns:
+            Markdown header string
+        """
+        return f"# {agent.name} Rules"
+
+    def _format_system_prompt_prose(self, prompt: str) -> str:
+        """Format system prompt as prose narrative.
+
+        The system prompt is the first prose section after the header,
+        without any special markdown formatting.
+
+        Args:
+            prompt: The system prompt content
+
+        Returns:
+            System prompt as prose (stripped)
+        """
+        return prompt.strip()
+
+    def _format_tools_section(self, tools: list[str]) -> str:
+        """Format tools as markdown section with descriptions.
 
         Args:
             tools: List of tool names
 
         Returns:
-            Formatted tools section
+            Formatted markdown section
         """
-        if not tools:
-            return ""
+        lines = ["## Tools", ""]
+        lines.append("Available tools:")
+        lines.append("")
 
-        tool_lines = [f"- {tool}" for tool in tools]
-        return "\n".join(tool_lines)
+        for tool in tools:
+            # Format as markdown list with tool name
+            lines.append(f"- **{tool}**: [Tool description and usage]")
 
-    def _format_workflows(self, workflow_content: str) -> str:
-        """Format workflows section.
+        return "\n".join(lines)
+
+    def _format_skills_section(self, skills_content: str, skill_names: list[str]) -> str:
+        """Format skills section with use_skill invocation pattern.
+
+        Args:
+            skills_content: Raw skills content from component
+            skill_names: List of skill names from agent
+
+        Returns:
+            Formatted markdown section with use_skill instructions
+        """
+        lines = ["## Skills", ""]
+        lines.append("The following skills are available. Use them by calling use_skill::")
+        lines.append("")
+
+        # Add each skill with use_skill invocation pattern
+        if skill_names:
+            for skill in skill_names:
+                # Convert skill name to snake_case if needed
+                skill_key = skill.lower().replace(" ", "_").replace("-", "_")
+                lines.append(f"### Skill: {skill}")
+                lines.append("")
+                lines.append(f"Invoke by: `use_skill {skill_key}`")
+                lines.append("")
+
+        # Add raw skills content if available
+        if skills_content:
+            lines.append(skills_content.strip())
+
+        return "\n".join(lines)
+
+    def _format_workflows_section(self, workflow_content: str) -> str:
+        """Format workflows section with step-by-step instructions.
 
         Args:
             workflow_content: Raw workflow content from component
 
         Returns:
-            Formatted workflow content (stripped whitespace)
+            Formatted markdown section
         """
-        return workflow_content.strip()
+        lines = ["## Workflows", ""]
+        lines.append(workflow_content.strip())
+        return "\n".join(lines)
 
-    def _format_skills_with_activation(self, skills_content: str, agent_skills: list[str]) -> str:
-        """Format skills section with activation instructions.
-
-        Generates skill descriptions with `use_skill` invocation syntax and
-        information about when and why to use each skill.
-
-        Args:
-            skills_content: Raw skills content from component file
-            agent_skills: List of skill names for this agent
-
-        Returns:
-            Formatted skills section with activation instructions
-        """
-        if not skills_content.strip():
-            return ""
-
-        sections = []
-
-        # Add header explaining how to use skills
-        sections.append("The following skills are available. Activate them explicitly via `use_skill` tool:\n")
-
-        # Generate activation instructions for each skill
-        for skill_name in agent_skills:
-            activation_instructions = self._build_skill_activation_instructions(skill_name)
-            sections.append(activation_instructions)
-            sections.append("")
-
-        # Add the raw skills content
-        if skills_content.strip():
-            sections.append(skills_content.strip())
-
-        return "\n".join(sections)
-
-    def _build_skill_activation_instructions(self, skill_name: str) -> str:
-        """Generate activation instructions for a single skill.
-
-        Creates formatted instructions including:
-        - Skill name and description
-        - When/why to use this skill
-        - Invocation syntax: use_skill {skill_name}
-        - Location reference
-
-        Args:
-            skill_name: Name of the skill to generate instructions for
-
-        Returns:
-            Formatted activation instructions for the skill
-        """
-        # Normalize skill name for display
-        display_name = skill_name.replace("-", " ").replace("_", " ").title()
-
-        instructions = f"""## Skill: {display_name}
-
-**Activation:** `use_skill {skill_name}`
-**Location:** `.kilo/skills/{skill_name}.md`
-
-When to use: This skill provides specialized functionality for {display_name.lower()}.
-Invoke it when you need to {display_name.lower()} or delegate to a specialist in this area.
-
-How to invoke:
-- Direct: Call the `use_skill` tool with skill name: `use_skill {skill_name}`
-- Delegation: Request to delegate to the appropriate specialist for {skill_name}"""
-
-        return instructions.strip()
-
-    def _format_subagents_with_skills(self, subagent_names: list[str], agent_skills: list[str]) -> str:
-        """Format subagents section with skill context.
-
-        Includes information about which skills each subagent can access
-        and hints for delegation using skill activation.
+    def _format_subagents_section(self, subagent_names: list[str]) -> str:
+        """Format subagents section with delegation instructions.
 
         Args:
             subagent_names: List of subagent names
-            agent_skills: List of skill names available to the parent agent
 
         Returns:
-            Formatted subagents section with delegation instructions
+            Formatted markdown section
         """
-        if not subagent_names:
-            return ""
+        lines = ["## Subagents", ""]
+        lines.append("You may delegate to these specialists:")
+        lines.append("")
 
-        sections = []
+        for subagent in subagent_names:
+            # Convert subagent name to key format
+            subagent_key = subagent.lower().replace(" ", "_").replace("-", "_")
+            lines.append(f"### Subagent: {subagent}")
+            lines.append("")
+            lines.append(f"Specializes in {subagent} tasks.")
+            lines.append("")
+            lines.append(f"Invoke by: `use_skill {subagent_key}` or request '{subagent} subagent'")
+            lines.append("")
 
-        # Add header
-        sections.append("You may delegate to these specialists:\n")
-
-        # Format each subagent with skill context
-        for subagent_name in subagent_names:
-            # Generate skill context for this subagent
-            subagent_skills = self._get_subagent_skills(subagent_name, agent_skills)
-
-            subagent_section = self._format_single_subagent_with_skills(
-                subagent_name, subagent_skills
-            )
-            sections.append(subagent_section)
-            sections.append("")
-
-        return "\n".join(sections)
-
-    def _get_subagent_skills(self, subagent_name: str, agent_skills: list[str]) -> list[str]:
-        """Determine which skills are relevant for a subagent.
-
-        Uses subagent name to infer relevant skills.
-        In a full implementation, this would query a skill registry.
-
-        Args:
-            subagent_name: Name of the subagent
-            agent_skills: List of available skills
-
-        Returns:
-            List of relevant skill names for this subagent
-        """
-        # Map common subagent names to skill patterns
-        subagent_skill_map = {
-            "test": ["test-first-implementation"],
-            "code": ["test-first-implementation"],
-            "refactor": ["refactor-code-module"],
-            "review": ["code-review-audit"],
-            "architect": ["architecture-design"],
-            "document": ["documentation-generation"],
-        }
-
-        # Check for exact match or partial match
-        for key, skills in subagent_skill_map.items():
-            if key.lower() in subagent_name.lower():
-                return [s for s in skills if s in agent_skills]
-
-        # If no match, return empty list
-        return []
-
-    def _format_single_subagent_with_skills(self, subagent_name: str, skills: list[str]) -> str:
-        """Format a single subagent entry with skill context.
-
-        Args:
-            subagent_name: Name of the subagent
-            skills: List of skills this subagent specializes in
-
-        Returns:
-            Formatted subagent entry
-        """
-        # Normalize name for display
-        display_name = subagent_name.replace("-", " ").replace("_", " ").title()
-
-        lines = [f"### Subagent: {display_name}"]
-
-        # Add skill context
-        if skills:
-            skill_names = [s.replace("-", " ").title() for s in skills]
-            lines.append(f"Specializes in: {', '.join(skill_names)}")
-
-        # Add invocation instructions
-        lines.append(f"\nInvoke by: `use_skill {subagent_name}` or request \"use {subagent_name} subagent\"")
-
-        # Add skill activation hints for each skill
-        if skills:
-            lines.append("\nAvailable skills:")
-            for skill in skills:
-                lines.append(f"  - `use_skill {skill}`")
-
-        return "\n".join(lines).strip()
+        return "\n".join(lines)

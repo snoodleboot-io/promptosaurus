@@ -29,6 +29,7 @@ from src.builders.component_selector import (
 )
 from src.builders.component_composer import ComponentComposer
 from src.builders.kilo_builder import KiloBuilder
+from src.builders.cline_builder import ClineBuilder
 
 __all__ = [
     "AbstractBuilder",
@@ -50,4 +51,5 @@ __all__ = [
     "ComponentSelector",
     "ComponentComposer",
     "KiloBuilder",
+    "ClineBuilder",
 ]
