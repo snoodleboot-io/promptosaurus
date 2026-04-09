@@ -112,6 +112,22 @@ class TestBuilderFactoryGetBuilder:
 class TestBuilderFactoryListBuilders:
     """Test listing builders in factory."""
 
+    def setup_method(self):
+        """Clear the factory before each test."""
+        BuilderFactory.clear()
+
+    def teardown_method(self):
+        """Restore builtin builders after each test."""
+        # Register builtin builders back for other tests
+        from src.builders.kilo_builder import KiloBuilder
+        from src.builders.cline_builder import ClineBuilder
+        from src.builders.claude_builder import ClaudeBuilder
+
+        BuilderFactory.clear()
+        BuilderFactory.register("kilo", KiloBuilder)
+        BuilderFactory.register("cline", ClineBuilder)
+        BuilderFactory.register("claude", ClaudeBuilder)
+
     def test_list_builders_empty(self):
         """Test listing builders when empty."""
         factory = BuilderFactory()
@@ -192,6 +208,22 @@ class TestBuilderFactoryGetBuilderInfo:
 
 class TestBuilderFactoryIntegration:
     """Test factory integration scenarios."""
+
+    def setup_method(self):
+        """Clear the factory before each test."""
+        BuilderFactory.clear()
+
+    def teardown_method(self):
+        """Restore builtin builders after each test."""
+        # Register builtin builders back for other tests
+        from src.builders.kilo_builder import KiloBuilder
+        from src.builders.cline_builder import ClineBuilder
+        from src.builders.claude_builder import ClaudeBuilder
+
+        BuilderFactory.clear()
+        BuilderFactory.register("kilo", KiloBuilder)
+        BuilderFactory.register("cline", ClineBuilder)
+        BuilderFactory.register("claude", ClaudeBuilder)
 
     def test_full_factory_workflow(self):
         """Test full factory workflow."""

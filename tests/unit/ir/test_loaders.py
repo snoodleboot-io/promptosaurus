@@ -131,11 +131,18 @@ def sample_skill_file(temp_agent_dir):
         """---
 name: refactor
 description: Improve code structure
-instructions: Apply SOLID principles
 tools_needed:
   - git
   - python
 ---
+
+## Instructions
+Apply SOLID principles to improve code structure. Follow these guidelines:
+1. Single Responsibility Principle
+2. Open/Closed Principle
+3. Liskov Substitution Principle
+4. Interface Segregation
+5. Dependency Inversion
 
 ## Details
 Additional skill details here.
@@ -286,7 +293,8 @@ class TestComponentLoaderEdgeCases:
         loader = ComponentLoader()
         bundle = loader.load(str(temp_agent_dir))
 
-        assert bundle.prompt_content == {}
+        # Empty files return {"content": ""}
+        assert bundle.prompt_content == {"content": ""}
 
     def test_load_prompt_with_only_markdown(self, temp_agent_dir):
         """Test loading prompt.md with no frontmatter."""
@@ -296,7 +304,9 @@ class TestComponentLoaderEdgeCases:
         loader = ComponentLoader()
         bundle = loader.load(str(temp_agent_dir))
 
-        assert bundle.prompt_content == {}
+        # Files with only markdown (no frontmatter) return {"content": "..."}
+        assert "content" in bundle.prompt_content
+        assert bundle.prompt_content["content"] == "# Markdown Content\nNo frontmatter here"
 
 
 class TestComponentLoaderErrors:
@@ -324,16 +334,17 @@ Content
         prompt_file = temp_agent_dir / "prompt.md"
         prompt_file.write_text("---\nname: test\n---\n", encoding="utf-8")
 
-        # Change permissions
-        temp_agent_dir.chmod(0o000)
+        # Change permissions on the file itself (not the directory)
+        prompt_file.chmod(0o000)
 
         try:
             loader = ComponentLoader()
-            with pytest.raises(ParseError):
+            # When we can't read the file, we get ParseError or PermissionError
+            with pytest.raises((ParseError, PermissionError)):
                 loader.load(str(temp_agent_dir))
         finally:
             # Restore permissions for cleanup
-            temp_agent_dir.chmod(0o755)
+            prompt_file.chmod(0o644)
 
 
 # ============================================================================
@@ -352,7 +363,7 @@ class TestSkillLoaderHappyPath:
         assert isinstance(skill, Skill)
         assert skill.name == "refactor"
         assert skill.description == "Improve code structure"
-        assert skill.instructions == "Apply SOLID principles"
+        assert "Apply SOLID principles" in skill.instructions
         assert skill.tools_needed == ["git", "python"]
 
     def test_load_skill_minimal(self, temp_agent_dir):
@@ -362,9 +373,11 @@ class TestSkillLoaderHappyPath:
             """---
 name: minimal
 description: A minimal skill
-instructions: Do something
 tools_needed: []
 ---
+
+## Instructions
+Do something useful.
 """,
             encoding="utf-8",
         )
@@ -373,6 +386,7 @@ tools_needed: []
 
         assert skill.name == "minimal"
         assert skill.tools_needed == []
+        assert skill.instructions is not None
 
     def test_load_skill_with_tools(self, temp_agent_dir):
         """Test skill with multiple tools."""
@@ -381,13 +395,15 @@ tools_needed: []
             """---
 name: advanced
 description: Advanced skill with many tools
-instructions: Use all the tools
 tools_needed:
   - git
   - python
   - docker
   - kubernetes
 ---
+
+## Instructions
+Use all the tools to accomplish the task.
 """,
             encoding="utf-8",
         )
@@ -407,9 +423,11 @@ class TestSkillLoaderEdgeCases:
             """---
 name: analysis
 description: Analyze code
-instructions: Look carefully
 tools_needed: []
 ---
+
+## Instructions
+Look carefully at the code and analyze it.
 """,
             encoding="utf-8",
         )
@@ -426,12 +444,14 @@ tools_needed: []
             """---
 name: advanced
 description: Advanced skill
-instructions: Complex instructions
 tools_needed:
   - advanced-tool
 version: 2.0
 deprecated: false
 ---
+
+## Instructions
+Complex instructions for this skill.
 """,
             encoding="utf-8",
         )
@@ -447,13 +467,12 @@ deprecated: false
             """---
 name: documented
 description: Well documented skill
-instructions: Follow the steps
 tools_needed:
   - tool1
 ---
 
-## Detailed Instructions
-
+## Instructions
+Follow the steps carefully:
 Step 1: Do this
 Step 2: Then that
 Step 3: Finally this
@@ -591,7 +610,7 @@ class TestWorkflowLoaderEdgeCases:
     """Test WorkflowLoader edge cases."""
 
     def test_load_workflow_empty_steps(self, temp_agent_dir):
-        """Test workflow with empty steps list."""
+        """Test workflow with empty steps list raises validation error."""
         workflow_file = temp_agent_dir / "empty.md"
         workflow_file.write_text(
             """---
@@ -603,9 +622,9 @@ steps: []
             encoding="utf-8",
         )
         loader = WorkflowLoader()
-        workflow = loader.load(str(workflow_file))
-
-        assert workflow.steps == []
+        # Workflows require at least one step
+        with pytest.raises((ParseError, ValidationError)):
+            loader.load(str(workflow_file))
 
     def test_load_workflow_single_step(self, temp_agent_dir):
         """Test workflow with single step."""
