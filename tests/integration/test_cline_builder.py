@@ -16,10 +16,10 @@ from tempfile import TemporaryDirectory
 from typing import Generator
 import re
 
-from src.builders.cline_builder import ClineBuilder
-from src.builders.base import BuildOptions
-from src.builders.errors import BuilderValidationError, VariantNotFoundError
-from src.ir.models import Agent
+from promptosaurus.builders.cline_builder import ClineBuilder
+from promptosaurus.builders.base import BuildOptions
+from promptosaurus.builders.errors import BuilderValidationError, VariantNotFoundError
+from promptosaurus.ir.models import Agent
 
 
 class TestClineBuilderFileWriting:

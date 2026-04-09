@@ -17,10 +17,10 @@ import pytest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from src.builders.cursor_builder import CursorBuilder
-from src.builders.base import BuildOptions
-from src.builders.errors import BuilderValidationError
-from src.ir.models import Agent
+from promptosaurus.builders.cursor_builder import CursorBuilder
+from promptosaurus.builders.base import BuildOptions
+from promptosaurus.builders.errors import BuilderValidationError
+from promptosaurus.ir.models import Agent
 
 
 class TestCursorBuilderInitialization:

@@ -13,10 +13,10 @@ Tests cover:
 import pytest
 from pathlib import Path
 
-from src.builders.copilot_builder import CopilotBuilder
-from src.builders.base import BuildOptions
-from src.builders.errors import BuilderValidationError
-from src.ir.models import Agent
+from promptosaurus.builders.copilot_builder import CopilotBuilder
+from promptosaurus.builders.base import BuildOptions
+from promptosaurus.builders.errors import BuilderValidationError
+from promptosaurus.ir.models import Agent
 
 
 class TestCopilotBuilderInitialization:

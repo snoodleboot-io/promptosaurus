@@ -17,10 +17,10 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, Generator
 
-from src.builders.claude_builder import ClaudeBuilder
-from src.builders.base import BuildOptions
-from src.builders.errors import BuilderValidationError
-from src.ir.models import Agent
+from promptosaurus.builders.claude_builder import ClaudeBuilder
+from promptosaurus.builders.base import BuildOptions
+from promptosaurus.builders.errors import BuilderValidationError
+from promptosaurus.ir.models import Agent
 
 
 class TestClaudeBuilderInitialization:

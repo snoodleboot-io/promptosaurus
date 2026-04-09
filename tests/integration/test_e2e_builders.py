@@ -21,15 +21,15 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, Generator, Tuple
 
-from src.builders.base import BuildOptions
-from src.builders.cline_builder import ClineBuilder
-from src.builders.claude_builder import ClaudeBuilder
-from src.builders.copilot_builder import CopilotBuilder
-from src.builders.cursor_builder import CursorBuilder
-from src.builders.errors import BuilderValidationError
-from src.builders.factory import BuilderFactory
-from src.builders.kilo_builder import KiloBuilder
-from src.ir.models import Agent
+from promptosaurus.builders.base import BuildOptions
+from promptosaurus.builders.cline_builder import ClineBuilder
+from promptosaurus.builders.claude_builder import ClaudeBuilder
+from promptosaurus.builders.copilot_builder import CopilotBuilder
+from promptosaurus.builders.cursor_builder import CursorBuilder
+from promptosaurus.builders.errors import BuilderValidationError
+from promptosaurus.builders.factory import BuilderFactory
+from promptosaurus.builders.kilo_builder import KiloBuilder
+from promptosaurus.ir.models import Agent
 
 
 # ============================================================================

@@ -12,10 +12,10 @@ from pathlib import Path
 
 import pytest
 
-from src.ir.loaders import ComponentLoader, SkillLoader, WorkflowLoader
-from src.ir.loaders.component_loader import ComponentBundle
-from src.ir.models import Skill, Workflow
-from src.ir.exceptions import ParseError, MissingFileError, ValidationError
+from promptosaurus.ir.loaders import ComponentLoader, SkillLoader, WorkflowLoader
+from promptosaurus.ir.loaders.component_loader import ComponentBundle
+from promptosaurus.ir.models import Skill, Workflow
+from promptosaurus.ir.exceptions import ParseError, MissingFileError, ValidationError
 
 
 # ============================================================================

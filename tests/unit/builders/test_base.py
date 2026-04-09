@@ -9,9 +9,9 @@ Tests cover:
 import pytest
 from abc import ABC, abstractmethod
 
-from src.builders.base import AbstractBuilder, BuildOptions
-from src.builders.errors import BuilderException
-from src.ir.models import Agent
+from promptosaurus.builders.base import AbstractBuilder, BuildOptions
+from promptosaurus.builders.errors import BuilderException
+from promptosaurus.ir.models import Agent
 
 
 # ============================================================================

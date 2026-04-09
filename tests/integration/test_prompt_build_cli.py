@@ -16,8 +16,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Generator
 
-from src.cli.prompt_build_cli import PromptBuildCLI
-from src.ir.models import Agent
+from promptosaurus.cli.prompt_build_cli import PromptBuildCLI
+from promptosaurus.ir.models import Agent
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

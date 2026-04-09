@@ -2,10 +2,10 @@
 
 import pytest
 
-from src.builders.factory import BuilderFactory
-from src.builders.kilo_builder import KiloBuilder
-from src.builders.cline_builder import ClineBuilder
-from src.builders.claude_builder import ClaudeBuilder
+from promptosaurus.builders.factory import BuilderFactory
+from promptosaurus.builders.kilo_builder import KiloBuilder
+from promptosaurus.builders.cline_builder import ClineBuilder
+from promptosaurus.builders.claude_builder import ClaudeBuilder
 
 
 def pytest_configure(config):

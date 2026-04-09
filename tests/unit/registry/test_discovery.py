@@ -11,9 +11,9 @@ from pathlib import Path
 
 import pytest
 
-from src.registry.discovery import RegistryDiscovery
-from src.registry.errors import RegistryLoadError
-from src.ir.models import Agent
+from promptosaurus.agent_registry.discovery import RegistryDiscovery
+from promptosaurus.agent_registry.errors import RegistryLoadError
+from promptosaurus.ir.models import Agent
 
 
 # ============================================================================

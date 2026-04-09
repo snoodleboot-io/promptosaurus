@@ -17,10 +17,10 @@ import pytest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from src.builders.cline_builder import ClineBuilder
-from src.builders.base import BuildOptions
-from src.builders.errors import BuilderValidationError
-from src.ir.models import Agent
+from promptosaurus.builders.cline_builder import ClineBuilder
+from promptosaurus.builders.base import BuildOptions
+from promptosaurus.builders.errors import BuilderValidationError
+from promptosaurus.ir.models import Agent
 
 
 class TestClineBuilderInitialization:

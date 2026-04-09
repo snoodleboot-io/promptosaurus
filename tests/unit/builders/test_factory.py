@@ -2,10 +2,10 @@
 
 import pytest
 
-from src.builders.factory import BuilderFactory
-from src.builders.base import AbstractBuilder, BuildOptions
-from src.builders.errors import BuilderException, BuilderNotFoundError
-from src.ir.models import Agent
+from promptosaurus.builders.factory import BuilderFactory
+from promptosaurus.builders.base import AbstractBuilder, BuildOptions
+from promptosaurus.builders.errors import BuilderException, BuilderNotFoundError
+from promptosaurus.ir.models import Agent
 
 
 class TestBuilder(AbstractBuilder):
@@ -119,9 +119,9 @@ class TestBuilderFactoryListBuilders:
     def teardown_method(self):
         """Restore builtin builders after each test."""
         # Register builtin builders back for other tests
-        from src.builders.kilo_builder import KiloBuilder
-        from src.builders.cline_builder import ClineBuilder
-        from src.builders.claude_builder import ClaudeBuilder
+        from promptosaurus.builders.kilo_builder import KiloBuilder
+        from promptosaurus.builders.cline_builder import ClineBuilder
+        from promptosaurus.builders.claude_builder import ClaudeBuilder
 
         BuilderFactory.clear()
         BuilderFactory.register("kilo", KiloBuilder)
@@ -216,9 +216,9 @@ class TestBuilderFactoryIntegration:
     def teardown_method(self):
         """Restore builtin builders after each test."""
         # Register builtin builders back for other tests
-        from src.builders.kilo_builder import KiloBuilder
-        from src.builders.cline_builder import ClineBuilder
-        from src.builders.claude_builder import ClaudeBuilder
+        from promptosaurus.builders.kilo_builder import KiloBuilder
+        from promptosaurus.builders.cline_builder import ClineBuilder
+        from promptosaurus.builders.claude_builder import ClaudeBuilder
 
         BuilderFactory.clear()
         BuilderFactory.register("kilo", KiloBuilder)

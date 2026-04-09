@@ -11,7 +11,7 @@ Tests cover:
 import pytest
 from pydantic import ValidationError
 
-from src.ir.models import Agent, Skill, Workflow, Tool, Rules, Project
+from promptosaurus.ir.models import Agent, Skill, Workflow, Tool, Rules, Project
 
 
 # ============================================================================

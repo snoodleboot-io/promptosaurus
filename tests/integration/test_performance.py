@@ -17,13 +17,13 @@ from typing import Generator
 
 import pytest
 
-from src.builders.base import AbstractBuilder, BuildOptions
-from src.builders.cline_builder import ClineBuilder
-from src.builders.claude_builder import ClaudeBuilder
-from src.builders.copilot_builder import CopilotBuilder
-from src.builders.cursor_builder import CursorBuilder
-from src.builders.kilo_builder import KiloBuilder
-from src.ir.models import Agent
+from promptosaurus.builders.base import AbstractBuilder, BuildOptions
+from promptosaurus.builders.cline_builder import ClineBuilder
+from promptosaurus.builders.claude_builder import ClaudeBuilder
+from promptosaurus.builders.copilot_builder import CopilotBuilder
+from promptosaurus.builders.cursor_builder import CursorBuilder
+from promptosaurus.builders.kilo_builder import KiloBuilder
+from promptosaurus.ir.models import Agent
 
 
 # Performance targets (in seconds)

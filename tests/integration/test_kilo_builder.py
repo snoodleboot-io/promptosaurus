@@ -16,10 +16,10 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Generator
 
-from src.builders.kilo_builder import KiloBuilder
-from src.builders.base import BuildOptions
-from src.builders.errors import BuilderValidationError, VariantNotFoundError
-from src.ir.models import Agent
+from promptosaurus.builders.kilo_builder import KiloBuilder
+from promptosaurus.builders.base import BuildOptions
+from promptosaurus.builders.errors import BuilderValidationError, VariantNotFoundError
+from promptosaurus.ir.models import Agent
 
 
 class TestKiloBuilderFileWriting:

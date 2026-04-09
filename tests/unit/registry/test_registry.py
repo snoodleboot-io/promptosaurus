@@ -8,9 +8,9 @@ Tests cover:
 
 import pytest
 
-from src.ir.models import Agent
-from src.registry.registry import Registry
-from src.registry.errors import AgentNotFoundError, InvalidVariantError
+from promptosaurus.ir.models import Agent
+from promptosaurus.agent_registry.registry import Registry
+from promptosaurus.agent_registry.errors import AgentNotFoundError, InvalidVariantError
 
 
 # ============================================================================

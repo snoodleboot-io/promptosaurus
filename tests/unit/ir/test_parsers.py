@@ -9,8 +9,8 @@ Tests cover:
 
 import pytest
 
-from src.ir.parsers import YAMLParser, MarkdownParser
-from src.ir.exceptions import ParseError
+from promptosaurus.ir.parsers import YAMLParser, MarkdownParser
+from promptosaurus.ir.exceptions import ParseError
 
 
 # ============================================================================
