@@ -528,10 +528,26 @@ def init_prompts():
         click.echo("=" * 60)
         click.echo(f"\n  Config file: {ConfigHandler.get_config_path()}")
 
-        # Step 5: Generate selected AI assistant configurations
+        # Step 5: Ask for variant (minimal or verbose)
+        variant_question = select_option_with_explain(
+            question="Which prompt variant would you like to use?",
+            options=["Minimal", "Verbose"],
+            explanations={
+                "Minimal": "Lightweight prompts for faster tokens and lower costs",
+                "Verbose": "Detailed prompts with more examples and explanations",
+            },
+            question_explanation="Choose between minimal (efficient) or verbose (detailed) prompts.",
+            default_index=0,
+            allow_multiple=False,
+        )
+        assert isinstance(variant_question, str), "allow_multiple=False should return str"
+        variant = "minimal" if variant_question == "Minimal" else "verbose"
+        config["variant"] = variant
+
+        # Step 6: Generate selected AI assistant configurations
         if selected_tool:
             click.echo("\n" + "-" * 60)
-            click.secho("  Generating AI assistant configurations...", bold=True)
+            click.secho(f"  Generating AI assistant configurations ({variant})...", bold=True)
             click.echo("-" * 60)
 
             output_path = Path(".")
