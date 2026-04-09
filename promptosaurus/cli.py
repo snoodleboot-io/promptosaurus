@@ -5,16 +5,18 @@ configurations. It uses Click to define the CLI commands and orchestrates
 the configuration, question handling, and output generation.
 
 Commands:
-    prompt init      - Interactive setup for AI assistant configurations
-    prompt list      - Show all registered modes and their prompt files
-    prompt validate  - Check for missing files and unregistered orphans
+    promptosaurus init      - Interactive setup for AI assistant configurations
+    promptosaurus list      - Show all registered modes and their prompt files
+    promptosaurus validate  - Check for missing files and unregistered orphans
+    promptosaurus switch    - Switch between AI assistant tools
+    promptosaurus update    - Update configuration options
 
 Key Functions:
-    - cli: Main Click group for the prompt command
+    - cli: Main Click group for the promptosaurus CLI
     - list_prompts: Display all registered modes and their files
     - init_prompts: Interactive initialization workflow
-    - update_config: Update configuration options
-    - switch_tool: Switch between AI tools
+    - update_command: Update configuration options
+    - switch_command: Switch between AI tools
     - validate_prompts: Validate configuration integrity
 """
 
@@ -330,10 +332,7 @@ def _ask_folder_questions(folder_specs: list[dict[str, Any]]) -> list[dict[str, 
 
     This function iterates through each folder spec and asks the language-specific
     configuration questions (linter, test framework, etc.) defined in the question
-    pipeline for each folder's language.
-
-    Note: This is a batch operation that runs AFTER all folders are added.
-    For inline language questions during folder creation, use _ask_language_questions_for_folder.
+    pipeline for that folder's language.
 
     Args:
         folder_specs: List of folder specifications from _setup_monorepo_folders
@@ -346,23 +345,6 @@ def _ask_folder_questions(folder_specs: list[dict[str, Any]]) -> list[dict[str, 
     """
     from promptosaurus.questions.language import get_language_questions
     from promptosaurus.ui._selector import select_option_with_explain
-
-    updated_specs: list[dict[str, Any]] = []
-    """Ask language-specific questions for each folder in the monorepo.
-
-    This function iterates through each folder spec and asks the language-specific
-    configuration questions (linter, test framework, etc.) defined in the question
-    pipeline for that folder's language.
-
-    Args:
-        folder_specs: List of folder specifications from _setup_monorepo_folders
-
-    Returns:
-        Updated list of folder specifications with language-specific config
-
-    Raises:
-        QuestionPipelineError: If questions cannot be loaded for a language
-    """
 
     updated_specs: list[dict[str, Any]] = []
 
@@ -409,10 +391,10 @@ def _ask_folder_questions(folder_specs: list[dict[str, Any]]) -> list[dict[str, 
 
 @click.group()
 def cli():
-    """Prompt library CLI — manage and validate your prompt configurations.
+    """promptosaurus CLI — manage and validate your prompt configurations.
 
-    Edit files in prompts/, then use `prompt list` to see available modes and
-    `prompt validate` to check configuration integrity.
+    Edit files in prompts/, then use `promptosaurus list` to see available modes and
+    `promptosaurus validate` to check configuration integrity.
     """
 
 
@@ -465,7 +447,7 @@ def init_prompts():
     from promptosaurus.ui.exceptions import UserCancelledError
 
     click.echo("\n" + "=" * 60)
-    click.secho("  Prompt CLI Initialization", bold=True, fg="cyan")
+    click.secho("  promptosaurus Initialization", bold=True, fg="cyan")
     click.echo("=" * 60)
     click.echo("\nUse up/down arrows, numbers, or Enter for defaults.")
 
@@ -476,7 +458,7 @@ def init_prompts():
             options=["Kilo CLI", "Kilo IDE", "Cline", "Cursor", "Copilot"],
             explanations={
                 "Kilo CLI": "Kilo Code (CLI) - .opencode/rules/ with collapsed mode files",
-                "Kilo IDE": "Kilo Code (IDE) - .kilocode/rules-{mode}/ directory structure",
+                "Kilo IDE": "Kilo Code (IDE) - .kilo/agents/ individual agent files",
                 "Cline": "Cline - .clinerules file (concatenated rules)",
                 "Cursor": "Cursor - .cursor/rules/ directory + .cursorrules",
                 "Copilot": "GitHub Copilot - .github/copilot-instructions.md",
@@ -585,8 +567,8 @@ def switch_command(tool_name: str | None):
     """Switch to a different AI assistant tool.
 
     Usage:
-        prompt switch kilo-ide    # Switch directly
-        prompt switch             # Interactive menu
+        promptosaurus switch kilo-ide    # Switch directly
+        promptosaurus switch             # Interactive menu
     """
     from promptosaurus.ui._selector import select_option_with_explain
     from promptosaurus.ui.exceptions import UserCancelledError
@@ -594,7 +576,7 @@ def switch_command(tool_name: str | None):
     # Check if config exists
     if not ConfigHandler.config_exists():
         click.secho(
-            "Error: No configuration found. Run 'prompt init' first.",
+            "Error: No configuration found. Run 'promptosaurus init' first.",
             fg="red",
         )
         raise click.Abort()
@@ -625,7 +607,7 @@ def switch_command(tool_name: str | None):
                     options=tool_options,
                     explanations={
                         "Kilo CLI": "Kilo Code (CLI) - .opencode/rules/ with collapsed mode files",
-                        "Kilo IDE": "Kilo Code (IDE) - .kilocode/rules-{mode}/ directory structure",
+                        "Kilo IDE": "Kilo Code (IDE) - .kilo/agents/ individual agent files",
                         "Cline": "Cline - .clinerules file (concatenated rules)",
                         "Cursor": "Cursor - .cursor/rules/ directory + .cursorrules",
                         "Copilot": "GitHub Copilot - .github/copilot-instructions.md",
@@ -672,7 +654,7 @@ def switch_command(tool_name: str | None):
         except Exception as e:
             click.secho(f"\n  Error building configuration: {e}", fg="red", err=True)
             click.secho(
-                "  Note: Old artifacts may have been removed. Run 'prompt init' to restore.",
+                "  Note: Old artifacts may have been removed. Run 'promptosaurus init' to restore.",
                 fg="yellow",
                 err=True,
             )
@@ -698,7 +680,7 @@ def update_command():
     """Update configuration options interactively.
 
     Usage:
-        prompt update
+        promptosaurus update
     """
     from promptosaurus.ui._selector import select_option_with_explain
     from promptosaurus.ui.exceptions import UserCancelledError
@@ -706,7 +688,7 @@ def update_command():
     # Check if config exists
     if not ConfigHandler.config_exists():
         click.secho(
-            "Error: No configuration found. Run 'prompt init' first.",
+            "Error: No configuration found. Run 'promptosaurus init' first.",
             fg="red",
         )
         raise click.Abort()
@@ -831,7 +813,7 @@ def _get_builder(tool: str) -> type[Builder]:
     return cast(type[Builder], AbstractInverterFactory[Builder].create(key=class_name))
 
 
-# ── validate ───────────────────────────────────────────────────────────────────
+# ── validate ───────────────────────────────────────────────────────────────
 
 
 @cli.command("validate")
