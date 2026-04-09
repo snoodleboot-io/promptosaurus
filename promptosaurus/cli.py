@@ -22,13 +22,12 @@ Key Functions:
 
 import sys
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 import click
-from sweet_tea.abstract_inverter_factory import AbstractInverterFactory  # type: ignore[import]
+# Legacy sweet_tea import removed - using Phase 2A builders
 
 from promptosaurus.artifacts import ArtifactManager
-from promptosaurus.builders.builder import Builder
 from promptosaurus.cli_utils import (
     get_supported_tools_display,
     normalize_tool_name,
@@ -783,34 +782,23 @@ def update_command():
             selected_opt.current_value = new_value
 
 
-def _get_builder(tool: str) -> type[Builder]:
-    """Get the builder class for a given tool.
+def _get_builder(tool: str):
+    """Get the builder adapter for a given tool.
 
-    This function maps a tool name to its corresponding builder class.
-    It imports the builder classes lazily to avoid circular imports.
+    This function returns a Phase 2A builder adapter that maintains compatibility
+    with the legacy builder interface while using the new IR-based system internally.
 
     Args:
         tool: The tool name (e.g., 'kilo-cli', 'kilo-ide', 'cline', 'cursor', 'copilot').
 
     Returns:
-        The builder class for the given tool, or None if tool is not recognized.
+        Phase2ABuilderAdapter instance for the given tool.
 
+    Raises:
+        ValueError: If tool is unknown.
     """
-    # Map normalized display names to actual class names expected by the factory
-    TOOL_TO_CLASS_MAPPING = {
-        "kilo-cli": "KiloCLIBuilder",
-        "kilo-ide": "KiloIDEBuilder",
-        "cline": "ClineBuilder",
-        "cursor": "CursorBuilder",
-        "copilot": "CopilotBuilder",
-    }
-
-    # Get the class name from the mapping
-    class_name = TOOL_TO_CLASS_MAPPING.get(tool)
-    if not class_name:
-        raise ValueError(f"Unknown tool: {tool}")
-
-    return cast(type[Builder], AbstractInverterFactory[Builder].create(key=class_name))
+    from promptosaurus.cli_adapter import get_phase2a_builder
+    return get_phase2a_builder(tool)
 
 
 # ── validate ───────────────────────────────────────────────────────────────
