@@ -59,3 +59,15 @@ __all__ = [
     "CopilotBuilder",
     "CursorBuilder",
 ]
+
+# Import legacy builders for backward compatibility with original CLI
+from promptosaurus.builders.legacy.kilo.kilo_ide import KiloIDEBuilder
+from promptosaurus.builders.legacy.kilo.kilo_cli import KiloCLIBuilder
+from promptosaurus.builders.legacy.cline import ClineBuilder as ClineBuilderLegacy
+from promptosaurus.builders.legacy.copilot import CopilotBuilder as CopilotBuilderLegacy
+from promptosaurus.builders.legacy.cursor import CursorBuilder as CursorBuilderLegacy
+
+__all__.extend([
+    "KiloIDEBuilder",
+    "KiloCLIBuilder",
+])
