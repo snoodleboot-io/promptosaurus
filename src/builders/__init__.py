@@ -19,7 +19,15 @@ from src.builders.errors import (
     BuilderNotFoundError,
     BuilderValidationError,
     UnsupportedFeatureError,
+    ComponentNotFoundError,
+    VariantNotFoundError,
 )
+from src.builders.component_selector import (
+    Variant,
+    ComponentBundle,
+    ComponentSelector,
+)
+from src.builders.component_composer import ComponentComposer
 
 __all__ = [
     "AbstractBuilder",
@@ -34,4 +42,10 @@ __all__ = [
     "BuilderNotFoundError",
     "BuilderValidationError",
     "UnsupportedFeatureError",
+    "ComponentNotFoundError",
+    "VariantNotFoundError",
+    "Variant",
+    "ComponentBundle",
+    "ComponentSelector",
+    "ComponentComposer",
 ]

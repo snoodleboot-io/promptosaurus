@@ -76,3 +76,51 @@ class UnsupportedFeatureError(BuilderException):
         if message is None:
             message = f"Builder '{builder_name}' does not support feature: '{feature_name}'"
         super().__init__(message)
+
+
+class ComponentNotFoundError(BuilderException):
+    """Raised when a required component file cannot be found.
+
+    Attributes:
+        component_name: The name of the component (e.g., 'prompt.md')
+        path: The path where the component was expected
+        message: The error message
+    """
+
+    def __init__(self, component_name: str, path: str, message: str | None = None) -> None:
+        """Initialize ComponentNotFoundError.
+
+        Args:
+            component_name: Name of the component (e.g., 'prompt.md')
+            path: Path where component was expected
+            message: Optional custom error message
+        """
+        self.component_name = component_name
+        self.path = path
+        if message is None:
+            message = f"Component '{component_name}' not found at {path}"
+        super().__init__(message)
+
+
+class VariantNotFoundError(BuilderException):
+    """Raised when a requested variant cannot be found for an agent.
+
+    Attributes:
+        agent_name: The name of the agent
+        variant: The requested variant
+        message: The error message
+    """
+
+    def __init__(self, agent_name: str, variant: str, message: str | None = None) -> None:
+        """Initialize VariantNotFoundError.
+
+        Args:
+            agent_name: Name of the agent
+            variant: The requested variant (e.g., 'minimal')
+            message: Optional custom error message
+        """
+        self.agent_name = agent_name
+        self.variant = variant
+        if message is None:
+            message = f"Variant '{variant}' not found for agent '{agent_name}'"
+        super().__init__(message)
