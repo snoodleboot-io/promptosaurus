@@ -22,7 +22,7 @@ Key Functions:
 
 import sys
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 import click
 # Legacy sweet_tea import removed - using Phase 2A builders
@@ -137,6 +137,7 @@ def _setup_monorepo_folders() -> list[dict[str, Any]]:
             default_index=0,
             allow_multiple=False,
         )
+        assert isinstance(folder_type, str), "allow_multiple=False should return str"
 
         # folder_type is str when allow_multiple=False
         if not isinstance(folder_type, str):
@@ -187,9 +188,7 @@ def _setup_monorepo_folders() -> list[dict[str, Any]]:
             ]
 
             # Step 2: Ask for subtype
-            subtype_choice = cast(
-                str,
-                select_option_with_explain(
+            subtype_choice = select_option_with_explain(
                     question=f"What {preset_type} subtype?",
                     options=subtype_options,
                     explanations={
@@ -199,8 +198,8 @@ def _setup_monorepo_folders() -> list[dict[str, Any]]:
                     question_explanation=f"Select the {preset_type} subtype to create",
                     default_index=0,
                     allow_multiple=False,
-                ),
-            )
+                )
+            assert isinstance(subtype_choice, str), "allow_multiple=False should return str"
             # subtype_choice is str when allow_multiple=False
             subtype = subtype_choice.split(" (")[0]  # Extract subtype name
 
@@ -224,9 +223,7 @@ def _setup_monorepo_folders() -> list[dict[str, Any]]:
             if default_language not in valid_languages:
                 valid_languages.insert(0, default_language)
 
-            language_choice = cast(
-                str,
-                select_option_with_explain(
+            language_choice = select_option_with_explain(
                     question="Programming language?",
                     options=valid_languages,
                     explanations={
@@ -236,8 +233,8 @@ def _setup_monorepo_folders() -> list[dict[str, Any]]:
                     question_explanation=f"Select language for {folder_path}. Default is {default_language} based on preset.",
                     default_index=0,
                     allow_multiple=False,
-                ),
-            )
+                )
+            assert isinstance(language_choice, str), "allow_multiple=False should return str"
             # language_choice is str when allow_multiple=False
             language: str = language_choice
 
@@ -269,6 +266,7 @@ def _setup_monorepo_folders() -> list[dict[str, Any]]:
             default_index=1,
             allow_multiple=False,
         )
+        assert isinstance(more, str), "allow_multiple=False should return str"
         add_more = more == "Yes"
 
     return folder_specs
@@ -466,8 +464,9 @@ def init_prompts():
             default_index=1,
             allow_multiple=False,
         )
+        assert isinstance(ai_tool, str), "allow_multiple=False should return str"
         # Store the selected AI tool
-        selected_tool: str = cast(str, ai_tool)
+        selected_tool: str = ai_tool
 
         # Step 2: Repository type
         click.echo("\n" + "-" * 60)
@@ -599,9 +598,7 @@ def switch_command(tool_name: str | None):
         # Show interactive menu
         try:
             tool_options = ["Kilo CLI", "Kilo IDE", "Cline", "Cursor", "Copilot"]
-            target_tool = cast(
-                str,
-                select_option_with_explain(
+            target_tool = select_option_with_explain(
                     question="Which AI assistant would you like to switch to?",
                     options=tool_options,
                     explanations={
@@ -614,8 +611,8 @@ def switch_command(tool_name: str | None):
                     question_explanation="Select an AI assistant to switch to.",
                     default_index=1,
                     allow_multiple=False,
-                ),
-            )
+                )
+            assert isinstance(target_tool, str), "allow_multiple=False should return str"
         except UserCancelledError:
             click.echo("\nOperation cancelled.")
             raise click.Abort() from None
@@ -722,7 +719,8 @@ def update_command():
                 default_index=len(display_options),  # Default to Save & Exit
                 allow_multiple=False,
             )
-            selected = cast(str, selected)
+            assert isinstance(selected, str), "allow_multiple=False should return str"
+            selected = selected
         except UserCancelledError:
             click.echo("\nOperation cancelled. No changes saved.")
             raise click.Abort() from None
@@ -744,9 +742,7 @@ def update_command():
         if selected_opt.option_type == "single-select" and selected_opt.available_options:
             # Single-select option
             try:
-                new_value = cast(
-                    str,
-                    select_option_with_explain(
+                new_value = select_option_with_explain(
                         question=f"Select {selected_opt.display_name}:",
                         options=selected_opt.available_options,
                         explanations={
@@ -755,8 +751,8 @@ def update_command():
                         question_explanation=f"Choose a {selected_opt.display_name.lower()} for your project.",
                         default_index=0,
                         allow_multiple=False,
-                    ),
-                )
+                    )
+                assert isinstance(new_value, str), "allow_multiple=False should return str"
             except UserCancelledError:
                 continue
         elif selected_opt.option_type == "text":
