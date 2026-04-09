@@ -22,7 +22,7 @@ Key Functions:
 
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import click
 # Legacy sweet_tea import removed - using Phase 2A builders
