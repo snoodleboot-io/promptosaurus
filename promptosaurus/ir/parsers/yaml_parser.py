@@ -35,13 +35,15 @@ class YAMLParser:
         """Parse YAML frontmatter from markdown content.
 
         Extracts the YAML content between the first set of --- delimiters
-        and returns it as a dictionary.
+        and returns it as a dictionary. Also extracts the markdown body
+        after the closing --- and adds it as 'system_prompt' key if present.
 
         Args:
             content: The markdown content with optional YAML frontmatter.
 
         Returns:
-            Dictionary containing the parsed YAML data.
+            Dictionary containing the parsed YAML data and system_prompt body
+            (if present and not already in frontmatter).
 
         Raises:
             ParseError: If the content is not valid YAML or frontmatter
@@ -50,13 +52,16 @@ class YAMLParser:
         Example:
             >>> parser = YAMLParser()
             >>> yaml_content = "name: my-skill\\ndescription: Does something"
-            >>> result = parser.parse(f"---\\n{yaml_content}\\n---\\n")
-            >>> result == {'name': 'my-skill', 'description': 'Does something'}
-            True
+            >>> result = parser.parse(f"---\\n{yaml_content}\\n---\\nBody content")
+            >>> result['name']
+            'my-skill'
+            >>> result['system_prompt']
+            'Body content'
         """
         try:
-            # Pattern to match YAML frontmatter: --- at start, then YAML, then ---
-            pattern = r"^---\s*\n(.*?)\n---\s*\n"
+            # Pattern to match YAML frontmatter and body:
+            # --- at start, YAML content, then ---, then optional body content
+            pattern = r"^---\s*\n(.*?)\n---\s*(?:\n(.*))?$"
             match = re.match(pattern, content, re.DOTALL)
 
             if not match:
@@ -64,18 +69,24 @@ class YAMLParser:
                 return {}
 
             yaml_content = match.group(1)
+            body_content = match.group(2)
 
             # Parse the YAML content
             parsed = yaml.safe_load(yaml_content)
 
             # Ensure we return a dict
             if parsed is None:
-                return {}
+                parsed = {}
 
             if not isinstance(parsed, dict):
                 raise ParseError(
                     f"YAML frontmatter must be a dictionary, got {type(parsed).__name__}"
                 )
+
+            # Add body content as system_prompt if present and not already set
+            if body_content and body_content.strip():
+                if "system_prompt" not in parsed:
+                    parsed["system_prompt"] = body_content.strip()
 
             return parsed
 
