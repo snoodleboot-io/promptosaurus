@@ -1,6 +1,8 @@
 ---
 name: scaffold
 description: Architect - scaffold
+workflows:
+  - scaffold-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/architect/subagents/architect-scaffold.md -->

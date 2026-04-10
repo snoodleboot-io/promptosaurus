@@ -1,6 +1,8 @@
 ---
 name: log-analysis
 description: Debug - log-analysis
+workflows:
+  - log-analysis-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/debug/subagents/debug-log-analysis.md -->

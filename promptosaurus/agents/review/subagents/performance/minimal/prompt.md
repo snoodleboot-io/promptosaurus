@@ -1,6 +1,9 @@
 ---
 name: performance
 description: Review - performance
+tools: [bash, read]
+workflows:
+  - performance-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/review/subagents/review-performance.md -->

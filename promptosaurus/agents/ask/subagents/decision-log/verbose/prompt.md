@@ -1,6 +1,9 @@
 ---
 name: decision-log
 description: Ask - decision-log
+tools: [write]
+workflows:
+  - decision-log-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/ask/subagents/ask-decision-log.md -->

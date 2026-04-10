@@ -1,6 +1,8 @@
 ---
 name: task-breakdown
 description: Architect - task-breakdown
+workflows:
+  - task-breakdown-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/architect/subagents/architect-task-breakdown.md -->

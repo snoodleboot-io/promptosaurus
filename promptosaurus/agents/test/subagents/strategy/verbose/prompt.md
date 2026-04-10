@@ -1,6 +1,9 @@
 ---
 name: strategy
 description: Test - strategy
+tools: [bash, read, write]
+workflows:
+  - strategy-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/test/subagents/test-strategy.md -->

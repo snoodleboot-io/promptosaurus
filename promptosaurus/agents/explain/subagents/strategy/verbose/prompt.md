@@ -1,6 +1,9 @@
 ---
 name: strategy
 description: Explain - strategy
+tools: [bash, read]
+workflows:
+  - strategy-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/explain/subagents/explain-strategy.md -->

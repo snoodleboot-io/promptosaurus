@@ -1,6 +1,13 @@
 ---
 name: feature
-description: Code - feature
+description: Implement new features following a structured plan-confirm-implement workflow
+tools: [read]
+skills:
+  - feature-planning
+  - incremental-implementation
+  - post-implementation-checklist
+workflows:
+  - feature-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/code/subagents/code-feature.md -->

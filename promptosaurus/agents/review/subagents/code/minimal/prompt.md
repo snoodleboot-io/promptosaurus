@@ -1,6 +1,9 @@
 ---
 name: code
 description: Review - code
+tools: [bash, read]
+workflows:
+  - code-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/review/subagents/review-code.md -->

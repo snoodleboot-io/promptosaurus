@@ -1,6 +1,9 @@
 ---
 name: strategy-for-applications
 description: Document - strategy-for-applications
+tools: [bash, read, write]
+workflows:
+  - strategy-for-applications-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/document/subagents/document-strategy-for-applications.md -->

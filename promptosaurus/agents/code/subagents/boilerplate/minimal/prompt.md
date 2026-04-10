@@ -1,6 +1,9 @@
 ---
 name: boilerplate
 description: Code - boilerplate
+tools: [read]
+workflows:
+  - boilerplate-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/code/subagents/code-boilerplate.md -->

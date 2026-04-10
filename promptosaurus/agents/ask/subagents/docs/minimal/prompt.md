@@ -1,6 +1,9 @@
 ---
 name: docs
 description: Ask - docs
+tools: [write]
+workflows:
+  - docs-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/ask/subagents/ask-docs.md -->

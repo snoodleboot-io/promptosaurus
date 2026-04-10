@@ -1,6 +1,7 @@
 ---
 name: devops
 description: Orchestrator - devops
+tools: [read]
 ---
 
 <!-- path: promptosaurus/prompts/agents/orchestrator/subagents/orchestrator-devops.md -->

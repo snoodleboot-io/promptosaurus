@@ -1,6 +1,9 @@
 ---
 name: strategy
 description: Refactor - strategy
+tools: [bash, read, write]
+workflows:
+  - strategy-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/refactor/subagents/refactor-strategy.md -->

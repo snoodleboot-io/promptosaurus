@@ -1,6 +1,7 @@
 ---
 name: pr-description
 description: Orchestrator - pr-description
+tools: [bash]
 ---
 
 <!-- path: promptosaurus/prompts/agents/orchestrator/subagents/orchestrator-pr-description.md -->

@@ -1,6 +1,9 @@
 ---
 name: root-cause
 description: Debug - root-cause
+tools: [bash]
+workflows:
+  - root-cause-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/debug/subagents/debug-root-cause.md -->

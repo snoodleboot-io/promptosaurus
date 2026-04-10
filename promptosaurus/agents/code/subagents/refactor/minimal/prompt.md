@@ -1,6 +1,8 @@
 ---
 name: refactor
 description: Code - refactor
+workflows:
+  - refactor-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/code/subagents/code-refactor.md -->

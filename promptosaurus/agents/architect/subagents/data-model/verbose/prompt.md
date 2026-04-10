@@ -1,6 +1,9 @@
 ---
 name: data-model
 description: Architect - data-model
+tools: [read, write]
+workflows:
+  - data-model-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/architect/subagents/architect-data-model.md -->

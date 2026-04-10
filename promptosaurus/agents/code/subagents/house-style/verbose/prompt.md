@@ -1,6 +1,9 @@
 ---
 name: house-style
 description: Code - house-style
+tools: [read, write]
+workflows:
+  - house-style-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/code/subagents/code-house-style.md -->

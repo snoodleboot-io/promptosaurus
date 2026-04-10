@@ -1,6 +1,8 @@
 ---
 name: meta
 description: Orchestrator - meta
+workflows:
+  - meta-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/orchestrator/subagents/orchestrator-meta.md -->

@@ -1,6 +1,8 @@
 ---
 name: migration
 description: Code - migration
+workflows:
+  - migration-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/code/subagents/code-migration.md -->

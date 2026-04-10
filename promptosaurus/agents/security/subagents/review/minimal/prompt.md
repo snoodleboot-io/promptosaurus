@@ -1,6 +1,9 @@
 ---
 name: review
 description: Security - review
+tools: [bash, read, write]
+workflows:
+  - review-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/security/subagents/security-review.md -->

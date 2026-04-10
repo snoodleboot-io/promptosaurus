@@ -1,6 +1,8 @@
 ---
 name: dependency-upgrade
 description: Code - dependency-upgrade
+workflows:
+  - dependency-upgrade-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/code/subagents/code-dependency-upgrade.md -->

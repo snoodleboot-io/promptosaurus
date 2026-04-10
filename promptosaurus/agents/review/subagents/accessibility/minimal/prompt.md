@@ -1,6 +1,9 @@
 ---
 name: accessibility
 description: Review - accessibility
+tools: [bash, read]
+workflows:
+  - accessibility-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/review/subagents/review-accessibility.md -->

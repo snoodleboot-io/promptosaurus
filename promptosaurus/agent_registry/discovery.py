@@ -273,7 +273,17 @@ class RegistryDiscovery:
 
         # Extract permissions (tool-specific)
         permissions = prompt_data.get("permissions", None)
-        
+
+        # Auto-discover subagents from filesystem if not in frontmatter
+        agent_dir = variant_dir.parent  # Go from variant up to agent dir
+        subagents_dir = agent_dir / "subagents"
+        if subagents_dir.is_dir():
+            discovered_subagents = set(subagents)  # Start with what's in frontmatter
+            for subagent_path in sorted(subagents_dir.iterdir()):
+                if subagent_path.is_dir() and not subagent_path.name.startswith("."):
+                    discovered_subagents.add(subagent_path.name)
+            subagents = sorted(list(discovered_subagents))
+
         # Create Agent IR model
         agent = Agent(
             name=name or agent_name,

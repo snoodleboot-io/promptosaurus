@@ -1,6 +1,9 @@
 ---
 name: strategy
 description: Migration - strategy
+tools: [bash, read]
+workflows:
+  - strategy-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/migration/subagents/migration-strategy.md -->

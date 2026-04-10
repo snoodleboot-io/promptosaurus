@@ -1,6 +1,9 @@
 ---
 name: feature
 description: Code - feature
+tools: [read]
+workflows:
+  - feature-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/code/subagents/code-feature.md -->

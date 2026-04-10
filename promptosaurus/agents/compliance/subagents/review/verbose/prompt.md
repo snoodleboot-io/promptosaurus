@@ -1,6 +1,9 @@
 ---
 name: review
 description: Compliance - review
+tools: [bash, read, write]
+workflows:
+  - review-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/compliance/subagents/compliance-review.md -->

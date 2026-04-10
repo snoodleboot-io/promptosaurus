@@ -1,6 +1,9 @@
 ---
 name: testing
 description: Ask - testing
+tools: [read, write]
+workflows:
+  - testing-workflow
 ---
 
 <!-- path: promptosaurus/prompts/agents/ask/subagents/ask-testing.md -->
