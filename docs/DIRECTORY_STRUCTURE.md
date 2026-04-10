@@ -57,18 +57,23 @@ docs/
 │   ├── EXTRACTION_STATUS.md
 │   └── VARIANT_REWRITE_CHECKLIST.md
 │
-├── builders/                        # Builder-specific documentation
+├── builders/                        # Builder implementation documentation
+│   ├── BUILDER_API_REFERENCE.md
+│   ├── BUILDER_IMPLEMENTATION_GUIDE.md
+│   └── INTEGRATION_GUIDE.md
 │
-└── [Reference documentation]        # API docs, guides (in root)
-    ├── API_REFERENCE.md
-    ├── BUILDER_API_REFERENCE.md
-    ├── BUILDER_IMPLEMENTATION_GUIDE.md
-    ├── GETTING_STARTED.md
-    ├── INTEGRATION_GUIDE.md
-    ├── MIGRATION_GUIDE.md
-    ├── README.md
-    ├── RELEASE_CHECKLIST.md
-    └── TOOL_CONFIGURATION_EXAMPLES.md
+├── misc/                            # Images and miscellaneous assets
+│   ├── promptosaurs 1.png
+│   ├── promptosaurus2.png
+│   └── promptosaurus3-no-bg.png
+│
+└── [Reference documentation]        # User-facing docs (in root)
+    ├── API_REFERENCE.md             # User API reference
+    ├── DIRECTORY_STRUCTURE.md       # This file
+    ├── GETTING_STARTED.md           # Quick start guide
+    ├── MIGRATION_GUIDE.md           # Migration instructions
+    ├── README.md                    # Documentation index
+    └── TOOL_CONFIGURATION_EXAMPLES.md  # Configuration examples
 ```
 
 ## Document Categories
@@ -128,17 +133,38 @@ Code quality audits, coverage reports, and status tracking.
 - Extraction status
 - Variant rewrite checklists
 
-### Reference Documentation (Root)
-User-facing and developer-facing reference documentation kept in the root `docs/` directory for easy access.
+### Builders (`docs/builders/`)
+Builder implementation documentation for developers creating or extending builders.
 
-**Purpose:** Primary documentation for users and developers.
+**Purpose:** Technical documentation for builder developers and contributors.
 
 **Examples:**
-- API reference
+- Builder API reference
+- Builder implementation guide
+- Integration guide for Phase 2A IR models
+- Custom builder examples
+
+### Misc (`docs/misc/`)
+Images, logos, and miscellaneous assets.
+
+**Purpose:** Store non-documentation files referenced by documentation.
+
+**Examples:**
+- Project logos
+- Diagrams and images
+- Screenshots
+
+### Reference Documentation (Root)
+User-facing reference documentation kept in the root `docs/` directory for easy access.
+
+**Purpose:** Primary documentation for end users and developers using promptosaurus.
+
+**Examples:**
+- API reference (user-facing)
 - Getting started guide
-- Integration guide
 - Migration guide
-- Release checklist
+- Tool configuration examples
+- Documentation index (README)
 
 ## Guidelines
 
@@ -174,11 +200,22 @@ User-facing and developer-facing reference documentation kept in the root `docs/
 - Coverage analysis
 - Status tracking documents
 
+**Builders:**
+- Builder API documentation
+- Builder implementation guides
+- Integration documentation for IR models
+- Custom builder examples
+
+**Misc:**
+- Images and logos
+- Diagrams referenced by docs
+- Screenshots and assets
+
 **Reference (Root):**
 - User guides
-- API documentation
-- Integration instructions
-- Release processes
+- API documentation (user-facing)
+- Migration guides
+- Configuration examples
 
 ### Document Lifecycle
 
