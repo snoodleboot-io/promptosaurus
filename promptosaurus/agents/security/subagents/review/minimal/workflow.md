@@ -2,11 +2,11 @@
 name: review-workflow
 description: Step-by-step process for review
 steps:
-  - **Check for session file:**
-  - **If no session exists:**
-  - **If session exists:**
-  - **During work:**
-  - **On mode switch:**
+- '**Check for session file:**'
+- '**If no session exists:**'
+- '**If session exists:**'
+- '**During work:**'
+- '**On mode switch:**'
 ---
 
 ## Steps

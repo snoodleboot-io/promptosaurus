@@ -2,28 +2,28 @@
 name: accessibility-workflow
 description: Step-by-step process for accessibility
 steps:
-  - SEMANTIC HTML — correct elements used (button vs div, nav, main, h1-h6 hierarchy)
-  - KEYBOARD NAVIGATION — all interactive elements reachable and activatable by keyboard
-  - FOCUS MANAGEMENT — focus trapped in modals, restored after dialogs close
-  - ARIA — roles, labels, descriptions present and correct; no redundant ARIA
-  - COLOR CONTRAST — flag text or UI elements likely to fail 4.5:1 ratio
-  - IMAGES — meaningful images have descriptive alt text; decorative images have alt=""
-  - FORMS — all inputs labeled; errors associated with the correct field
-  - MOTION — animations respect prefers-reduced-motion
-  - SCREEN READER ANNOUNCEMENTS — dynamic updates announced via live regions
-  - NAMING CLARITY — endpoints, parameters, and fields named intuitively
-  - CONSISTENCY — similar operations follow the same pattern
-  - ERROR RESPONSES — descriptive errors with error code and human message
-  - VERSIONING — breaking changes can be made safely
-  - INPUT VALIDATION — inputs validated before processing, limits documented
-  - RESPONSE SHAPE — consistent envelope, nullable fields marked
-  - BREAKING CHANGES — would any of these changes break existing callers?
-  - DOCUMENTATION GAPS — what is unclear that a consumer would need to know?
-  - **Check for session file:**
-  - **If no session exists:**
-  - **If session exists:**
-  - **During work:**
-  - **On mode switch:**
+- SEMANTIC HTML — correct elements used (button vs div, nav, main, h1-h6 hierarchy)
+- KEYBOARD NAVIGATION — all interactive elements reachable and activatable by keyboard
+- FOCUS MANAGEMENT — focus trapped in modals, restored after dialogs close
+- ARIA — roles, labels, descriptions present and correct; no redundant ARIA
+- COLOR CONTRAST — flag text or UI elements likely to fail 4.5:1 ratio
+- IMAGES — meaningful images have descriptive alt text; decorative images have alt=""
+- FORMS — all inputs labeled; errors associated with the correct field
+- MOTION — animations respect prefers-reduced-motion
+- SCREEN READER ANNOUNCEMENTS — dynamic updates announced via live regions
+- NAMING CLARITY — endpoints, parameters, and fields named intuitively
+- CONSISTENCY — similar operations follow the same pattern
+- ERROR RESPONSES — descriptive errors with error code and human message
+- VERSIONING — breaking changes can be made safely
+- INPUT VALIDATION — inputs validated before processing, limits documented
+- RESPONSE SHAPE — consistent envelope, nullable fields marked
+- BREAKING CHANGES — would any of these changes break existing callers?
+- DOCUMENTATION GAPS — what is unclear that a consumer would need to know?
+- '**Check for session file:**'
+- '**If no session exists:**'
+- '**If session exists:**'
+- '**During work:**'
+- '**On mode switch:**'
 ---
 
 ## Steps

@@ -2,11 +2,11 @@
 name: meta-workflow
 description: Step-by-step process for meta
 steps:
-  - Before starting complex multi-step work:
-  - Create a clear execution plan:
-  - Communication:
-  - State management:
-  - Completion:
+- 'Before starting complex multi-step work:'
+- 'Create a clear execution plan:'
+- 'Communication:'
+- 'State management:'
+- 'Completion:'
 ---
 
 ## Steps

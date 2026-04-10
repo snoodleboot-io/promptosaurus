@@ -2,19 +2,22 @@
 name: performance-workflow
 description: Step-by-step process for performance
 steps:
-  - N+1 QUERIES — database calls inside loops, missing eager loading
-  - UNNECESSARY COMPUTATION — work done on every request that could be cached or pre-computed
-  - MISSING INDEXES — columns filtered, sorted, or joined without an index
-  - LARGE PAYLOADS — over-fetching data, missing pagination, uncompressed responses
-  - BLOCKING OPERATIONS — sync I/O in async contexts, long-running work on the main thread
-  - MEMORY LEAKS — unbounded caches, event listeners not cleaned up, large objects held in scope
-  - REDUNDANT NETWORK CALLS — missing batching, no request deduplication, no caching headers
-  - ALGORITHMIC COMPLEXITY — O(n²) or worse where a better algorithm exists
-  - **Check for session file:**
-  - **If no session exists:**
-  - **If session exists:**
-  - **During work:**
-  - **On mode switch:**
+- N+1 QUERIES — database calls inside loops, missing eager loading
+- UNNECESSARY COMPUTATION — work done on every request that could be cached or pre-computed
+- MISSING INDEXES — columns filtered, sorted, or joined without an index
+- LARGE PAYLOADS — over-fetching data, missing pagination, uncompressed responses
+- BLOCKING OPERATIONS — sync I/O in async contexts, long-running work on the main
+  thread
+- MEMORY LEAKS — unbounded caches, event listeners not cleaned up, large objects held
+  in scope
+- REDUNDANT NETWORK CALLS — missing batching, no request deduplication, no caching
+  headers
+- ALGORITHMIC COMPLEXITY — O(n²) or worse where a better algorithm exists
+- '**Check for session file:**'
+- '**If no session exists:**'
+- '**If session exists:**'
+- '**During work:**'
+- '**On mode switch:**'
 ---
 
 ## Steps

@@ -2,18 +2,18 @@
 name: testing-workflow
 description: Step-by-step process for testing
 steps:
-  - Happy path — expected inputs produce expected outputs
-  - Edge cases — empty, zero, null/undefined, boundary values
-  - Error cases — invalid inputs, failures, exceptions
-  - State interactions — side effects
-  - Boundary values — min, max, exactly at limit
-  - Empty / null / zero / false
-  - Type mismatches
-  - Oversized inputs
-  - Special characters
-  - Injection attempts
-  - Missing required fields
-  - Logical contradictions
+- Happy path — expected inputs produce expected outputs
+- Edge cases — empty, zero, null/undefined, boundary values
+- Error cases — invalid inputs, failures, exceptions
+- State interactions — side effects
+- Boundary values — min, max, exactly at limit
+- Empty / null / zero / false
+- Type mismatches
+- Oversized inputs
+- Special characters
+- Injection attempts
+- Missing required fields
+- Logical contradictions
 ---
 
 ## Steps

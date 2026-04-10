@@ -2,9 +2,9 @@
 name: scaffold-workflow
 description: Step-by-step process for scaffold
 steps:
-  - Ask these questions before generating anything — one at a time:
-  - After all answers are collected:
-  - Do not generate any code or files until the user has confirmed the plan.
+- 'Ask these questions before generating anything — one at a time:'
+- 'After all answers are collected:'
+- Do not generate any code or files until the user has confirmed the plan.
 ---
 
 ## Steps

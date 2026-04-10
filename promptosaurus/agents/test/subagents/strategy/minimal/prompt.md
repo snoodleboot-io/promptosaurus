@@ -4,6 +4,10 @@ description: Test - strategy
 tools: [bash, read, write]
 workflows:
   - strategy-workflow
+skills:
+  - test-aaa-structure
+  - test-coverage-categories
+  - test-mocking-rules
 ---
 
 <!-- path: promptosaurus/prompts/agents/test/subagents/test-strategy.md -->

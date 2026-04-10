@@ -2,15 +2,16 @@
 name: review-workflow
 description: Step-by-step process for review
 steps:
-  - Which compliance framework(s) are in scope?
-  - What is being reviewed? (application code, infrastructure config, data pipeline, all three)
-  - Is this a gap assessment or a pre-audit readiness review?
-  - Are there existing controls documented (policies, runbooks, previous audits)?
-  - **Check for session file:**
-  - **If no session exists:**
-  - **If session exists:**
-  - **During work:**
-  - **On mode switch:**
+- Which compliance framework(s) are in scope?
+- What is being reviewed? (application code, infrastructure config, data pipeline,
+  all three)
+- Is this a gap assessment or a pre-audit readiness review?
+- Are there existing controls documented (policies, runbooks, previous audits)?
+- '**Check for session file:**'
+- '**If no session exists:**'
+- '**If session exists:**'
+- '**During work:**'
+- '**On mode switch:**'
 ---
 
 ## Steps

@@ -2,15 +2,15 @@
 name: strategy-workflow
 description: Step-by-step process for strategy
 steps:
-  - State what this chunk is responsible for (one sentence)
-  - Explain any non-obvious decisions or constraints
-  - Call out any gotchas, invariants callers must maintain, or known limitations
-  - Connect it to the previous and next chunk
-  - **Check for session file:**
-  - **If no session exists:**
-  - **If session exists:**
-  - **During work:**
-  - **On mode switch:**
+- State what this chunk is responsible for (one sentence)
+- Explain any non-obvious decisions or constraints
+- Call out any gotchas, invariants callers must maintain, or known limitations
+- Connect it to the previous and next chunk
+- '**Check for session file:**'
+- '**If no session exists:**'
+- '**If session exists:**'
+- '**During work:**'
+- '**On mode switch:**'
 ---
 
 ## Steps

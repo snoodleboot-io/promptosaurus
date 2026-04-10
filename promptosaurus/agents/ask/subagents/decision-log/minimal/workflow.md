@@ -2,11 +2,11 @@
 name: decision-log-workflow
 description: Step-by-step process for decision-log
 steps:
-  - If the user has not provided full context, ask:
-  - Draft the ADR in this format:
-  - Keep it readable in 3 minutes.
-  - Write it for a future reader who was not in the room.
-  - Suggest storing it in docs/decisions/ADR-NNN-title.md
+- 'If the user has not provided full context, ask:'
+- 'Draft the ADR in this format:'
+- Keep it readable in 3 minutes.
+- Write it for a future reader who was not in the room.
+- Suggest storing it in docs/decisions/ADR-NNN-title.md
 ---
 
 ## Steps

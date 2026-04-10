@@ -2,10 +2,10 @@
 name: data-model-workflow
 description: Step-by-step process for data-model
 steps:
-  - Ask these questions before producing anything:
-  - After answers are collected, produce:
-  - Do NOT generate ORM code — schema design only until the user approves.
-  - Use the database specified in Core Conventions.
+- 'Ask these questions before producing anything:'
+- 'After answers are collected, produce:'
+- Do NOT generate ORM code — schema design only until the user approves.
+- Use the database specified in Core Conventions.
 ---
 
 ## Steps

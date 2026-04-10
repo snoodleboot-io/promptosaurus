@@ -2,9 +2,9 @@
 name: feature-workflow
 description: Step-by-step process for feature
 steps:
-  - Before writing any code:
-  - After confirmation:
-  - After implementation:
+- 'Before writing any code:'
+- 'After confirmation:'
+- 'After implementation:'
 ---
 
 ## Steps

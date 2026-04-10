@@ -2,18 +2,18 @@
 name: strategy-workflow
 description: Step-by-step process for strategy
 steps:
-  - Read the target file(s) and any files they import.
-  - Identify the smells: pick from the list below or name your own.
-  - State which parts of the observable interface must be preserved.
-  - Propose the approach with the specific refactoring moves you will make.
-  - Flag any step that requires a judgment call.
-  - Estimate: how many files change, can it be done incrementally?
-  - Wait for confirmation before proceeding.
-  - **Check for session file:**
-  - **If no session exists:**
-  - **If session exists:**
-  - **During work:**
-  - **On mode switch:**
+- Read the target file(s) and any files they import.
+- 'Identify the smells: pick from the list below or name your own.'
+- State which parts of the observable interface must be preserved.
+- Propose the approach with the specific refactoring moves you will make.
+- Flag any step that requires a judgment call.
+- 'Estimate: how many files change, can it be done incrementally?'
+- Wait for confirmation before proceeding.
+- '**Check for session file:**'
+- '**If no session exists:**'
+- '**If session exists:**'
+- '**During work:**'
+- '**On mode switch:**'
 ---
 
 ## Steps

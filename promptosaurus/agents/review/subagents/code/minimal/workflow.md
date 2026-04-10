@@ -2,22 +2,22 @@
 name: code-workflow
 description: Step-by-step process for code
 steps:
-  - CORRECTNESS — logic errors, off-by-one errors, race conditions, unhandled edge cases
-  - SECURITY — injection risks, auth/authz gaps, secrets in code, unsafe deserialization
-  - ERROR HANDLING — missing try/catch, unchecked nulls, swallowed exceptions
-  - PERFORMANCE — N+1 queries, unnecessary computation in hot paths, missing indexes
-  - CONVENTIONS — violations of core-conventions.md
-  - READABILITY — confusing names, missing comments on complex logic, dead code
-  - TEST COVERAGE — what cases are not covered by the accompanying tests
-  - [blocker 1]
-  - [blocker 2]
-  - [suggestion 1]
-  - [suggestion 2]
-  - **Check for session file:**
-  - **If no session exists:**
-  - **If session exists:**
-  - **During work:**
-  - **On mode switch:**
+- CORRECTNESS — logic errors, off-by-one errors, race conditions, unhandled edge cases
+- SECURITY — injection risks, auth/authz gaps, secrets in code, unsafe deserialization
+- ERROR HANDLING — missing try/catch, unchecked nulls, swallowed exceptions
+- PERFORMANCE — N+1 queries, unnecessary computation in hot paths, missing indexes
+- CONVENTIONS — violations of core-conventions.md
+- READABILITY — confusing names, missing comments on complex logic, dead code
+- TEST COVERAGE — what cases are not covered by the accompanying tests
+- '[blocker 1]'
+- '[blocker 2]'
+- '[suggestion 1]'
+- '[suggestion 2]'
+- '**Check for session file:**'
+- '**If no session exists:**'
+- '**If session exists:**'
+- '**During work:**'
+- '**On mode switch:**'
 ---
 
 ## Steps

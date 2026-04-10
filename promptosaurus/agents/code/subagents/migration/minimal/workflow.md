@@ -2,10 +2,10 @@
 name: migration-workflow
 description: Step-by-step process for migration
 steps:
-  - Before making any changes:
-  - Migration approach:
-  - After migration:
-  - Common migration scenarios:
+- 'Before making any changes:'
+- 'Migration approach:'
+- 'After migration:'
+- 'Common migration scenarios:'
 ---
 
 ## Steps

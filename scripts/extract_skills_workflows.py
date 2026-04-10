@@ -213,11 +213,23 @@ def write_workflow_file(variant_dir: Path, workflows: list[ExtractedWorkflow]) -
     # For now, just write the first workflow (most subagents have only one)
     workflow = workflows[0]
 
+    # Import yaml for proper quoting
+    import yaml
+
+    # Create proper YAML structure
+    yaml_data = {
+        "name": workflow.name,
+        "description": workflow.description,
+        "steps": workflow.steps,
+    }
+
+    # Generate YAML frontmatter with proper quoting
+    yaml_content = yaml.dump(
+        yaml_data, default_flow_style=False, allow_unicode=True, sort_keys=False
+    )
+
     workflow_content = f"""---
-name: {workflow.name}
-description: {workflow.description}
-steps:
-{chr(10).join(f"  - {step}" for step in workflow.steps)}
+{yaml_content.strip()}
 ---
 
 ## Steps
@@ -249,6 +261,9 @@ def update_prompt_frontmatter(
     Returns:
         True if updated successfully
     """
+    import re
+    import yaml
+
     prompt_file = variant_dir / "prompt.md"
     if not prompt_file.exists():
         return False
@@ -256,8 +271,6 @@ def update_prompt_frontmatter(
     content = prompt_file.read_text(encoding="utf-8")
 
     # Parse existing frontmatter
-    import re
-
     frontmatter_match = re.match(r"^---\n(.*?)\n---\n(.*)$", content, re.DOTALL)
     if not frontmatter_match:
         return False
@@ -265,31 +278,34 @@ def update_prompt_frontmatter(
     frontmatter_text = frontmatter_match.group(1)
     body = frontmatter_match.group(2)
 
-    # Parse frontmatter as simple key-value pairs
-    frontmatter = {}
-    for line in frontmatter_text.split("\n"):
-        if ":" in line:
-            key, value = line.split(":", 1)
-            frontmatter[key.strip()] = value.strip()
+    # Parse as YAML
+    try:
+        frontmatter = yaml.safe_load(frontmatter_text) or {}
+    except yaml.YAMLError:
+        return False
 
-    # Update with new values
-    if tools:
-        frontmatter["tools"] = "[" + ", ".join(tools) + "]"
-    if skills:
-        frontmatter["skills"] = "\n" + "\n".join(f"  - {skill}" for skill in skills)
-    if workflows:
-        frontmatter["workflows"] = "\n" + "\n".join(f"  - {workflow}" for workflow in workflows)
+    # Update with new values (only if not already present or empty)
+    if tools and (not frontmatter.get("tools") or frontmatter.get("tools") == ""):
+        frontmatter["tools"] = tools
+    if skills and (
+        not frontmatter.get("skills")
+        or frontmatter.get("skills") == ""
+        or frontmatter.get("skills") == []
+    ):
+        frontmatter["skills"] = skills
+    if workflows and (
+        not frontmatter.get("workflows")
+        or frontmatter.get("workflows") == ""
+        or frontmatter.get("workflows") == []
+    ):
+        frontmatter["workflows"] = workflows
 
-    # Rebuild frontmatter
-    new_frontmatter = "---\n"
-    for key, value in frontmatter.items():
-        if "\n" in str(value):
-            new_frontmatter += f"{key}:{value}\n"
-        else:
-            new_frontmatter += f"{key}: {value}\n"
-    new_frontmatter += "---\n"
+    # Rebuild frontmatter as YAML
+    new_frontmatter_text = yaml.dump(
+        frontmatter, default_flow_style=False, allow_unicode=True, sort_keys=False
+    )
+    new_content = f"---\n{new_frontmatter_text}---\n{body}"
 
-    new_content = new_frontmatter + body
     prompt_file.write_text(new_content, encoding="utf-8")
     return True
 

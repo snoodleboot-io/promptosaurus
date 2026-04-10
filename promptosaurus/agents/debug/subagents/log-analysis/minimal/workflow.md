@@ -2,11 +2,11 @@
 name: log-analysis-workflow
 description: Step-by-step process for log-analysis
 steps:
-  - Identify the root error (not just the last failure in the chain).
-  - Trace the execution path:
-  - Highlight anomalies:
-  - Correlate with other signals:
-  - Produce a timeline of what happened in the failing request.
+- Identify the root error (not just the last failure in the chain).
+- 'Trace the execution path:'
+- 'Highlight anomalies:'
+- 'Correlate with other signals:'
+- Produce a timeline of what happened in the failing request.
 ---
 
 ## Steps

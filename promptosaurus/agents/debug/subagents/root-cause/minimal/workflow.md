@@ -2,11 +2,11 @@
 name: root-cause-workflow
 description: Step-by-step process for root-cause
 steps:
-  - Before suggesting fixes, gather context if not provided:
-  - Ask for relevant artifacts if not provided:
-  - Produce a ranked list of hypotheses for the root cause:
-  - Do NOT jump straight to a fix — confirm the root cause first.
-  - For intermittent bugs:
+- 'Before suggesting fixes, gather context if not provided:'
+- 'Ask for relevant artifacts if not provided:'
+- 'Produce a ranked list of hypotheses for the root cause:'
+- Do NOT jump straight to a fix — confirm the root cause first.
+- 'For intermittent bugs:'
 ---
 
 ## Steps

@@ -2,21 +2,21 @@
 name: strategy-for-applications-workflow
 description: Step-by-step process for strategy-for-applications
 steps:
-  - Purpose — one sentence: what it does, not how
-  - Parameters — name, type, required/optional, valid range or constraints
-  - Return value — type, shape, and what null/undefined means if applicable
-  - Errors — what throws or rejects, and under what conditions
-  - Side effects — DB writes, external calls, state mutations, events emitted
-  - Example — one realistic call with realistic inputs and expected output
-  - What does this do? (one paragraph, no jargon)
-  - How do I run it locally? (exact commands, not prose)
-  - How do I run the tests?
-  - How is the code organized? (one sentence per top-level directory)
-  - **Check for session file:**
-  - **If no session exists:**
-  - **If session exists:**
-  - **During work:**
-  - **On mode switch:**
+- 'Purpose — one sentence: what it does, not how'
+- Parameters — name, type, required/optional, valid range or constraints
+- Return value — type, shape, and what null/undefined means if applicable
+- Errors — what throws or rejects, and under what conditions
+- Side effects — DB writes, external calls, state mutations, events emitted
+- Example — one realistic call with realistic inputs and expected output
+- What does this do? (one paragraph, no jargon)
+- How do I run it locally? (exact commands, not prose)
+- How do I run the tests?
+- How is the code organized? (one sentence per top-level directory)
+- '**Check for session file:**'
+- '**If no session exists:**'
+- '**If session exists:**'
+- '**During work:**'
+- '**On mode switch:**'
 ---
 
 ## Steps

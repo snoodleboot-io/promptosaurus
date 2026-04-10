@@ -2,10 +2,10 @@
 name: dependency-upgrade-workflow
 description: Step-by-step process for dependency-upgrade
 steps:
-  - Before upgrading:
-  - Upgrade process:
-  - Handling breaking changes:
-  - After upgrade:
+- 'Before upgrading:'
+- 'Upgrade process:'
+- 'Handling breaking changes:'
+- 'After upgrade:'
 ---
 
 ## Steps

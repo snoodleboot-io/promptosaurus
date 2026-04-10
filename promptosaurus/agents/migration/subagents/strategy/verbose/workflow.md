@@ -2,16 +2,16 @@
 name: strategy-workflow
 description: Step-by-step process for strategy
 steps:
-  - Read the official migration guide or changelog for the target version/framework.
-  - Audit the codebase:
-  - Classify every change site:
-  - Produce a written assessment:
-  - Wait for confirmation before touching any code.
-  - **Check for session file:**
-  - **If no session exists:**
-  - **If session exists:**
-  - **During work:**
-  - **On mode switch:**
+- Read the official migration guide or changelog for the target version/framework.
+- 'Audit the codebase:'
+- 'Classify every change site:'
+- 'Produce a written assessment:'
+- Wait for confirmation before touching any code.
+- '**Check for session file:**'
+- '**If no session exists:**'
+- '**If session exists:**'
+- '**During work:**'
+- '**On mode switch:**'
 ---
 
 ## Steps

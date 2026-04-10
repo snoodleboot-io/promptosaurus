@@ -2,12 +2,13 @@
 name: task-breakdown-workflow
 description: Step-by-step process for task-breakdown
 steps:
-  - First identify any ambiguities or missing requirements and ask about them before proceeding.
-  - Break the work into discrete, independently deliverable tasks.
-  - For each task output:
-  - Flag any tasks that require architectural decisions before starting.
-  - Suggest a logical delivery sequence.
-  - Output as a structured list, not a narrative.
+- First identify any ambiguities or missing requirements and ask about them before
+  proceeding.
+- Break the work into discrete, independently deliverable tasks.
+- 'For each task output:'
+- Flag any tasks that require architectural decisions before starting.
+- Suggest a logical delivery sequence.
+- Output as a structured list, not a narrative.
 ---
 
 ## Steps

@@ -2,11 +2,11 @@
 name: refactor-workflow
 description: Step-by-step process for refactor
 steps:
-  - Before making any changes:
-  - Make the smallest change that achieves the stated goal.
-  - Flag any behavior changes — even intentional improvements — explicitly.
-  - After refactoring, list the tests that should still pass to confirm
-  - Do not refactor outside the stated scope. If you spot related issues
+- 'Before making any changes:'
+- Make the smallest change that achieves the stated goal.
+- Flag any behavior changes — even intentional improvements — explicitly.
+- After refactoring, list the tests that should still pass to confirm
+- Do not refactor outside the stated scope. If you spot related issues
 ---
 
 ## Steps
