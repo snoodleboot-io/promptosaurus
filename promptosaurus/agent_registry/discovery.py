@@ -172,21 +172,29 @@ class RegistryDiscovery:
 
             agent_name = agent_dir.name
 
-            # Check for at least minimal or verbose variant
+            # Check if this is a top-level agent (has prompt.md directly)
+            # or uses the old variant structure
+            direct_prompt = agent_dir / "prompt.md"
             minimal_dir = agent_dir / "minimal"
             verbose_dir = agent_dir / "verbose"
 
-            if not minimal_dir.is_dir() and not verbose_dir.is_dir():
-                issues.append(f"Agent '{agent_name}' has neither 'minimal' nor 'verbose' variant")
+            if direct_prompt.is_file():
+                # Top-level agent with direct prompt.md - this is correct
+                pass
+            elif not minimal_dir.is_dir() and not verbose_dir.is_dir():
+                # Neither direct prompt.md nor variants - issue
+                issues.append(
+                    f"Agent '{agent_name}' has neither prompt.md nor 'minimal'/'verbose' variants"
+                )
                 continue
-
-            # Check for prompt.md in each variant
-            for variant_dir in [d for d in [minimal_dir, verbose_dir] if d.is_dir()]:
-                prompt_file = variant_dir / "prompt.md"
-                if not prompt_file.is_file():
-                    issues.append(
-                        f"Agent '{agent_name}' variant '{variant_dir.name}' missing prompt.md"
-                    )
+            else:
+                # Has variants - check for prompt.md in each variant
+                for variant_dir in [d for d in [minimal_dir, verbose_dir] if d.is_dir()]:
+                    prompt_file = variant_dir / "prompt.md"
+                    if not prompt_file.is_file():
+                        issues.append(
+                            f"Agent '{agent_name}' variant '{variant_dir.name}' missing prompt.md"
+                        )
 
             # Check subagents if they exist
             subagents_dir = agent_dir / "subagents"
@@ -209,12 +217,10 @@ class RegistryDiscovery:
         return issues
 
     def _load_agent(self, agent_name: str, agent_dir: Path) -> Agent | None:
-        """Load an agent from its directory.
-
-        Tries minimal variant first, then verbose. Returns None if neither found.
+        """Load an agent from directory.
 
         Args:
-            agent_name: Name of the agent (directory name).
+            agent_name: Name of the agent.
             agent_dir: Path to the agent directory.
 
         Returns:
@@ -223,7 +229,15 @@ class RegistryDiscovery:
         Raises:
             Exception: If loading fails.
         """
-        # Try minimal variant first
+        # Check if this is a top-level agent (has prompt.md directly)
+        # or a subagent (has minimal/verbose variants)
+        direct_prompt = agent_dir / "prompt.md"
+
+        if direct_prompt.is_file():
+            # Top-level agent: Load from prompt.md directly (no variants)
+            return self._load_agent_from_directory(agent_name, agent_dir)
+
+        # Subagent: Try minimal variant first
         minimal_dir = agent_dir / "minimal"
         if minimal_dir.is_dir():
             try:
@@ -240,6 +254,62 @@ class RegistryDiscovery:
                 pass
 
         return None
+
+    def _load_agent_from_directory(self, agent_name: str, agent_dir: Path) -> Agent:
+        """Load a top-level agent from a directory with prompt.md directly.
+
+        Args:
+            agent_name: Name of the agent.
+            agent_dir: Path to the agent directory (contains prompt.md).
+
+        Returns:
+            Agent IR model.
+
+        Raises:
+            MissingFileError: If required files are missing.
+            ParseError: If parsing fails.
+        """
+        # Load component bundle (prompt.md only, skills/workflows at subagent level)
+        bundle = self._component_loader.load(str(agent_dir))
+
+        # Extract agent fields from prompt content
+        prompt_data = bundle.prompt_content
+        if not isinstance(prompt_data, dict):
+            raise ParseError(f"Invalid prompt.md format in {agent_dir}")
+
+        name = prompt_data.get("name") or agent_name
+        description = prompt_data.get("description", "")
+        system_prompt = prompt_data.get("system_prompt", "")
+        tools = prompt_data.get("tools", [])
+        skills = prompt_data.get("skills", [])
+        workflows = prompt_data.get("workflows", [])
+        subagents = prompt_data.get("subagents", [])
+
+        # Extract permissions (tool-specific)
+        permissions = prompt_data.get("permissions", None)
+
+        # Auto-discover subagents from filesystem if not in frontmatter
+        subagents_dir = agent_dir / "subagents"
+        if subagents_dir.is_dir():
+            discovered_subagents = set(subagents)  # Start with what's in frontmatter
+            for subagent_path in sorted(subagents_dir.iterdir()):
+                if subagent_path.is_dir() and not subagent_path.name.startswith("."):
+                    discovered_subagents.add(subagent_path.name)
+            subagents = sorted(list(discovered_subagents))
+
+        # Create Agent IR model
+        agent = Agent(
+            name=name or agent_name,
+            description=description or f"Agent: {agent_name}",
+            system_prompt=system_prompt or "",
+            tools=tools if isinstance(tools, list) else [],
+            skills=skills if isinstance(skills, list) else [],
+            workflows=workflows if isinstance(workflows, list) else [],
+            subagents=subagents if isinstance(subagents, list) else [],
+            permissions=permissions if isinstance(permissions, dict) else None,
+        )
+
+        return agent
 
     def _load_agent_from_variant(self, agent_name: str, variant_dir: Path) -> Agent:
         """Load an agent from a specific variant directory.

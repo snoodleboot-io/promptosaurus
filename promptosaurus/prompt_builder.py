@@ -162,7 +162,7 @@ class PromptBuilder:
     ) -> list[str]:
         """Write skill files for agent's skills.
 
-        Loads skills.md from IR and writes individual skill files to output.
+        Loads skills from top-level skills/ directory and writes to output.
 
         Args:
             output: Output directory
@@ -173,38 +173,41 @@ class PromptBuilder:
         Returns:
             List of files written
         """
-        from promptosaurus.ir.loaders import ComponentLoader
-
         written_files = []
 
-        # Determine IR directory for this agent
-        agents_ir_dir = Path(__file__).parent / "agents"
-
-        # Handle subagents (e.g., "code/feature" -> "code/subagents/feature")
-        if "/" in agent_name:
-            parts = agent_name.split("/")
-            agent_dir = agents_ir_dir / parts[0] / "subagents" / parts[1]
-        else:
-            agent_dir = agents_ir_dir / agent_name
-
-        variant_dir = agent_dir / variant
-
-        if not variant_dir.exists():
+        # Get list of skills from agent model
+        if not hasattr(agent, "skills") or not agent.skills:
             return written_files
 
-        # Load skills.md if it exists
-        skills_file = variant_dir / "skills.md"
-        if not skills_file.exists():
+        # Top-level skills directory
+        skills_dir = Path(__file__).parent / "skills"
+
+        if not skills_dir.exists():
             return written_files
 
-        # Parse skills.md to extract individual skills
-        skills_content = skills_file.read_text(encoding="utf-8")
-        individual_skills = self._parse_skills_file(skills_content)
+        # Load each skill the agent uses
+        for skill_name in agent.skills:
+            skill_variant_dir = skills_dir / skill_name / variant
+            skill_file = skill_variant_dir / "SKILL.md"
 
-        # Write each skill to appropriate location based on tool
-        for skill in individual_skills:
-            skill_files = self._write_single_skill(output, skill)
-            written_files.extend(skill_files)
+            if not skill_file.exists():
+                # Try other variant as fallback
+                other_variant = "verbose" if variant == "minimal" else "minimal"
+                skill_file = skills_dir / skill_name / other_variant / "SKILL.md"
+
+            if skill_file.exists():
+                # Read skill content
+                skill_content = skill_file.read_text(encoding="utf-8")
+
+                # Parse to extract name and content
+                skill_data = {
+                    "name": skill_name,
+                    "full_content": skill_content,
+                }
+
+                # Write skill to tool-specific location
+                skill_files = self._write_single_skill(output, skill_data)
+                written_files.extend(skill_files)
 
         return written_files
 
