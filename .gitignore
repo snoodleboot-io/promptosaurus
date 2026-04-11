@@ -76,3 +76,19 @@ target/
 out/
 /test_output/
 .kilo/
+
+# --- Development Only ---
+scripts/
+coverage_builders/
+.pytest_cache/
+.ruff_cache/
+.coverage
+
+# --- Examples (generated from builders) ---
+examples/
+
+# --- Temporary Files ---
+*.tmp
+*.temp
+.DS_Store
+.idea/
