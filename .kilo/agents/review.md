@@ -17,38 +17,38 @@ Use this mode when reviewing code for quality, performance, or accessibility iss
 
 # Skills
 
-- data-model-discovery
-- feature-planning
-- test-coverage-categories
-- test-aaa-structure
-- post-implementation-checklist
-- test-mocking-rules
 - mermaid-erd-creation
+- post-implementation-checklist
+- feature-planning
+- test-mocking-rules
+- test-aaa-structure
+- data-model-discovery
 - incremental-implementation
+- test-coverage-categories
 
 # Workflows
 
-- code-workflow
-- log-analysis-workflow
-- strategy-for-applications-workflow
-- migration-workflow
-- meta-workflow
-- boilerplate-workflow
 - task-breakdown-workflow
+- refactor-workflow
+- code-workflow
 - performance-workflow
-- testing-workflow
-- accessibility-workflow
-- house-style-workflow
 - data-model-workflow
-- scaffold-workflow
-- decision-log-workflow
+- log-analysis-workflow
+- meta-workflow
 - dependency-upgrade-workflow
+- root-cause-workflow
 - review-workflow
+- feature-workflow
 - docs-workflow
 - strategy-workflow
-- feature-workflow
-- refactor-workflow
-- root-cause-workflow
+- house-style-workflow
+- testing-workflow
+- scaffold-workflow
+- accessibility-workflow
+- migration-workflow
+- boilerplate-workflow
+- decision-log-workflow
+- strategy-for-applications-workflow
 
 # Subagents
 

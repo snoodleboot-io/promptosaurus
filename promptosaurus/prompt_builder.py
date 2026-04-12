@@ -143,7 +143,9 @@ class PromptBuilder:
                 if agent.skills:
                     try:
                         # Filter agent for language before writing skills
-                        filtered_agent = self._filter_agent_for_language(agent, language, agent_name=agent_name)
+                        filtered_agent = self._filter_agent_for_language(
+                            agent, language, agent_name=agent_name
+                        )
                         skill_files = self._write_skill_files(
                             output, agent_name, filtered_agent, variant
                         )
@@ -161,7 +163,9 @@ class PromptBuilder:
                 if agent.workflows:
                     try:
                         # Filter agent for language before writing workflows
-                        filtered_agent = self._filter_agent_for_language(agent, language, agent_name=agent_name)
+                        filtered_agent = self._filter_agent_for_language(
+                            agent, language, agent_name=agent_name
+                        )
                         workflow_files = self._write_workflow_files(
                             output, agent_name, filtered_agent, variant
                         )
@@ -174,7 +178,9 @@ class PromptBuilder:
 
         return actions
 
-    def _filter_agent_for_language(self, agent: Agent, language: Optional[str], agent_name: Optional[str] = None) -> Agent:
+    def _filter_agent_for_language(
+        self, agent: Agent, language: Optional[str], agent_name: Optional[str] = None
+    ) -> Agent:
         """Filter agent skills/workflows based on language.
 
         Uses LanguageSkillMappingLoader to resolve which skills/workflows apply
@@ -198,15 +204,18 @@ class PromptBuilder:
         if not language or not self.language_skill_loader:
             return agent
 
-        # Extract subagent path if this is a subagent (format: agent/subagent)
-        subagent_path = None
-        if agent_name and "/" in agent_name:
-            parts = agent_name.split("/", 1)
-            subagent_path = parts[1]  # Just the subagent name for mapping
+        # Use full agent_name as subagent path for mapping lookup (format: agent/subagent)
+        # The language mapping keys use format: {language}/{agent}/{subagent}
+        # e.g., "python/orchestrator/maintenance", so we pass the full path
+        subagent_path = agent_name if agent_name and "/" in agent_name else None
 
         # Get filtered skills and workflows for this language
-        skills = self.language_skill_loader.get_skills_for_language(language, subagent=subagent_path)
-        workflows = self.language_skill_loader.get_workflows_for_language(language, subagent=subagent_path)
+        skills = self.language_skill_loader.get_skills_for_language(
+            language, subagent=subagent_path
+        )
+        workflows = self.language_skill_loader.get_workflows_for_language(
+            language, subagent=subagent_path
+        )
 
         # Create filtered copy of agent
         # Convert skills and workflows to sets for efficient filtering
