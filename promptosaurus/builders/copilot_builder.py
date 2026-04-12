@@ -321,8 +321,6 @@ class CopilotBuilder(AbstractBuilder):
         lines.append("You may delegate to specialized agents:\n")
 
         for subagent in subagent_names:
-            # Format subagent name nicely (e.g., "code-test" -> "Code Test")
-            display_name = " ".join(word.capitalize() for word in subagent.split("-"))
             lines.append(f"### Subagent: {subagent}")
             lines.append(f"Specializes in {subagent.replace('-', ' ')} tasks.\n")
 

@@ -5,7 +5,7 @@ into Cline AI configuration files (.clinerules) with markdown formatting.
 """
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 from promptosaurus.builders.base import AbstractBuilder, BuildOptions
 from promptosaurus.builders.errors import BuilderValidationError

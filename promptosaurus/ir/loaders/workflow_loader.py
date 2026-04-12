@@ -5,7 +5,7 @@ from markdown files with YAML frontmatter.
 """
 
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 from pydantic import ValidationError as PydanticValidationError
 

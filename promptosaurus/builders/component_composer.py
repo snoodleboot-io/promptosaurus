@@ -5,7 +5,6 @@ structured output formats (markdown, JSON, YAML+markdown).
 """
 
 from typing import Any, Dict, List, Optional
-import json
 
 from promptosaurus.ir.models import Agent
 from promptosaurus.builders.component_selector import ComponentBundle
