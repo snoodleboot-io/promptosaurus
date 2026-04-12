@@ -2,10 +2,16 @@
 
 Promptosaurus documentation is organized by intent and purpose.
 
+## Getting Started (Pick Your Path)
+
+### 🚀 Quick Start
+- **QUICKSTART.md** - 5-minute overview (start here first)
+- **PERSONA_GUIDES.md** - Find resources for your role (architect, developer, QA, etc.)
+- **LIBRARY_INDEX.md** - Complete searchable catalog of 180+ agents, workflows, skills
+
 ## Navigation by Purpose
 
 ### 📊 Overview & Dashboards
-- **LIBRARY_INDEX.md** - Complete catalog of all agents, workflows, skills (start here)
 - **QUALITY_METRICS.md** - Test coverage, validation results, quality gates
 - **RELATIONSHIPS_MATRIX.md** - How agents, workflows, and skills relate to each other
 
