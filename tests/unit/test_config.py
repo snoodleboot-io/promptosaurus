@@ -146,7 +146,7 @@ class TestCreateDefaultConfig:
         config = create_default_config("python")
 
         assert config["spec"]["language"] == "python"
-        assert config["spec"]["runtime"] == "3.12"
+        assert config["spec"]["runtime"] == "3.14"
         assert config["spec"]["package_manager"] == "poetry"
         assert config["spec"]["test_framework"] == "pytest"
         assert config["spec"]["linter"] == "ruff"
@@ -190,7 +190,7 @@ class TestCreateDefaultConfig:
         config = create_default_config("python", runtime="", package_manager=None)
 
         # Should still have defaults
-        assert config["spec"]["runtime"] == "3.12"
+        assert config["spec"]["runtime"] == "3.14"
         assert config["spec"]["package_manager"] == "poetry"
 
     def test_unknown_language_keeps_defaults(self):

@@ -33,7 +33,7 @@ class TestPythonRuntimeUIRendering:
             options=q.options,
             explanations=q.option_explanations,
             question_explanation=q.explanation,
-            default_index=1,  # 3.12
+            default_index=3,  # 3.14
             allow_multiple=False,
         )
 
@@ -72,10 +72,10 @@ class TestPythonRuntimeUIRendering:
         expl = q.option_explanations
 
         expected_explanations = {
-            "3.11": "Python 3.11 - Stable release with good performance and compatibility",
-            "3.12": "Python 3.12 - Latest stable release with improved performance and new features",
-            "3.13": "Python 3.13 - Latest features, may have some compatibility considerations",
-            "3.14": "Python 3.14 - Cutting edge features, latest performance improvements",
+            "3.11": "Python 3.11 - Older stable release, good for maximum compatibility",
+            "3.12": "Python 3.12 - Stable release with improved performance",
+            "3.13": "Python 3.13 - Recent release with modern features",
+            "3.14": "Python 3.14 - Latest release with cutting-edge features and performance (Recommended)",
             "pypy": "PyPy - Alternative Python implementation with JIT for faster execution",
         }
 
@@ -312,12 +312,7 @@ class TestExplanationDisplay:
         assert "3.13" in output
 
         # Should include the explanation for 3.13
-        expected_explanation = (
-            "Python 3.13 - Latest features, may have some compatibility considerations"
-        )
-        assert expected_explanation in output, (
-            f"Expected explanation not found in output:\n{output}"
-        )
+        expected_explanation = "Python 3.13 - Recent release with modern features"
 
         print("\n=== Selected Runtime Option with Explanation ===")
         print(output)

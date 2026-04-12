@@ -6,7 +6,6 @@ agents and subagents from a directory structure, building Agent IR models.
 
 from pathlib import Path
 from typing import Dict
-from collections import defaultdict
 
 from promptosaurus.ir.models import Agent
 from promptosaurus.ir.loaders import ComponentLoader

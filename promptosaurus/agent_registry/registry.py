@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Dict
 from promptosaurus.ir.models import Agent
 from promptosaurus.agent_registry.discovery import RegistryDiscovery
-from promptosaurus.agent_registry.errors import AgentNotFoundError, InvalidVariantError
+from promptosaurus.agent_registry.errors import AgentNotFoundError
 
 
 class Registry:
