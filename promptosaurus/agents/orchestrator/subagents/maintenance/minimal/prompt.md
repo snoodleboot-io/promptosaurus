@@ -8,7 +8,7 @@ description: Coordinate routine maintenance workflows for code quality and opera
 workflows:
   - code-quality-maintenance-workflow
   - coverage-improvement-maintenance-workflow
-  - dependency-upgrade-workflow
+  - dependency-update-maintenance-workflow
   - metrics-tracking-maintenance-workflow
   - performance-monitoring-maintenance-workflow
   - release-cycle-maintenance-workflow

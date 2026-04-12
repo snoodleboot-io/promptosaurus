@@ -104,6 +104,19 @@ python/orchestrator:
     - strategy-workflow
     - dependency-upgrade-workflow
 
+python/orchestrator/maintenance:
+  skills:
+    - feature-planning
+  workflows:
+    - code-quality-maintenance-workflow
+    - coverage-improvement-maintenance-workflow
+    - dependency-update-maintenance-workflow
+    - metrics-tracking-maintenance-workflow
+    - performance-monitoring-maintenance-workflow
+    - release-cycle-maintenance-workflow
+    - security-audit-maintenance-workflow
+    - tech-debt-cleanup-maintenance-workflow
+
 python/review:
   skills:
     - feature-planning

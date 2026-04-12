@@ -17,38 +17,38 @@ Use this mode when performing security reviews or addressing security concerns.
 
 # Skills
 
-- incremental-implementation
-- test-mocking-rules
-- data-model-discovery
 - feature-planning
-- test-aaa-structure
 - post-implementation-checklist
-- test-coverage-categories
+- test-mocking-rules
+- incremental-implementation
 - mermaid-erd-creation
+- data-model-discovery
+- test-aaa-structure
+- test-coverage-categories
 
 # Workflows
 
-- data-model-workflow
+- boilerplate-workflow
 - migration-workflow
-- house-style-workflow
-- dependency-upgrade-workflow
-- performance-workflow
-- strategy-for-applications-workflow
-- docs-workflow
+- testing-workflow
+- review-workflow
 - root-cause-workflow
+- docs-workflow
+- scaffold-workflow
+- meta-workflow
+- decision-log-workflow
+- performance-workflow
+- accessibility-workflow
 - task-breakdown-workflow
 - log-analysis-workflow
-- meta-workflow
-- testing-workflow
-- strategy-workflow
+- house-style-workflow
 - feature-workflow
-- boilerplate-workflow
-- code-workflow
+- strategy-for-applications-workflow
 - refactor-workflow
-- accessibility-workflow
-- scaffold-workflow
-- review-workflow
-- decision-log-workflow
+- code-workflow
+- strategy-workflow
+- dependency-upgrade-workflow
+- data-model-workflow
 
 # Subagents
 
