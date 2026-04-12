@@ -30,7 +30,7 @@ class TestFolderSpec:
         )
 
         # Defaults should be set
-        assert spec.runtime == "3.12"
+        assert spec.runtime == "3.14"
         assert spec.package_manager == "poetry"
         assert spec.test_framework == "pytest"
         assert spec.linter == "ruff"
@@ -96,7 +96,7 @@ class TestFolderSpec:
         )
 
         assert spec.language == "python"
-        assert spec.runtime == "3.12"
+        assert spec.runtime == "3.14"
         assert spec.package_manager == "poetry"
         assert spec.test_framework == "pytest"
         assert spec.linter == "ruff"
@@ -159,7 +159,7 @@ class TestFolderSpecDefaults:
             language="python",
         )
 
-        assert spec.runtime == "3.12"
+        assert spec.runtime == "3.14"
         assert spec.package_manager == "poetry"
         assert spec.test_framework == "pytest"
         assert spec.linter == "ruff"

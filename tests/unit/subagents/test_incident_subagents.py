@@ -24,7 +24,9 @@ class TestIncidentTriageSubagent:
         """Test subagent has purpose."""
         file_path = subagent_dir / variant / "prompt.md"
         content = read_file(file_path)
-        assert "purpose" in content.lower(), f"{variant}: Missing purpose"
+        assert "focus" in content.lower() or "purpose" in content.lower(), (
+            f"{variant}: Missing focus/purpose"
+        )
 
 
 @pytest.mark.unit

@@ -19,7 +19,7 @@ class TestSingleLanguageSpecHandler:
 
         assert isinstance(spec, dict)
         assert spec["language"] == "python"
-        assert spec["runtime"] == "3.12"
+        assert spec["runtime"] == "3.14"
         assert spec["package_manager"] == "poetry"
 
     def test_creates_spec_with_overrides(self):

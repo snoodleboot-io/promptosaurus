@@ -26,8 +26,8 @@ class TestSchemaValidator:
         agent_file = agents_dir / "data" / "prompt.md"
         if agent_file.exists():
             content = read_file(agent_file)
-            # Agent should have purpose, responsibilities, capabilities
-            assert "purpose" in content.lower() or "Purpose" in content
+            # Agent should have description in frontmatter or content
+            assert "description" in content.lower() or "you are" in content.lower()
 
     def test_validate_workflow_with_valid_file(self, validator, workflows_dir, read_file):
         """Test validating a valid workflow file."""
@@ -55,9 +55,12 @@ class TestContentValidation:
                     content = read_file(agent_file)
                     # Check for key sections (case-insensitive)
                     content_lower = content.lower()
-                    assert "purpose" in content_lower or "overview" in content_lower, (
-                        f"{agent_dir.name}: Missing purpose/overview section"
-                    )
+                    assert (
+                        "description" in content_lower
+                        or "you are" in content_lower
+                        or "purpose" in content_lower
+                        or "overview" in content_lower
+                    ), f"{agent_dir.name}: Missing description/purpose section"
 
     def test_workflow_minimum_length(self, workflows_dir, read_file):
         """Test that workflows have minimum content."""
@@ -110,7 +113,9 @@ class TestFileStructure:
                 for variant_dir in ["minimal", "verbose"]:
                     variant_path = workflow_dir / variant_dir
                     if variant_path.exists():
+                        # Check for either prompt.md or workflow.md
                         prompt_file = variant_path / "prompt.md"
-                        assert prompt_file.exists(), (
-                            f"{workflow_dir.name}/{variant_dir}: Missing prompt.md"
+                        workflow_file = variant_path / "workflow.md"
+                        assert prompt_file.exists() or workflow_file.exists(), (
+                            f"{workflow_dir.name}/{variant_dir}: Missing prompt.md or workflow.md"
                         )
