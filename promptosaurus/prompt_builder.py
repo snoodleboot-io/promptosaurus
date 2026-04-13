@@ -10,6 +10,7 @@ from promptosaurus.builders.kilo_builder import KiloBuilder
 from promptosaurus.ir.models.agent import Agent
 from promptosaurus.ir.loaders.language_skill_mapping_loader import LanguageSkillMappingLoader
 from promptosaurus.ir.loaders.agent_skill_mapping_loader import AgentSkillMappingLoader
+from promptosaurus.personas import PersonaRegistry, PersonaFilter
 
 
 class PromptBuilder:
@@ -77,6 +78,42 @@ class PromptBuilder:
 
         # Get all agents from registry
         all_agents = self.registry.get_all_agents()
+
+        # Persona-based filtering: Only build agents for selected personas
+        active_personas = config.get("active_personas", []) if config else []
+        
+        if active_personas:
+            # Load persona registry and filter agents
+            try:
+                personas_yaml_path = Path(__file__).parent / "personas" / "personas.yaml"
+                persona_registry = PersonaRegistry.from_yaml(personas_yaml_path)
+                persona_filter = PersonaFilter(persona_registry, active_personas)
+                
+                # Get enabled agents for selected personas
+                enabled_agent_names = persona_filter.get_enabled_agents()
+                
+                # Filter all_agents to only include enabled agents
+                # Keep only top-level agents that are enabled (subagents inherit parent status)
+                filtered_agents = {}
+                for agent_key, agent in all_agents.items():
+                    if "/" in agent_key:
+                        # Subagent - check if parent is enabled
+                        parent_name = agent_key.split("/")[0]
+                        if parent_name in enabled_agent_names:
+                            filtered_agents[agent_key] = agent
+                    else:
+                        # Top-level agent - check if enabled
+                        if agent_key in enabled_agent_names:
+                            filtered_agents[agent_key] = agent
+                
+                all_agents = filtered_agents
+                
+                # Log persona filtering info
+                actions.append(f"ℹ Persona filtering: {len(active_personas)} persona(s) selected")
+                actions.append(f"ℹ Building {len([k for k in all_agents.keys() if '/' not in k])} primary agents (from {len(enabled_agent_names)} enabled)")
+            except Exception as e:
+                # If persona filtering fails, log warning and continue without filtering
+                actions.append(f"⚠ Persona filtering failed ({e}), building all agents")
 
         # Collect all unique skills from all agents (including subagents)
         all_skills_written = set()
