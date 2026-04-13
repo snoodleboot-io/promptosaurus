@@ -561,6 +561,12 @@ def init_prompts():
                 config["variant"] = variant  # Add variant to config
                 config["active_personas"] = active_personas  # Add selected personas
 
+                # Step 4: Configure monorepo folders
+                click.echo("\n" + "-" * 60)
+                click.secho("  Step 4: Configure Monorepo Folders", bold=True)
+                click.echo("-" * 60)
+                click.echo("\nAdd folders to your monorepo. Each folder can have its own language and configuration.\n")
+                
                 # Run interactive folder setup
                 # (language questions are now asked inline for each folder)
                 folder_specs = _setup_monorepo_folders()

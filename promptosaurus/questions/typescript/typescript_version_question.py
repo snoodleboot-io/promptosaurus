@@ -23,8 +23,18 @@ class TypeScriptVersionQuestion(Question):
 
     @property
     def options(self) -> list[str]:
-        return ["5.4", "5.x", "5.3", "5.0", "4.x", "3.x"]
+        return ["5.x", "5.4", "5.3", "5.0", "4.x"]
 
     @property
     def default(self) -> str:
         return "5.x"
+
+    @property
+    def option_explanations(self) -> dict[str, str]:
+        return {
+            "5.x": "Latest stable TypeScript 5.x (recommended)",
+            "5.4": "TypeScript 5.4 (specific version)",
+            "5.3": "TypeScript 5.3 (specific version)",
+            "5.0": "TypeScript 5.0 (specific version)",
+            "4.x": "TypeScript 4.x (older, better compatibility)",
+        }

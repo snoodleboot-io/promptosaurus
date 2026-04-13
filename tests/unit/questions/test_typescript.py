@@ -1,11 +1,12 @@
-"""Tests for promptosaurus.questions.typescript module."""
+"""Tests for TypeScript-specific questions."""
 
-from promptosaurus.questions.typescript.typescript_package_manager_question import (
-    TypeScriptPackageManagerQuestion,
+import pytest
+
+from promptosaurus.questions.typescript.typescript_framework_question import (
+    TypeScriptFrameworkQuestion,
 )
-from promptosaurus.questions.typescript.typescript_version_question import (
-    TypeScriptVersionQuestion,
-)
+from promptosaurus.questions.typescript.typescript_version_question import TypeScriptVersionQuestion
+from promptosaurus.questions.typescript.typescript_package_manager_question import TypeScriptPackageManagerQuestion
 
 
 class TestTypeScriptVersionQuestion:
@@ -22,11 +23,12 @@ class TestTypeScriptVersionQuestion:
         """Options should include recent TypeScript versions."""
         q = TypeScriptVersionQuestion()
 
+        # Updated to match new options: ["5.x", "5.4", "5.3", "5.0", "4.x"]
         assert "5.x" in q.options
-        assert "4.x" in q.options
-        assert "3.x" in q.options
+        assert "5.4" in q.options
         assert "5.3" in q.options
         assert "5.0" in q.options
+        assert "4.x" in q.options
 
     def test_default_is_latest(self):
         """Default should be latest stable version."""
@@ -46,9 +48,10 @@ class TestTypeScriptPackageManagerQuestion:
         assert q.options
 
     def test_options_include_common_managers(self):
-        """Options should include common JS package managers."""
+        """Options should include common package managers."""
         q = TypeScriptPackageManagerQuestion()
 
-        assert "npm" in q.options
+        # Updated to match new options: ["pnpm", "npm", "yarn"]
         assert "pnpm" in q.options
+        assert "npm" in q.options
         assert "yarn" in q.options
