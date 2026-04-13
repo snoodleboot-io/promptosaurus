@@ -48,6 +48,7 @@ class LanguageRegistry:
             with open(config_file, encoding="utf-8") as f:
                 data = yaml.safe_load(f)
                 cls._languages = data["supported_languages"]
+        assert cls._languages is not None
         return cls._languages
 
     @classmethod

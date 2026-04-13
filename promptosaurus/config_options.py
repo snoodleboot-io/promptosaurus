@@ -40,6 +40,7 @@ class ConfigOptionsRegistry:
             config_file = Path(__file__).parent / "configurations" / "config_options.yaml"
             with open(config_file, encoding="utf-8") as f:
                 cls._config = yaml.safe_load(f)
+        assert cls._config is not None
         return cls._config
 
     @classmethod
