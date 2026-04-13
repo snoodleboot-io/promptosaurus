@@ -22,7 +22,7 @@ Key Functions:
 
 import sys
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 import click
 # Legacy sweet_tea import removed - using Phase 2A builders
@@ -679,22 +679,22 @@ def switch_command(tool_name: str | None):
         # Show interactive menu
         try:
             tool_options = ["Kilo CLI", "Kilo IDE", "Cline", "Cursor", "Copilot"]
-            target_tool = cast(
-                str,
-                select_option_with_explain(
-                    question="Which AI assistant would you like to switch to?",
-                    options=tool_options,
-                    explanations={
-                        "Kilo CLI": "Kilo Code (CLI) - .opencode/rules/ with collapsed mode files",
-                        "Kilo IDE": "Kilo Code (IDE) - .kilo/agents/ individual agent files",
-                        "Cline": "Cline - .clinerules file (concatenated rules)",
-                        "Cursor": "Cursor - .cursor/rules/ directory + .cursorrules",
-                        "Copilot": "GitHub Copilot - .github/copilot-instructions.md",
-                    },
-                    question_explanation="Select an AI assistant to switch to.",
-                    default_index=1,
-                    allow_multiple=False,
-                ),
+            target_tool_result = select_option_with_explain(
+                question="Which AI assistant would you like to switch to?",
+                options=tool_options,
+                explanations={
+                    "Kilo CLI": "Kilo Code (CLI) - .opencode/rules/ with collapsed mode files",
+                    "Kilo IDE": "Kilo Code (IDE) - .kilo/agents/ individual agent files",
+                    "Cline": "Cline - .clinerules file (concatenated rules)",
+                    "Cursor": "Cursor - .cursor/rules/ directory + .cursorrules",
+                    "Copilot": "GitHub Copilot - .github/copilot-instructions.md",
+                },
+                question_explanation="Select an AI assistant to switch to.",
+                default_index=1,
+                allow_multiple=False,
+            )
+            assert isinstance(target_tool_result, str), "allow_multiple=False should return str"
+            target_tool = target_tool_result
             )
         except UserCancelledError:
             click.echo("\nOperation cancelled.")
