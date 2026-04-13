@@ -455,17 +455,19 @@ This matrix shows which primary agents are included in each persona. Agents can 
 | Agent | Software Engineer | Architect | QA/Tester | DevOps Engineer | Security Engineer | Product Manager | Data Engineer | Data Scientist | Technical Writer |
 |-------|---|---|---|---|---|---|---|---|---|
 | **ask** | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ |
+| **debug** | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ |
+| **explain** | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ |
+| **plan** | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ |
+| **orchestrator** | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ | ⭐ |
 | **code** | **✓ PRIMARY** | | | | | | | | |
 | **test** | **✓ PRIMARY** | | **✓ PRIMARY** | | | | | **✓** | |
 | **refactor** | **✓ PRIMARY** | | | | | | | | |
-| **debug** | **✓ PRIMARY** | | | | | | | | ⭐ |
 | **migration** | **✓ PRIMARY** | | | | | | | | |
 | **review** | ✓ | | **✓ PRIMARY** | | **✓** | | | | |
 | **architect** | | **✓ PRIMARY** | | | | | | | |
 | **backend** | ✓ | **✓ PRIMARY** | | | | | | | |
 | **frontend** | ✓ | **✓ PRIMARY** | | | | | | | |
 | **data** | | **✓** | | | | | **✓ PRIMARY** | **✓** | |
-| **planning** | | **✓** | | | | **✓ PRIMARY** | | | |
 | **product** | | | | | | **✓ PRIMARY** | | | |
 | **devops** | | | | **✓ PRIMARY** | | | ✓ | | |
 | **observability** | | | | **✓ PRIMARY** | | | ✓ | | |
@@ -475,36 +477,37 @@ This matrix shows which primary agents are included in each persona. Agents can 
 | **mlai** | | | | ✓ | | | **✓** | **✓ PRIMARY** | |
 | **performance** | ✓ | ✓ | ✓ | | | | | **✓** | |
 | **document** | | | | | | | | | **✓ PRIMARY** |
-| **explain** | ✓ | ✓ | | | | | | | **✓** ⭐ |
 | **enforcement** | **✓** | | **✓** | | **✓** | | | | |
-| **orchestrator** | | | | | | | | | ⭐ |
 
 ### Universal Agents (⭐ - Always Available)
 
 The following agents are always available to all personas:
-- **ask** - General Q&A and explanations
-- **debug** - Troubleshooting and debugging (shown separately for Technical Writer)
-- **explain** - Code walkthroughs and onboarding (shown separately for Technical Writer)
-- **orchestrator** - Workflow coordination (shown separately for Technical Writer)
+- **ask** - General Q&A and research assistance
+- **debug** - Troubleshooting, diagnosis, and error resolution
+- **explain** - Code walkthroughs, onboarding assistance, and clarifications
+- **plan** - Strategic planning, work planning, and roadmapping
+- **orchestrator** - Multi-step workflow coordination and task management
 
-These agents are not tied to specific personas and are accessible regardless of which personas are selected.
+These agents are foundational tools that support all SDLC roles and are accessible regardless of which personas are selected during initialization.
 
 ### Agent Coverage Summary
 
 | Agent | Personas | Notes |
 |-------|----------|-------|
 | ask | All (Universal) | General Q&A available to everyone |
+| debug | All (Universal) | Troubleshooting available to everyone |
+| explain | All (Universal) | Code walkthroughs and onboarding for all |
+| plan | All (Universal) | Strategic planning for all roles |
+| orchestrator | All (Universal) | Workflow coordination for all |
 | code | Software Engineer | Core implementation agent |
 | test | Software Engineer, QA/Tester, Data Scientist | Testing is cross-cutting |
 | refactor | Software Engineer | Code improvement |
-| debug | Software Engineer (Universal) | Troubleshooting available to everyone |
 | migration | Software Engineer | Dependency/framework updates |
 | review | Software Engineer, QA/Tester, Security Engineer | Quality reviews across roles |
 | architect | Architect | System design focus |
 | backend | Software Engineer, Architect | Backend-specific work |
 | frontend | Software Engineer, Architect | Frontend-specific work |
 | data | Architect, Data Engineer, Data Scientist | Data infrastructure |
-| planning | Architect, Product Manager | Strategic planning |
 | product | Product Manager | Product-focused decisions |
 | devops | DevOps Engineer (Primary), Data Engineer, Data Scientist | Infrastructure and operations |
 | observability | DevOps Engineer (Primary), Data Engineer, Data Scientist | Monitoring and observability |
@@ -514,39 +517,38 @@ These agents are not tied to specific personas and are accessible regardless of 
 | mlai | Data Scientist (Primary), Data Engineer, DevOps Engineer | Machine learning systems |
 | performance | Software Engineer, Architect, QA/Tester, Data Scientist | Cross-cutting performance concerns |
 | document | Technical Writer (Primary) | Documentation support |
-| explain | Technical Writer, Software Engineer, Architect (Universal) | Code walkthroughs and onboarding |
 | enforcement | Software Engineer, QA/Tester, Security Engineer | Code standards and quality |
-| orchestrator | All (Universal) | Multi-step workflows for everyone |
 
 ### Personas Represented
 
-| Persona | Primary Agents | Secondary Agents | Total Coverage |
+| Persona | Primary Agents | Secondary Agents | Total Coverage (excl. universal) |
 |---------|---|---|---|
-| **Software Engineer** | code, test, refactor, debug, migration | review, backend, frontend, performance, explain, enforcement | 11 agents |
-| **Architect** | architect, backend, frontend, data | planning, performance, explain | 7 agents |
-| **QA/Tester** | test, review | test, performance, enforcement | 5 agents |
-| **DevOps Engineer** | devops, observability, incident | mlai, data | 5 agents |
+| **Software Engineer** | code, test, refactor, migration | review, backend, frontend, performance, enforcement | 9 agents |
+| **Architect** | architect, backend, frontend, data | performance | 5 agents |
+| **QA/Tester** | test, review | performance, enforcement | 4 agents |
+| **DevOps Engineer** | devops, observability, incident | security, mlai, data | 6 agents |
 | **Security Engineer** | security, compliance | incident, review, enforcement | 5 agents |
-| **Product Manager** | product, planning | (none) | 2 agents |
+| **Product Manager** | product | (none) | 1 agent |
 | **Data Engineer** | data | mlai, devops, observability, performance | 5 agents |
 | **Data Scientist** | mlai | data, test, performance, devops, observability | 5 agents |
-| **Technical Writer** | document, explain | (none) | 2 agents |
+| **Technical Writer** | document | (none) | 1 agent |
+
+**Note:** All personas also have access to 5 universal agents: ask, debug, explain, plan, orchestrator
 
 ---
-
 
 ## Appendix: Persona Definitions
 
 ### Core Personas (Final)
 
 1. **Software Engineer** - Software development, implementation, coding
-   - Primary Agents: code, test, refactor, migration, debug
-   - Secondary Agents: review, backend, frontend, performance, explain, enforcement
+   - Primary Agents: code, test, refactor, migration
+   - Secondary Agents: review, backend, frontend, performance, enforcement
    - Focus: Writing, maintaining, and testing code
 
 2. **Architect** - System design, architecture planning, technical decisions
    - Primary Agents: architect, backend, frontend, data
-   - Secondary Agents: planning, performance, explain
+   - Secondary Agents: performance
    - Focus: Designing scalable systems and making trade-offs
 
 3. **QA/Tester** - Quality assurance, testing strategy, test automation
@@ -565,7 +567,7 @@ These agents are not tied to specific personas and are accessible regardless of 
    - Focus: Securing systems and meeting compliance requirements
 
 6. **Product Manager** - Requirements, prioritization, roadmap planning
-   - Primary Agents: product, planning
+   - Primary Agents: product
    - Secondary Agents: (none)
    - Focus: Defining what to build and why
 
@@ -580,7 +582,7 @@ These agents are not tied to specific personas and are accessible regardless of 
    - Focus: Building and improving ML/AI systems
 
 9. **Technical Writer** - Documentation, technical communication
-   - Primary Agents: document, explain
+   - Primary Agents: document
    - Secondary Agents: (none)
    - Focus: Creating clear, comprehensive documentation
 
@@ -591,6 +593,7 @@ The following agents are **always available** to all personas and do not need to
 - **ask** - General Q&A, explanations, and research assistance
 - **debug** - Troubleshooting, diagnosis, and error resolution
 - **explain** - Code walkthroughs, onboarding assistance, and clarifications
+- **plan** - Strategic planning, work planning, and roadmapping (applies to all roles)
 - **orchestrator** - Multi-step workflow coordination and task management
 
 These universal agents are foundational tools that support all SDLC roles and are accessible regardless of which personas are selected during initialization.
