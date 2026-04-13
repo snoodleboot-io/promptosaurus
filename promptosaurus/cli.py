@@ -354,9 +354,11 @@ def _ask_folder_questions(folder_specs: list[dict[str, Any]]) -> list[dict[str, 
             updated_specs.append(spec)
             continue
 
-        click.echo("\n" + "-" * 60)
+        # Removed: separator not needed before curses UI
+        # click.echo("\n" + "-" * 60)
         click.secho(f"  Configuring: {folder_path} ({language})", bold=True)
-        click.echo("-" * 60)
+        # Removed: separator not needed before curses UI
+        # click.echo("-" * 60)
 
         # Get language-specific questions - this will raise if there are issues
         questions = get_language_questions(language)
@@ -470,7 +472,8 @@ def init_prompts():
         selected_tool: str = ai_tool
 
         # Step 2: Repository type
-        click.echo("\n" + "-" * 60)
+        # Removed: separator not needed before curses UI
+        # click.echo("\n" + "-" * 60)
         repo_question = RepositoryTypeQuestion()
         default_idx = repo_question.options.index(repo_question.default)
 
@@ -483,7 +486,8 @@ def init_prompts():
         )
 
         # Step 3: Ask for variant (minimal or verbose) - BEFORE language questions
-        click.echo("\n" + "-" * 60)
+        # Removed: separator not needed before curses UI
+        # click.echo("\n" + "-" * 60)
         variant_question = select_option_with_explain(
             question="Which prompt variant would you like to use?",
             options=["Minimal", "Verbose"],
@@ -499,7 +503,8 @@ def init_prompts():
         variant = "minimal" if variant_question == "Minimal" else "verbose"
 
         # Step 3.5: Ask for personas
-        click.echo("\n" + "-" * 60)
+        # Removed: separator not needed before curses UI
+        # click.echo("\n" + "-" * 60)
         try:
             from promptosaurus.personas import PersonaRegistry
             from pathlib import Path
@@ -563,9 +568,11 @@ def init_prompts():
                 config["active_personas"] = active_personas  # Add selected personas
 
                 # Step 4: Configure monorepo folders
-                click.echo("\n" + "-" * 60)
+                # Removed: separator not needed
+                # click.echo("\n" + "-" * 60)
                 click.secho("  Step 4: Configure Monorepo Folders", bold=True)
-                click.echo("-" * 60)
+                # Removed: separator not needed
+                # click.echo("-" * 60)
                 click.echo("\nAdd folders to your monorepo. Each folder can have its own language and configuration.\n")
                 
                 # Run interactive folder setup
