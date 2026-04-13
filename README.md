@@ -36,6 +36,7 @@ Phase 2A delivers a complete rewrite with a unified architecture:
 - **Unified IR System** - Define agents once, generate for all tools
 - **5 Production-Ready Builders** - Kilo, Cline, Claude, Cursor, Copilot
 - **Minimal/Verbose Variants** - Save tokens by choosing variant at build time
+- **Persona-Based Filtering** - Select your team's roles, get only relevant agents (14 vs 25)
 - **Auto-Discovery Registry** - Zero-config agent registration
 - **CLI Tool** - Simple `promptosaurus build` command
 - **Comprehensive Testing** - 1,161 tests, 100% pass rate
@@ -94,10 +95,13 @@ promptosaurus init
 This interactive command will:
 1. Ask about your repository type (single-language or multi-language-monorepo)
 2. For multi-language-monorepo: configure folders with standard presets or custom paths
-3. Configure your language, runtime, package manager, and testing framework
-4. Select which AI assistants to configure (kilo, cline, cursor, copilot — multiple allowed)
-5. Generate all selected configurations automatically
+3. Choose prompt variant (minimal or verbose)
+4. **Select personas (SDLC roles)** - Choose which roles your team uses
+5. Configure your language, runtime, package manager, and testing framework
+6. Select which AI assistants to configure (kilo, cline, cursor, copilot)
+7. Generate all selected configurations automatically
 
+**New in 2.0:** Persona selection filters agents to only those relevant to your team's roles.
 ### 2. List available modes
 
 ```bash
@@ -113,6 +117,34 @@ promptosaurus validate
 ```
 
 Check for missing files and unregistered orphans.
+
+---
+
+## Persona-Based Filtering
+
+**NEW:** Reduce cognitive overload by selecting only the agents your team needs.
+
+### What Are Personas?
+
+Personas represent software development roles. Instead of generating all 25 agents, select which roles your team uses.
+
+**Available Personas:** Software Engineer, Architect, QA/Tester, DevOps Engineer, Security Engineer, Product Manager, Data Engineer, Data Scientist, Technical Writer
+
+**Universal Agents (Always Available):** ask, debug, explain, plan, orchestrator
+
+### Example: Small Startup
+
+**Selected:** Software Engineer  
+**Generated:** ~14 agents (universal + Software Engineer specific)  
+**Filtered Out:** architect, devops, security, mlai, data, product, compliance
+
+### Example: Full-Stack Team
+
+**Selected:** Software Engineer + QA/Tester  
+**Generated:** ~15 agents (union of both personas)  
+**Benefit:** Focused set instead of all 25 agents
+
+**Learn more:** See [docs/PERSONAS.md](docs/PERSONAS.md) for complete documentation.
 
 ## Multi-Language Monorepo
 
