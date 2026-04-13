@@ -120,9 +120,10 @@ def _setup_monorepo_folders() -> list[dict[str, Any]]:
     add_more = True
 
     while add_more:
-        click.echo("\n" + "-" * 60)
-        click.secho("  Add Folder", bold=True)
-        click.echo("-" * 60)
+        # Removed: Headers not needed - select_option_with_explain clears screen
+        # click.echo("\n" + "-" * 60)
+        # click.secho("  Add Folder", bold=True)
+        # click.echo("-" * 60)
 
         # Step 1: Ask for folder type (preset or custom)
         folder_type = select_option_with_explain(
