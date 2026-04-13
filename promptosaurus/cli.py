@@ -448,10 +448,14 @@ def init_prompts():
     from promptosaurus.ui._selector import select_option_with_explain
     from promptosaurus.ui.exceptions import UserCancelledError
 
-    click.echo("\n" + "=" * 60)
-    click.secho("  promptosaurus Initialization", bold=True, fg="cyan")
-    click.echo("=" * 60)
-    click.echo("\nUse up/down arrows, numbers, or Enter for defaults.")
+    # Removed: header stays in buffer when curses exits
+    # click.echo("\n" + "=" * 60)
+    # Removed: header stays in main buffer after curses exits, causes confusion
+    # click.secho("  promptosaurus Initialization", bold=True, fg="cyan")
+    # Removed: header stays in buffer when curses exits
+    # click.echo("=" * 60)
+    # Removed: message stays in main buffer after curses exits
+    # click.echo("\nUse up/down arrows, numbers, or Enter for defaults.")
 
     try:
         # Step 1: Select which AI assistant to configure
