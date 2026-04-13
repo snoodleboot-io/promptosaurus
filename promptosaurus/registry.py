@@ -563,6 +563,23 @@ class Registry(BaseModel):
 
 
 # ── Singleton instance ───────────────────────────────────────────────────────
-# Yes - this is not a proper singleton - but it works for the current needs and
-#       avoids hoop jumping from using pydantic
+# Module-level singleton for global registry access.
+#
+# Design Decision: This is a module-level singleton (not a class-level singleton)
+# for the following reasons:
+#
+# 1. Pydantic frozen models cannot easily implement traditional singleton patterns
+#    (__new__ or metaclass-based) due to the frozen=True constraint.
+#
+# 2. The Registry is a read-only configuration object that is initialized once
+#    at import time and never modified, making module-level instantiation safe.
+#
+# 3. This pattern is simpler and more Pythonic than implementing custom __new__
+#    or metaclass logic to work around pydantic's immutability.
+#
+# 4. The registry data is effectively a module constant - it represents static
+#    configuration that doesn't change during program execution.
+#
+# Alternative considered: Class method singleton with cached instance, but this
+# adds unnecessary complexity for a read-only configuration object.
 registry = Registry()
