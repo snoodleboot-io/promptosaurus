@@ -63,14 +63,14 @@ class CoverageAnalyzer:
     def _analyze_workflows(self) -> Dict[str, int]:
         """Analyze workflow coverage."""
         phase1_workflows = {
-            "data-pipeline-workflow": 2,
-            "data-quality-workflow": 2,
-            "schema-migration-workflow": 2,
-            "observability-workflow": 2,
-            "slo-sli-workflow": 2,
-            "capacity-planning-workflow": 2,
-            "incident-response-workflow": 2,
-            "postmortem-workflow": 2,
+            "data-pipeline": 2,
+            "data-quality": 2,
+            "schema-migration": 2,
+            "observability": 2,
+            "slo-sli": 2,
+            "capacity-planning": 2,
+            "incident-response": 2,
+            "postmortem": 2,
         }
 
         coverage = {}

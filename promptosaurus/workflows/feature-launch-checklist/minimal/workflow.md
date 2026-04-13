@@ -1,5 +1,4 @@
 ---
-name: "Feature Launch Checklist"
 description: "Comprehensive checklist for successful feature releases"
 agent: "product"
 category: "product"

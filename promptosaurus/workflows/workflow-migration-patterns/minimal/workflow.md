@@ -1,5 +1,4 @@
 ---
-name: workflow-migration-patterns
 description: Migrate workflows between versions and systems safely
 type: workflow
 category: workflow-patterns

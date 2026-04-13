@@ -21,10 +21,10 @@ Use this mode for system design, architecture planning, or making technical deci
 
 # Workflows
 
-- feature-workflow
-- review-workflow
-- refactor-workflow
-- migration-workflow
+- feature
+- review
+- refactor
+- migration
 
 # Subagents
 

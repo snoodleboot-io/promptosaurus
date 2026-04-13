@@ -1,5 +1,4 @@
 ---
-name: workflow-scaling-patterns
 description: Scale workflows to handle increased load and complexity
 type: workflow
 category: workflow-patterns

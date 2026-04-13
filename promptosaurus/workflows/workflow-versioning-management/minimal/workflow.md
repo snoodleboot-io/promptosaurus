@@ -1,5 +1,4 @@
 ---
-name: workflow-versioning-management
 description: Manage multiple versions of workflows with compatibility
 type: workflow
 category: workflow-patterns

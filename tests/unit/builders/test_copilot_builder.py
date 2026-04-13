@@ -250,8 +250,8 @@ class TestCopilotBuilderFormatting:
     def test_format_workflows_section_includes_content(self) -> None:
         """Test workflows section includes provided workflows."""
         builder = CopilotBuilder()
-        result = builder._format_workflows_section(["test-workflow"])
-        assert "test-workflow" in result
+        result = builder._format_workflows_section(["test"])
+        assert "test" in result
 
     def test_format_subagents_section_header(self) -> None:
         """Test subagents section has proper header."""
@@ -509,9 +509,9 @@ class TestCopilotBuilderIntegration:
         assert "test-skill" in skills_result
 
         # Test workflows
-        workflows_result = builder._format_workflows_section(["test-workflow"])
+        workflows_result = builder._format_workflows_section(["test"])
         assert "## Workflows" in workflows_result
-        assert "test-workflow" in workflows_result
+        assert "test" in workflows_result
 
         # Test subagents
         subagents_result = builder._format_subagents_section(["sub1", "sub2"])

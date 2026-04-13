@@ -22,10 +22,10 @@ Use this mode when upgrading dependencies or migrating between frameworks.
 
 # Workflows
 
-- feature-workflow
-- review-workflow
-- refactor-workflow
-- migration-workflow
+- feature
+- review
+- refactor
+- migration
 
 # Subagents
 

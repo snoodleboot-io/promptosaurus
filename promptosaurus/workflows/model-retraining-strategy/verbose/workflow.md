@@ -1,5 +1,4 @@
 ---
-name: model-retraining-strategy
 description: Design and implement model retraining strategies for maintaining accuracy and handling drift
 type: workflow
 category: workflow-patterns

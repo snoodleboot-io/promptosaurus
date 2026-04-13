@@ -22,7 +22,7 @@ Use this mode when developing requirements documents, creating PRDs, working on 
 
 # Workflows
 
-- feature-workflow
-- review-workflow
-- refactor-workflow
-- migration-workflow
+- feature
+- review
+- refactor
+- migration

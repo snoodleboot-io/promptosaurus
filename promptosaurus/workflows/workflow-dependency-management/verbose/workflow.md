@@ -1,5 +1,4 @@
 ---
-name: workflow-dependency-management
 description: Manage dependencies between workflow tasks
 type: workflow
 category: workflow-patterns

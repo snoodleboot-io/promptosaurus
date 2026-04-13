@@ -21,10 +21,10 @@ Use this mode when addressing compliance requirements or preparing for audits.
 
 # Workflows
 
-- feature-workflow
-- review-workflow
-- refactor-workflow
-- migration-workflow
+- feature
+- review
+- refactor
+- migration
 
 # Subagents
 

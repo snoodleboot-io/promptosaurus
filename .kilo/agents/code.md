@@ -22,10 +22,10 @@ Use this mode when implementing new features, making code changes, or fixing bug
 
 # Workflows
 
-- feature-workflow
-- review-workflow
-- refactor-workflow
-- migration-workflow
+- feature
+- review
+- refactor
+- migration
 
 # Subagents
 

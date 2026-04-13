@@ -836,14 +836,14 @@ code:
     - feature-planning
     - incremental-implementation
   workflows:
-    - code-workflow
-    - feature-workflow
+    - code
+    - feature
 
 test:
   skills:
     - test-coverage-categories
   workflows:
-    - testing-workflow
+    - testing
 
 empty-agent:
   skills: []
@@ -933,15 +933,15 @@ partial-agent:
         workflows = loader.get_workflows_for_agent("architect")
         assert isinstance(workflows, list)
         assert len(workflows) == 3
-        assert "scaffold-workflow" in workflows
-        assert "data-model-workflow" in workflows
-        assert "task-breakdown-workflow" in workflows
+        assert "scaffold" in workflows
+        assert "data-model" in workflows
+        assert "task-breakdown" in workflows
         
         # Test code workflows
         workflows = loader.get_workflows_for_agent("code")
         assert len(workflows) == 2
-        assert "code-workflow" in workflows
-        assert "feature-workflow" in workflows
+        assert "code" in workflows
+        assert "feature" in workflows
 
     def test_get_workflows_for_nonexistent_agent(self, temp_mapping_file):
         """Test getting workflows for non-existent agent returns empty list."""

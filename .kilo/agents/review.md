@@ -21,10 +21,10 @@ Use this mode when reviewing code for quality, performance, or accessibility iss
 
 # Workflows
 
-- feature-workflow
-- review-workflow
-- refactor-workflow
-- migration-workflow
+- feature
+- review
+- refactor
+- migration
 
 # Subagents
 

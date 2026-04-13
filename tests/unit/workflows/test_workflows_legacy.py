@@ -11,7 +11,7 @@ class TestDataPipelineWorkflow:
     @pytest.fixture
     def workflow_dir(self, workflows_dir):
         """Get workflow directory."""
-        return workflows_dir / "data-pipeline-workflow"
+        return workflows_dir / "data-pipeline"
 
     def test_workflow_dir_exists(self, workflow_dir):
         """Test that workflow directory exists."""
@@ -40,13 +40,13 @@ class TestDataQualityWorkflow:
     @pytest.fixture
     def workflow_dir(self, workflows_dir):
         """Get workflow directory."""
-        return workflows_dir / "data-quality-workflow"
+        return workflows_dir / "data-quality"
 
     @pytest.mark.parametrize("variant", ["minimal", "verbose"])
     def test_workflow_variant_exists(self, workflow_dir, variant):
         """Test that workflow variant exists."""
         file_path = workflow_dir / variant / "workflow.md"
-        assert file_path.exists(), f"Missing {variant} variant for data-quality-workflow"
+        assert file_path.exists(), f"Missing {variant} variant for data-quality"
 
 
 @pytest.mark.unit
@@ -56,13 +56,13 @@ class TestSchemaMigrationWorkflow:
     @pytest.fixture
     def workflow_dir(self, workflows_dir):
         """Get workflow directory."""
-        return workflows_dir / "schema-migration-workflow"
+        return workflows_dir / "schema-migration"
 
     @pytest.mark.parametrize("variant", ["minimal", "verbose"])
     def test_workflow_variant_exists(self, workflow_dir, variant):
         """Test that workflow variant exists."""
         file_path = workflow_dir / variant / "workflow.md"
-        assert file_path.exists(), f"Missing {variant} variant for schema-migration-workflow"
+        assert file_path.exists(), f"Missing {variant} variant for schema-migration"
 
 
 @pytest.mark.unit
@@ -72,7 +72,7 @@ class TestObservabilityWorkflow:
     @pytest.fixture
     def workflow_dir(self, workflows_dir):
         """Get workflow directory."""
-        return workflows_dir / "observability-workflow"
+        return workflows_dir / "observability"
 
     @pytest.mark.parametrize("variant", ["minimal", "verbose"])
     def test_workflow_variant_exists(self, workflow_dir, variant):
@@ -88,13 +88,13 @@ class TestSLOSLIWorkflow:
     @pytest.fixture
     def workflow_dir(self, workflows_dir):
         """Get workflow directory."""
-        return workflows_dir / "slo-sli-workflow"
+        return workflows_dir / "slo-sli"
 
     @pytest.mark.parametrize("variant", ["minimal", "verbose"])
     def test_workflow_variant_exists(self, workflow_dir, variant):
         """Test that workflow variant exists."""
         file_path = workflow_dir / variant / "workflow.md"
-        assert file_path.exists(), f"Missing {variant} variant for slo-sli-workflow"
+        assert file_path.exists(), f"Missing {variant} variant for slo-sli"
 
 
 @pytest.mark.unit
@@ -104,13 +104,13 @@ class TestCapacityPlanningWorkflow:
     @pytest.fixture
     def workflow_dir(self, workflows_dir):
         """Get workflow directory."""
-        return workflows_dir / "capacity-planning-workflow"
+        return workflows_dir / "capacity-planning"
 
     @pytest.mark.parametrize("variant", ["minimal", "verbose"])
     def test_workflow_variant_exists(self, workflow_dir, variant):
         """Test that workflow variant exists."""
         file_path = workflow_dir / variant / "workflow.md"
-        assert file_path.exists(), f"Missing {variant} variant for capacity-planning-workflow"
+        assert file_path.exists(), f"Missing {variant} variant for capacity-planning"
 
 
 @pytest.mark.unit
@@ -120,13 +120,13 @@ class TestIncidentResponseWorkflow:
     @pytest.fixture
     def workflow_dir(self, workflows_dir):
         """Get workflow directory."""
-        return workflows_dir / "incident-response-workflow"
+        return workflows_dir / "incident-response"
 
     @pytest.mark.parametrize("variant", ["minimal", "verbose"])
     def test_workflow_variant_exists(self, workflow_dir, variant):
         """Test that workflow variant exists."""
         file_path = workflow_dir / variant / "workflow.md"
-        assert file_path.exists(), f"Missing {variant} variant for incident-response-workflow"
+        assert file_path.exists(), f"Missing {variant} variant for incident-response"
 
 
 @pytest.mark.unit
@@ -136,7 +136,7 @@ class TestPostmortemWorkflow:
     @pytest.fixture
     def workflow_dir(self, workflows_dir):
         """Get workflow directory."""
-        return workflows_dir / "postmortem-workflow"
+        return workflows_dir / "postmortem"
 
     @pytest.mark.parametrize("variant", ["minimal", "verbose"])
     def test_workflow_variant_exists(self, workflow_dir, variant):

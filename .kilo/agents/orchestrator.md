@@ -49,10 +49,10 @@ Use this mode when coordinating complex workflows, managing multi-step tasks, or
 
 # Workflows
 
-- feature-workflow
-- review-workflow
-- refactor-workflow
-- migration-workflow
+- feature
+- review
+- refactor
+- migration
 
 # Subagents
 

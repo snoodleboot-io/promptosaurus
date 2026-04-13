@@ -177,10 +177,10 @@ class TestClineBuilderFormatting:
     def test_format_workflows_section_single(self) -> None:
         """Test workflows section with single workflow."""
         builder = ClineBuilder()
-        workflow_names = ["my-workflow"]
+        workflow_names = ["my"]
         result = builder._format_workflows_section(workflow_names)
         assert result.startswith("## Workflows")
-        assert "my-workflow" in result
+        assert "my" in result
 
     def test_format_subagents_section_single(self) -> None:
         """Test formatting single subagent."""

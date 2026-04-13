@@ -128,10 +128,10 @@ I coordinate with four specialized security subagents for deep domain expertise:
 
 # Workflows
 
-- feature-workflow
-- review-workflow
-- refactor-workflow
-- migration-workflow
+- feature
+- review
+- refactor
+- migration
 
 # Subagents
 

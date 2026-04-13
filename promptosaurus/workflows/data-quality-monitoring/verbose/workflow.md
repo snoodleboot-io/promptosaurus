@@ -1,5 +1,4 @@
 ---
-name: "Data Quality Monitoring"
 description: "Monitor and ensure data quality throughout ML pipeline"
 agent: "mlai"
 category: "ml"

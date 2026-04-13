@@ -22,10 +22,10 @@ Use this mode when you have questions about the codebase, architecture, or techn
 
 # Workflows
 
-- feature-workflow
-- review-workflow
-- refactor-workflow
-- migration-workflow
+- feature
+- review
+- refactor
+- migration
 
 # Subagents
 

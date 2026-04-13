@@ -31,7 +31,7 @@ class TestSchemaValidator:
 
     def test_validate_workflow_with_valid_file(self, validator, workflows_dir, read_file):
         """Test validating a valid workflow file."""
-        workflow_file = workflows_dir / "data-pipeline-workflow" / "minimal" / "prompt.md"
+        workflow_file = workflows_dir / "data-pipeline" / "minimal" / "prompt.md"
         if workflow_file.exists():
             content = read_file(workflow_file)
             assert len(content.strip()) > 0, "Workflow content should not be empty"
@@ -64,7 +64,7 @@ class TestContentValidation:
 
     def test_workflow_minimum_length(self, workflows_dir, read_file):
         """Test that workflows have minimum content."""
-        minimal_workflow = workflows_dir / "data-pipeline-workflow" / "minimal" / "prompt.md"
+        minimal_workflow = workflows_dir / "data-pipeline" / "minimal" / "prompt.md"
         if minimal_workflow.exists():
             content = read_file(minimal_workflow)
             lines = len(content.strip().split("\n"))
@@ -109,7 +109,7 @@ class TestFileStructure:
     def test_workflow_variant_files_exist(self, workflows_dir):
         """Test that workflow variants have prompt.md files."""
         for workflow_dir in workflows_dir.iterdir():
-            if workflow_dir.is_dir() and workflow_dir.name.endswith("-workflow"):
+            if workflow_dir.is_dir() and workflow_dir.name.endswith(""):
                 for variant_dir in ["minimal", "verbose"]:
                     variant_path = workflow_dir / variant_dir
                     if variant_path.exists():

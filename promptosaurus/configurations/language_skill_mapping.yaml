@@ -23,10 +23,10 @@ all:
   - feature-planning
   - post-implementation-checklist
   workflows:
-  - feature-workflow
-  - review-workflow
-  - refactor-workflow
-  - migration-workflow
+  - feature
+  - review
+  - refactor
+  - migration
 csharp:
   skills:
   - feature-planning
@@ -35,25 +35,25 @@ csharp:
   - test-coverage-categories
   - test-mocking-rules
   workflows:
-  - feature-workflow
-  - code-workflow
-  - testing-workflow
-  - refactor-workflow
-  - review-workflow
+  - feature
+  - code
+  - testing
+  - refactor
+  - review
 csharp/code:
   skills:
   - feature-planning
   - incremental-implementation
   - post-implementation-checklist
   workflows:
-  - feature-workflow
-  - code-workflow
+  - feature
+  - code
 csharp/test:
   skills:
   - test-coverage-categories
   - test-mocking-rules
   workflows:
-  - testing-workflow
+  - testing
 go:
   skills:
   - feature-planning
@@ -62,32 +62,32 @@ go:
   - test-coverage-categories
   - test-mocking-rules
   workflows:
-  - feature-workflow
-  - code-workflow
-  - testing-workflow
-  - refactor-workflow
-  - review-workflow
-  - scaffold-workflow
+  - feature
+  - code
+  - testing
+  - refactor
+  - review
+  - scaffold
 go/architect:
   skills:
   - data-model-discovery
   - mermaid-erd-creation
   workflows:
-  - data-model-workflow
+  - data-model
 go/code:
   skills:
   - feature-planning
   - incremental-implementation
   - post-implementation-checklist
   workflows:
-  - feature-workflow
-  - code-workflow
+  - feature
+  - code
 go/test:
   skills:
   - test-coverage-categories
   - test-mocking-rules
   workflows:
-  - testing-workflow
+  - testing
 java:
   skills:
   - feature-planning
@@ -96,32 +96,32 @@ java:
   - test-coverage-categories
   - test-mocking-rules
   workflows:
-  - feature-workflow
-  - code-workflow
-  - testing-workflow
-  - refactor-workflow
-  - review-workflow
-  - scaffold-workflow
+  - feature
+  - code
+  - testing
+  - refactor
+  - review
+  - scaffold
 java/architect:
   skills:
   - data-model-discovery
   - mermaid-erd-creation
   workflows:
-  - data-model-workflow
+  - data-model
 java/code:
   skills:
   - feature-planning
   - incremental-implementation
   - post-implementation-checklist
   workflows:
-  - feature-workflow
-  - code-workflow
+  - feature
+  - code
 java/test:
   skills:
   - test-coverage-categories
   - test-mocking-rules
   workflows:
-  - testing-workflow
+  - testing
 javascript:
   skills:
   - feature-planning
@@ -131,30 +131,30 @@ javascript:
   - test-coverage-categories
   - test-mocking-rules
   workflows:
-  - feature-workflow
-  - testing-workflow
-  - code-workflow
-  - refactor-workflow
-  - review-workflow
-  - boilerplate-workflow
-  - accessibility-workflow
-  - scaffold-workflow
+  - feature
+  - testing
+  - code
+  - refactor
+  - review
+  - boilerplate
+  - accessibility
+  - scaffold
 javascript/code:
   skills:
   - feature-planning
   - incremental-implementation
   - post-implementation-checklist
   workflows:
-  - feature-workflow
-  - code-workflow
-  - testing-workflow
+  - feature
+  - code
+  - testing
 javascript/test:
   skills:
   - test-aaa-structure
   - test-coverage-categories
   - test-mocking-rules
   workflows:
-  - testing-workflow
+  - testing
 product:
   skills:
   - user-needs-discovery
@@ -168,13 +168,13 @@ product:
   - stakeholder-communication
   - product-analytics-setup
   workflows:
-  - requirements-gathering-workflow
-  - roadmap-planning-workflow
-  - feature-prioritization-workflow
+  - requirements-gathering
+  - roadmap-planning
+  - feature-prioritization
   - user-research-guide
-  - ux-validation-workflow
-  - analytics-setup-workflow
-  - a-b-testing-workflow
+  - ux-validation
+  - analytics-setup
+  - a-b-testing
   - feature-launch-checklist
 rust:
   skills:
@@ -184,25 +184,25 @@ rust:
   - test-coverage-categories
   - test-mocking-rules
   workflows:
-  - feature-workflow
-  - code-workflow
-  - testing-workflow
-  - refactor-workflow
-  - review-workflow
+  - feature
+  - code
+  - testing
+  - refactor
+  - review
 rust/code:
   skills:
   - feature-planning
   - incremental-implementation
   - post-implementation-checklist
   workflows:
-  - feature-workflow
-  - code-workflow
+  - feature
+  - code
 rust/test:
   skills:
   - test-coverage-categories
   - test-mocking-rules
   workflows:
-  - testing-workflow
+  - testing
 security:
   skills:
   - threat-identification
@@ -218,22 +218,22 @@ security:
   - secret-management
   - security-architecture-review
   workflows:
-  - threat-modeling-workflow
-  - vulnerability-scanning-workflow
-  - security-testing-workflow
-  - compliance-audit-workflow
+  - threat-modeling
+  - vulnerability-scanning
+  - security-testing
+  - compliance-audit
   - incident-response-security
   - security-hardening-checklist
   - penetration-testing-guide
   - security-code-review
-  - dependency-scanning-workflow
-  - secret-management-workflow
+  - dependency-scanning
+  - secret-management
 sql:
   skills:
   - data-model-discovery
   - mermaid-erd-creation
   workflows:
-  - data-model-workflow
+  - data-model
 typescript:
   skills:
   - feature-planning
@@ -243,54 +243,54 @@ typescript:
   - test-coverage-categories
   - test-mocking-rules
   workflows:
-  - feature-workflow
-  - testing-workflow
-  - code-workflow
-  - refactor-workflow
-  - review-workflow
-  - migration-workflow
-  - scaffold-workflow
-  - boilerplate-workflow
-  - accessibility-workflow
-  - decision-log-workflow
-  - docs-workflow
-  - house-style-workflow
-  - performance-workflow
-  - task-breakdown-workflow
-  - dependency-upgrade-workflow
+  - feature
+  - testing
+  - code
+  - refactor
+  - review
+  - migration
+  - scaffold
+  - boilerplate
+  - accessibility
+  - decision-log
+  - docs
+  - house-style
+  - performance
+  - task-breakdown
+  - dependency-upgrade
 typescript/architect:
   skills:
   - feature-planning
   workflows:
-  - task-breakdown-workflow
-  - scaffold-workflow
+  - task-breakdown
+  - scaffold
 typescript/code:
   skills:
   - feature-planning
   - incremental-implementation
   - post-implementation-checklist
   workflows:
-  - feature-workflow
-  - code-workflow
-  - testing-workflow
-  - boilerplate-workflow
+  - feature
+  - code
+  - testing
+  - boilerplate
 typescript/refactor:
   skills:
   - feature-planning
   - post-implementation-checklist
   workflows:
-  - refactor-workflow
+  - refactor
 typescript/review:
   skills:
   - feature-planning
   - post-implementation-checklist
   workflows:
-  - review-workflow
-  - performance-workflow
+  - review
+  - performance
 typescript/test:
   skills:
   - test-aaa-structure
   - test-coverage-categories
   - test-mocking-rules
   workflows:
-  - testing-workflow
+  - testing

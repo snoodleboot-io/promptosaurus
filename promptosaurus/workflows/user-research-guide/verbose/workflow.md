@@ -1,5 +1,4 @@
 ---
-name: "User Research Guide"
 description: "Systematic approach to understanding user needs and behaviors"
 agent: "product"
 category: "product"

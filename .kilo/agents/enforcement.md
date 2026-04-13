@@ -21,7 +21,7 @@ Use this mode when enforcing coding standards, checking compliance against conve
 
 # Workflows
 
-- feature-workflow
-- review-workflow
-- refactor-workflow
-- migration-workflow
+- feature
+- review
+- refactor
+- migration

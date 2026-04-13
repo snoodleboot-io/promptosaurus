@@ -1,5 +1,4 @@
 ---
-name: "ML Monitoring & Observability"
 description: "Monitor ML models and pipelines in production"
 agent: "mlai"
 category: "ml"

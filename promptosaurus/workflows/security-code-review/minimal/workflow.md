@@ -1,5 +1,4 @@
 ---
-name: "Security Code Review"
 description: "Manual and automated review of code for security vulnerabilities"
 agent: "security"
 category: "security"

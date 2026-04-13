@@ -1,5 +1,4 @@
 ---
-name: "Security Code Review"
 description: "Manual and automated review of code for security vulnerabilities"
 agent: "security"
 category: "security"
@@ -573,7 +572,6 @@ def search_users(query):
 
 ```yaml
 # GitHub Actions security workflow
-name: Security Code Review
 
 on:
   pull_request:

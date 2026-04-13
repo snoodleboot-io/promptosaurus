@@ -21,10 +21,10 @@ Use this mode when explaining code or helping onboard developers.
 
 # Workflows
 
-- feature-workflow
-- review-workflow
-- refactor-workflow
-- migration-workflow
+- feature
+- review
+- refactor
+- migration
 
 # Subagents
 

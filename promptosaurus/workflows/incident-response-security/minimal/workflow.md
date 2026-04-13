@@ -1,5 +1,4 @@
 ---
-name: "Incident Response Security"
 description: "Structured approach to handling security incidents and breaches"
 agent: "security"
 category: "security"

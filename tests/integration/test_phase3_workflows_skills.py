@@ -23,12 +23,12 @@ class TestPhase3Workflows:
 
     # Expected workflows by track
     TRACK_1_WORKFLOWS = {
-        "model-evaluation-workflow",
-        "model-serving-workflow",
+        "model-evaluation",
+        "model-serving",
         "mlops-pipeline-setup",
         "feature-engineering-guide",
         "data-quality-monitoring",
-        "model-governance-workflow",
+        "model-governance",
         "hyperparameter-tuning",
         "model-retraining-strategy",
         "experiment-tracking-setup",
@@ -38,36 +38,36 @@ class TestPhase3Workflows:
     }
 
     TRACK_2_WORKFLOWS = {
-        "threat-modeling-workflow",
-        "vulnerability-scanning-workflow",
-        "security-testing-workflow",
-        "compliance-audit-workflow",
+        "threat-modeling",
+        "vulnerability-scanning",
+        "security-testing",
+        "compliance-audit",
         "incident-response-security",
         "security-hardening-checklist",
         "penetration-testing-guide",
         "security-code-review",
-        "dependency-scanning-workflow",
-        "secret-management-workflow",
+        "dependency-scanning",
+        "secret-management",
     }
 
     TRACK_3_WORKFLOWS = {
-        "requirements-gathering-workflow",
-        "roadmap-planning-workflow",
-        "feature-prioritization-workflow",
+        "requirements-gathering",
+        "roadmap-planning",
+        "feature-prioritization",
         "user-research-guide",
-        "ux-validation-workflow",
-        "analytics-setup-workflow",
-        "a-b-testing-workflow",
+        "ux-validation",
+        "analytics-setup",
+        "a-b-testing",
         "feature-launch-checklist",
     }
 
     TRACK_4_WORKFLOWS = {
         "workflow-orchestration-patterns",
-        "multi-agent-coordination-workflow",
-        "async-workflow-execution",
+        "multi-agent-coordination",
+        "async-execution",
         "workflow-versioning-management",
         "workflow-error-handling-patterns",
-        "workflow-monitoring-workflow",
+        "workflow-monitoring",
         "workflow-testing-patterns",
         "workflow-documentation-patterns",
         "workflow-migration-patterns",
@@ -292,7 +292,7 @@ class TestPhase3Registration:
         python_workflows = parsed.get("python", {}).get("workflows", [])
 
         # Check Track 1 workflows
-        assert "model-evaluation-workflow" in python_workflows
+        assert "model-evaluation" in python_workflows
         assert "mlops-pipeline-setup" in python_workflows
         assert "production-ml-deployment" in python_workflows
 
@@ -333,10 +333,10 @@ class TestPhase3Registration:
 
         security_workflows = parsed.get("security", {}).get("workflows", [])
 
-        assert "threat-modeling-workflow" in security_workflows
-        assert "vulnerability-scanning-workflow" in security_workflows
-        assert "security-testing-workflow" in security_workflows
-        assert "compliance-audit-workflow" in security_workflows
+        assert "threat-modeling" in security_workflows
+        assert "vulnerability-scanning" in security_workflows
+        assert "security-testing" in security_workflows
+        assert "compliance-audit" in security_workflows
 
     def test_security_skills_registered(self):
         """Verify Phase 3 security skills registered"""
@@ -356,9 +356,9 @@ class TestPhase3Registration:
 
         product_workflows = parsed.get("product", {}).get("workflows", [])
 
-        assert "requirements-gathering-workflow" in product_workflows
-        assert "roadmap-planning-workflow" in product_workflows
-        assert "feature-prioritization-workflow" in product_workflows
+        assert "requirements-gathering" in product_workflows
+        assert "roadmap-planning" in product_workflows
+        assert "feature-prioritization" in product_workflows
 
     def test_product_skills_registered(self):
         """Verify Phase 3 product skills registered"""
@@ -387,12 +387,12 @@ class TestPhase3Totals:
             for wf in workflow_files
             if not wf.parent.parent.name
             in {
-                "feature-workflow",
-                "testing-workflow",
-                "code-workflow",
-                "refactor-workflow",
-                "review-workflow",
-                "migration-workflow",
+                "feature",
+                "testing",
+                "code",
+                "refactor",
+                "review",
+                "migration",
             }
         }
         assert len(phase3_workflows) >= 45, (

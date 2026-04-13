@@ -1,5 +1,4 @@
 ---
-name: "MLOps Pipeline Setup"
 description: "Establish end-to-end MLOps pipeline for continuous model delivery"
 agent: "mlai"
 category: "ml"
@@ -106,7 +105,6 @@ git commit -m "Add training data"
 #### 2.1 GitHub Actions Workflow
 ```yaml
 # .github/workflows/ci.yml
-name: CI Pipeline
 
 on:
   push:
@@ -171,7 +169,6 @@ jobs:
 #### 2.2 Training Pipeline
 ```yaml
 # .github/workflows/train.yml
-name: Model Training Pipeline
 
 on:
   schedule:

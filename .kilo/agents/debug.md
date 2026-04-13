@@ -22,10 +22,10 @@ Use this mode when diagnosing bugs, crashes, or unexpected behavior.
 
 # Workflows
 
-- feature-workflow
-- review-workflow
-- refactor-workflow
-- migration-workflow
+- feature
+- review
+- refactor
+- migration
 
 # Subagents
 

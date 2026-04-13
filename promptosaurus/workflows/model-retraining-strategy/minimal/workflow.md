@@ -1,5 +1,4 @@
 ---
-name: "Model Retraining Strategy"
 description: "Define when and how to retrain ML models in production"
 agent: "mlai"
 category: "ml"

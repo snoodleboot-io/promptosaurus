@@ -1,5 +1,4 @@
 ---
-name: "Production ML Deployment"
 description: "Deploy ML models to production with best practices"
 agent: "mlai"
 category: "ml"

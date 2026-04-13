@@ -15,10 +15,10 @@ class TestBackendArchitectureWorkflows:
     @pytest.mark.parametrize(
         "workflow_name",
         [
-            "api-design-workflow",
-            "microservices-architecture-workflow",
-            "caching-strategy-workflow",
-            "database-selection-workflow",
+            "api-design",
+            "microservices-architecture",
+            "caching-strategy",
+            "database-selection",
         ],
     )
     @pytest.mark.parametrize("variant", ["minimal", "verbose"])
@@ -40,10 +40,10 @@ class TestFrontendWorkflows:
     @pytest.mark.parametrize(
         "workflow_name",
         [
-            "component-architecture-workflow",
-            "state-management-workflow",
-            "frontend-performance-workflow",
-            "responsive-design-workflow",
+            "component-architecture",
+            "state-management",
+            "frontend-performance",
+            "responsive-design",
         ],
     )
     @pytest.mark.parametrize("variant", ["minimal", "verbose"])
@@ -65,10 +65,10 @@ class TestDevOpsWorkflows:
     @pytest.mark.parametrize(
         "workflow_name",
         [
-            "cicd-pipeline-workflow",
-            "container-orchestration-workflow",
-            "infrastructure-as-code-workflow",
-            "disaster-recovery-workflow",
+            "cicd-pipeline",
+            "container-orchestration",
+            "infrastructure-as-code",
+            "disaster-recovery",
         ],
     )
     @pytest.mark.parametrize("variant", ["minimal", "verbose"])
@@ -90,10 +90,10 @@ class TestTestingWorkflows:
     @pytest.mark.parametrize(
         "workflow_name",
         [
-            "testing-strategy-workflow",
-            "automated-testing-workflow",
-            "performance-testing-workflow",
-            "security-testing-workflow",
+            "testing-strategy",
+            "automated-testing",
+            "performance-testing",
+            "security-testing",
         ],
     )
     @pytest.mark.parametrize("variant", ["minimal", "verbose"])
@@ -115,10 +115,10 @@ class TestSecurityWorkflows:
     @pytest.mark.parametrize(
         "workflow_name",
         [
-            "authentication-authorization-workflow",
-            "data-encryption-workflow",
-            "vulnerability-assessment-workflow",
-            "compliance-audit-workflow",
+            "authentication-authorization",
+            "data-encryption",
+            "vulnerability-assessment",
+            "compliance-audit",
         ],
     )
     @pytest.mark.parametrize("variant", ["minimal", "verbose"])
@@ -135,12 +135,12 @@ class TestWorkflowContent:
     @pytest.mark.parametrize(
         "workflow_name",
         [
-            "api-design-workflow",
-            "microservices-architecture-workflow",
-            "component-architecture-workflow",
-            "cicd-pipeline-workflow",
-            "testing-strategy-workflow",
-            "authentication-authorization-workflow",
+            "api-design",
+            "microservices-architecture",
+            "component-architecture",
+            "cicd-pipeline",
+            "testing-strategy",
+            "authentication-authorization",
         ],
     )
     def test_workflow_has_minimal_variant(self, workflows_dir, workflow_name, read_file):
@@ -153,9 +153,9 @@ class TestWorkflowContent:
     @pytest.mark.parametrize(
         "workflow_name",
         [
-            "api-design-workflow",
-            "component-architecture-workflow",
-            "cicd-pipeline-workflow",
+            "api-design",
+            "component-architecture",
+            "cicd-pipeline",
         ],
     )
     def test_workflow_has_verbose_variant(self, workflows_dir, workflow_name, read_file):

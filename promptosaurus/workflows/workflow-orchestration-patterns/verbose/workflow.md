@@ -1,5 +1,4 @@
 ---
-name: workflow-orchestration-patterns
 description: Design and implement workflow orchestration patterns for coordinating multi-step processes and distributed task execution
 type: workflow
 category: workflow-patterns

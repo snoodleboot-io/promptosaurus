@@ -27,14 +27,14 @@ class ContentValidator:
 
         # Validate Phase 1 workflows
         phase1_workflows = [
-            "data-pipeline-workflow",
-            "data-quality-workflow",
-            "schema-migration-workflow",
-            "observability-workflow",
-            "slo-sli-workflow",
-            "capacity-planning-workflow",
-            "incident-response-workflow",
-            "postmortem-workflow",
+            "data-pipeline",
+            "data-quality",
+            "schema-migration",
+            "observability",
+            "slo-sli",
+            "capacity-planning",
+            "incident-response",
+            "postmortem",
         ]
         self._validate_workflows(phase1_workflows)
 

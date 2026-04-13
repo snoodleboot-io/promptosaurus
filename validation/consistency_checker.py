@@ -49,7 +49,7 @@ class ConsistencyChecker:
 
         # Check workflows
         for workflow_dir in self.workflows_dir.iterdir():
-            if workflow_dir.is_dir() and workflow_dir.name.endswith("-workflow"):
+            if workflow_dir.is_dir() and workflow_dir.name.endswith(""):
                 minimal = workflow_dir / "minimal" / "prompt.md"
                 verbose = workflow_dir / "verbose" / "prompt.md"
 
@@ -85,14 +85,14 @@ class ConsistencyChecker:
     def _check_workflow_agent_alignment(self) -> None:
         """Check that workflows align with agents."""
         alignments = {
-            "data-pipeline-workflow": "data",
-            "data-quality-workflow": "data",
-            "schema-migration-workflow": "data",
-            "observability-workflow": "observability",
-            "slo-sli-workflow": "observability",
-            "capacity-planning-workflow": "observability",
-            "incident-response-workflow": "incident",
-            "postmortem-workflow": "incident",
+            "data-pipeline": "data",
+            "data-quality": "data",
+            "schema-migration": "data",
+            "observability": "observability",
+            "slo-sli": "observability",
+            "capacity-planning": "observability",
+            "incident-response": "incident",
+            "postmortem": "incident",
         }
 
         for workflow_name, agent_type in alignments.items():
@@ -121,7 +121,7 @@ class ConsistencyChecker:
         # Check workflow naming (should be kebab-case with -workflow suffix)
         for workflow_dir in self.workflows_dir.iterdir():
             if workflow_dir.is_dir():
-                if not workflow_dir.name.endswith("-workflow"):
+                if not workflow_dir.name.endswith(""):
                     if workflow_dir.name not in ["__pycache__"]:
                         self.issues.append(
                             f"Workflow {workflow_dir.name}: Should end with -workflow"

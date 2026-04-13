@@ -27,11 +27,11 @@ architect:
     - technical-decision-making
   workflows:
     - architecture-documentation
-    - data-model-workflow
-    - decision-log-workflow
-    - scaffold-workflow
-    - strategy-workflow
-    - task-breakdown-workflow
+    - data-model
+    - decision-log
+    - scaffold
+    - strategy
+    - task-breakdown
 
 # ============================================================================
 # ASK
@@ -44,9 +44,9 @@ ask:
     - test-mocking-rules
     - testing-strategies
   workflows:
-    - decision-log-workflow
-    - docs-workflow
-    - testing-workflow
+    - decision-log
+    - docs
+    - testing
 
 # ============================================================================
 # BACKEND
@@ -61,10 +61,10 @@ backend:
     - performance-optimization
   workflows:
     - api-design
-    - code-workflow
-    - data-model-workflow
-    - performance-workflow
-    - review-workflow
+    - code
+    - data-model
+    - performance
+    - review
 
 # ============================================================================
 # CODE
@@ -79,12 +79,12 @@ code:
     - technical-debt-management
     - test-coverage-categories
   workflows:
-    - boilerplate-workflow
-    - code-workflow
-    - feature-workflow
-    - house-style-workflow
-    - refactor-workflow
-    - testing-workflow
+    - boilerplate
+    - code
+    - feature
+    - house-style
+    - refactor
+    - testing
 
 # ============================================================================
 # COMPLIANCE
@@ -95,7 +95,7 @@ compliance:
     - quality-assurance
     - technical-communication
   workflows:
-    - compliance-audit-workflow
+    - compliance-audit
     - security-hardening-checklist
     - workflow-compliance-patterns
 
@@ -110,7 +110,7 @@ data:
     - data-versioning-reproducibility
     - feature-store-design
   workflows:
-    - data-model-workflow
+    - data-model
     - data-quality-monitoring
     - experiment-tracking-setup
     - workflow-versioning-management
@@ -125,8 +125,8 @@ debug:
     - technical-communication
   workflows:
     - debugging-methodology
-    - log-analysis-workflow
-    - root-cause-workflow
+    - log-analysis
+    - root-cause
 
 # ============================================================================
 # DEVOPS
@@ -137,9 +137,9 @@ devops:
     - documentation-best-practices
     - technical-decision-making
   workflows:
-    - dependency-scanning-workflow
-    - secret-management-workflow
-    - workflow-monitoring-workflow
+    - dependency-scanning
+    - secret-management
+    - workflow-monitoring
     - workflow-orchestration-patterns
     - workflow-rollback-strategies
 
@@ -153,8 +153,8 @@ document:
     - mermaid-erd-creation
     - technical-communication
   workflows:
-    - docs-workflow
-    - strategy-for-applications-workflow
+    - docs
+    - strategy-for-applications
     - workflow-documentation-patterns
 
 # ============================================================================
@@ -166,9 +166,9 @@ enforcement:
     - quality-assurance
     - technical-debt-management
   workflows:
-    - code-workflow
-    - house-style-workflow
-    - review-workflow
+    - code
+    - house-style
+    - review
 
 # ============================================================================
 # EXPLAIN
@@ -179,8 +179,8 @@ explain:
     - documentation-best-practices
     - technical-communication
   workflows:
-    - docs-workflow
-    - strategy-workflow
+    - docs
+    - strategy
 
 # ============================================================================
 # FRONTEND
@@ -192,10 +192,10 @@ frontend:
     - performance-optimization
     - testing-strategies
   workflows:
-    - accessibility-workflow
-    - code-workflow
-    - testing-workflow
-    - ux-validation-workflow
+    - accessibility
+    - code
+    - testing
+    - ux-validation
 
 # ============================================================================
 # INCIDENT
@@ -208,8 +208,8 @@ incident:
     - technical-communication
   workflows:
     - incident-response-security
-    - log-analysis-workflow
-    - root-cause-workflow
+    - log-analysis
+    - root-cause
 
 # ============================================================================
 # MIGRATION
@@ -221,9 +221,9 @@ migration:
     - technical-debt-management
     - technical-decision-making
   workflows:
-    - dependency-upgrade-workflow
-    - migration-workflow
-    - strategy-workflow
+    - dependency-upgrade
+    - migration
+    - strategy
     - workflow-migration-patterns
 
 # ============================================================================
@@ -252,11 +252,11 @@ mlai:
     - hyperparameter-tuning
     - ml-monitoring-observability
     - mlops-pipeline-setup
-    - model-evaluation-workflow
-    - model-governance-workflow
+    - model-evaluation
+    - model-governance
     - model-interpretability-guide
     - model-retraining-strategy
-    - model-serving-workflow
+    - model-serving
     - production-ml-deployment
 
 # ============================================================================
@@ -269,11 +269,11 @@ observability:
     - debugging-methodology
     - performance-optimization
   workflows:
-    - analytics-setup-workflow
-    - log-analysis-workflow
+    - analytics-setup
+    - log-analysis
     - ml-monitoring-observability
-    - performance-workflow
-    - workflow-monitoring-workflow
+    - performance
+    - workflow-monitoring
 
 # ============================================================================
 # ORCHESTRATOR
@@ -285,9 +285,9 @@ orchestrator:
     - team-collaboration
     - technical-decision-making
   workflows:
-    - meta-workflow
-    - multi-agent-coordination-workflow
-    - task-breakdown-workflow
+    - meta
+    - multi-agent-coordination
+    - task-breakdown
     - workflow-orchestration-patterns
 
 # ============================================================================
@@ -300,7 +300,7 @@ performance:
     - performance-optimization
     - problem-decomposition
   workflows:
-    - performance-workflow
+    - performance
     - workflow-performance-optimization
     - workflow-scaling-patterns
 
@@ -315,11 +315,11 @@ planning:
     - technical-communication
     - technical-decision-making
   workflows:
-    - decision-log-workflow
-    - feature-prioritization-workflow
-    - requirements-gathering-workflow
-    - roadmap-planning-workflow
-    - task-breakdown-workflow
+    - decision-log
+    - feature-prioritization
+    - requirements-gathering
+    - roadmap-planning
+    - task-breakdown
 
 # ============================================================================
 # PRODUCT
@@ -331,12 +331,12 @@ product:
     - team-collaboration
     - technical-communication
   workflows:
-    - a-b-testing-workflow
-    - analytics-setup-workflow
+    - a-b-testing
+    - analytics-setup
     - feature-launch-checklist
-    - feature-prioritization-workflow
-    - requirements-gathering-workflow
-    - roadmap-planning-workflow
+    - feature-prioritization
+    - requirements-gathering
+    - roadmap-planning
     - user-research-guide
 
 # ============================================================================
@@ -351,8 +351,8 @@ qa-tester:
     - test-mocking-rules
     - testing-strategies
   workflows:
-    - review-workflow
-    - testing-workflow
+    - review
+    - testing
     - workflow-testing-patterns
 
 # ============================================================================
@@ -366,9 +366,9 @@ refactor:
     - quality-assurance
     - technical-debt-management
   workflows:
-    - code-workflow
-    - refactor-workflow
-    - strategy-workflow
+    - code
+    - refactor
+    - strategy
 
 # ============================================================================
 # REVIEW
@@ -381,9 +381,9 @@ review:
     - technical-communication
     - technical-debt-management
   workflows:
-    - accessibility-workflow
-    - performance-workflow
-    - review-workflow
+    - accessibility
+    - performance
+    - review
     - security-code-review
 
 # ============================================================================
@@ -399,9 +399,9 @@ security:
     - penetration-testing-guide
     - security-code-review
     - security-hardening-checklist
-    - security-testing-workflow
-    - threat-modeling-workflow
-    - vulnerability-scanning-workflow
+    - security-testing
+    - threat-modeling
+    - vulnerability-scanning
     - workflow-security-in-workflows
 
 # ============================================================================
@@ -416,6 +416,6 @@ test:
     - test-mocking-rules
     - testing-strategies
   workflows:
-    - strategy-workflow
-    - testing-workflow
+    - strategy
+    - testing
     - workflow-testing-patterns

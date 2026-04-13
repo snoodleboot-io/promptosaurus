@@ -1,5 +1,4 @@
 ---
-name: "Hyperparameter Tuning"
 description: "Optimize model performance through systematic hyperparameter search"
 agent: "mlai"
 category: "ml"

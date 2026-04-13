@@ -11,19 +11,19 @@ class TestWorkflowCompleteness:
     @pytest.fixture
     def data_pipeline_workflow(self, workflows_dir, read_file):
         """Get data pipeline workflow content."""
-        path = workflows_dir / "data-pipeline-workflow" / "verbose" / "workflow.md"
+        path = workflows_dir / "data-pipeline" / "verbose" / "workflow.md"
         return read_file(path) if path.exists() else ""
 
     @pytest.fixture
     def observability_workflow(self, workflows_dir, read_file):
         """Get observability workflow content."""
-        path = workflows_dir / "observability-workflow" / "verbose" / "workflow.md"
+        path = workflows_dir / "observability" / "verbose" / "workflow.md"
         return read_file(path) if path.exists() else ""
 
     @pytest.fixture
     def incident_response_workflow(self, workflows_dir, read_file):
         """Get incident response workflow content."""
-        path = workflows_dir / "incident-response-workflow" / "verbose" / "workflow.md"
+        path = workflows_dir / "incident-response" / "verbose" / "workflow.md"
         return read_file(path) if path.exists() else ""
 
     def test_data_pipeline_references_data_agent(self, data_pipeline_workflow):
@@ -56,8 +56,8 @@ class TestAgentWorkflowAlignment:
     def test_data_agent_has_corresponding_workflows(self, agents_dir, workflows_dir):
         """Test that data agent has corresponding workflows."""
         data_agent = agents_dir / "data" / "prompt.md"
-        pipeline_workflow = workflows_dir / "data-pipeline-workflow"
-        quality_workflow = workflows_dir / "data-quality-workflow"
+        pipeline_workflow = workflows_dir / "data-pipeline"
+        quality_workflow = workflows_dir / "data-quality"
 
         assert data_agent.exists(), "Data agent should exist"
         assert pipeline_workflow.exists(), "Data pipeline workflow should exist"
@@ -66,8 +66,8 @@ class TestAgentWorkflowAlignment:
     def test_observability_agent_has_corresponding_workflows(self, agents_dir, workflows_dir):
         """Test that observability agent has corresponding workflows."""
         obs_agent = agents_dir / "observability" / "prompt.md"
-        obs_workflow = workflows_dir / "observability-workflow"
-        slo_workflow = workflows_dir / "slo-sli-workflow"
+        obs_workflow = workflows_dir / "observability"
+        slo_workflow = workflows_dir / "slo-sli"
 
         assert obs_agent.exists(), "Observability agent should exist"
         assert obs_workflow.exists(), "Observability workflow should exist"
@@ -76,8 +76,8 @@ class TestAgentWorkflowAlignment:
     def test_incident_agent_has_corresponding_workflows(self, agents_dir, workflows_dir):
         """Test that incident agent has corresponding workflows."""
         incident_agent = agents_dir / "incident" / "prompt.md"
-        response_workflow = workflows_dir / "incident-response-workflow"
-        postmortem_workflow = workflows_dir / "postmortem-workflow"
+        response_workflow = workflows_dir / "incident-response"
+        postmortem_workflow = workflows_dir / "postmortem"
 
         assert incident_agent.exists(), "Incident agent should exist"
         assert response_workflow.exists(), "Incident response workflow should exist"

@@ -1,5 +1,4 @@
 ---
-name: workflow-rollback-strategies
 description: Implement safe rollback mechanisms for failed workflows
 type: workflow
 category: workflow-patterns
