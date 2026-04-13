@@ -267,8 +267,102 @@ We chose persona-based filtering because:
 | Performance impact of persona filtering | Low | Low | Filtering is O(n) lookup; negligible impact on discovery performance |
 | Confusion about "universal" agents | Medium | Low | Clearly document which agents are always available (ask, orchestrator, debug) |
 
----
 
+## Dynamic Agent Enabling/Disabling
+
+One of the key implementation details is that **agents will be dynamically enabled or disabled** based on whether they are included in the selected personas.
+
+### Mechanism
+
+When a user selects personas during initialization:
+
+1. **Collect all agents** across all selected personas
+2. **Check each agent** against the list
+3. **Enable** if present in at least ONE selected persona
+4. **Disable** if NOT present in ANY selected persona
+
+This leverages Kilo's built-in capability to disable modes/agents (see [Kilo documentation](https://kilo.ai/docs/customize/custom-modes)).
+
+### Algorithm
+
+```python
+def get_enabled_agents(selected_personas, personas_config):
+    """Determine which agents should be enabled for selected personas."""
+    
+    # Collect agents from all selected personas
+    all_agents = set()
+    for persona_name in selected_personas:
+        persona_agents = personas_config[persona_name]['agents']
+        all_agents.update(persona_agents)
+    
+    return all_agents
+
+def configure_agents(enabled_agents, all_agents):
+    """Enable selected agents, disable others."""
+    
+    for agent in all_agents:
+        if agent in enabled_agents:
+            enable_agent(agent)  # Kilo API
+        else:
+            disable_agent(agent)  # Kilo API
+```
+
+### Examples
+
+**Scenario 1: QA/Tester only**
+```
+Selected personas: [qa_tester]
+Agents in qa_tester: [test, review, performance, enforcement]
+Agents NOT in qa_tester: [code, architect, backend, frontend, ...]
+
+Result:
+✅ Enable: test, review, performance, enforcement
+❌ Disable: code, architect, backend, frontend, ...
+```
+
+**Scenario 2: Software Engineer + QA/Tester**
+```
+Selected personas: [software_engineer, qa_tester]
+Agents in software_engineer: [code, test, refactor, migration, review, ...]
+Agents in qa_tester: [test, review, performance, enforcement]
+Combined: [code, test, refactor, migration, review, performance, enforcement, ...]
+
+Result:
+✅ Enable: code, test, refactor, migration, review, performance, enforcement, ...
+❌ Disable: architect, backend, frontend, devops, ...
+```
+
+**Scenario 3: DevOps Engineer only**
+```
+Selected personas: [devops_engineer]
+Agents in devops_engineer: [code, devops, observability, incident, security, ...]
+Agents NOT in devops_engineer: [test, refactor, migration, architect, ...]
+
+Result:
+✅ Enable: code, devops, observability, incident, security, ...
+❌ Disable: test, refactor, migration, architect, ...
+```
+
+### Benefits
+
+- **No system defaults override** - Only agents relevant to selected personas are enabled
+- **Clean experience** - Users don't see irrelevant agents cluttering their interface
+- **Flexible combinations** - Multi-persona selection works correctly (agent is enabled if in ANY persona)
+- **Clear intent** - Persona mappings remain explicit and auditable
+- **Respects Kilo's design** - Uses Kilo's native agent enable/disable capability
+
+### Implementation Details
+
+This will be implemented in **Phase 2 (Core Integration)** as part of:
+- `PersonaFilter.get_enabled_agents()` method
+- Integration with `config_handler.py` during initialization
+- CLI init flow that calls this logic after persona selection
+
+### Universal Agents Note
+
+Universal agents (ask, debug, explain, plan, orchestrator) are ALWAYS enabled regardless of persona selection. They are not subject to dynamic enabling/disabling.
+
+---
 ## Implementation Plan
 
 ### Phase 1: Foundation and Mapping (Week 1)
@@ -307,6 +401,8 @@ We chose persona-based filtering because:
    - Integrate PersonaFilter
    - Add `get_filtered_agents()`, `get_filtered_workflows()`, `get_filtered_skills()`
    - Make filtering automatic based on active_personas in config
+   - Implement `PersonaFilter.get_enabled_agents()` to determine which agents to enable/disable
+   - Integrate with Kilo's agent enable/disable mechanism (see "Dynamic Agent Enabling/Disabling" section)
 
 3. Update `promptosaurus/prompt_builder.py`:
    - Use filtered registry instead of all agents
