@@ -71,9 +71,4 @@ class PythonRuntimeQuestion(Question):
             "pypy": "PyPy - Alternative Python implementation with JIT for faster execution",
         }
 
-    @property
-    def default(self) -> str:
-        """Default selection."""
-        return "3.14"
-
     config_key = "runtime"
