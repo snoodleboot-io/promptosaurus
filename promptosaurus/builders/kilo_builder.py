@@ -89,6 +89,7 @@ class KiloBuilder(AbstractBuilder):
         # Check if agents directory exists
         if not self.agents_dir.exists():
             from promptosaurus.builders.errors import VariantNotFoundError
+
             raise VariantNotFoundError(
                 variant=options.variant,
                 message=f"Agents directory not found: {self.agents_dir}",
