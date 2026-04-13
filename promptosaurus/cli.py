@@ -497,6 +497,50 @@ def init_prompts():
         assert isinstance(variant_question, str), "allow_multiple=False should return str"
         variant = "minimal" if variant_question == "Minimal" else "verbose"
 
+        # Step 3.5: Ask for personas (SDLC roles)
+        click.echo("\n" + "-" * 60)
+        try:
+            from promptosaurus.personas import PersonaRegistry
+            from pathlib import Path
+            
+            # Load persona registry
+            personas_yaml_path = Path(__file__).parent / "personas" / "personas.yaml"
+            persona_registry = PersonaRegistry.from_yaml(personas_yaml_path)
+            
+            # Build options and explanations for persona selection
+            persona_ids = persona_registry.list_personas()
+            persona_options = [persona_registry.get_display_name(pid) for pid in persona_ids]
+            persona_explanations = {
+                persona_registry.get_display_name(pid): persona_registry.get_description(pid)
+                for pid in persona_ids
+            }
+            
+            selected_personas_display = select_option_with_explain(
+                question="Which personas (SDLC roles) will be working on this codebase?",
+                options=persona_options,
+                explanations=persona_explanations,
+                question_explanation="Select one or more roles. Only agents/workflows for selected personas will be generated.",
+                default_index=0,
+                allow_multiple=True,
+            )
+            
+            # Convert display names back to persona IDs
+            if isinstance(selected_personas_display, list):
+                display_to_id = {persona_registry.get_display_name(pid): pid for pid in persona_ids}
+                selected_persona_ids = [display_to_id[display_name] for display_name in selected_personas_display]
+            else:
+                # Single selection (shouldn't happen with allow_multiple=True, but handle it)
+                display_to_id = {persona_registry.get_display_name(pid): pid for pid in persona_ids}
+                selected_persona_ids = [display_to_id[selected_personas_display]]
+            
+            # Store selected personas for later use
+            active_personas = selected_persona_ids
+            
+        except Exception as e:
+            # Fallback if persona loading fails - log warning and continue
+            click.secho(f"  Warning: Could not load personas ({e}). Skipping persona selection.", fg="yellow")
+            active_personas = []  # Empty list = no filtering
+
         # Step 4: Handle language questions based on repo type
         # Use isinstance() for proper type narrowing from str | list[str] to str
         if isinstance(repo_type, str) and repo_type == RepositoryTypes.SINGLE:
@@ -507,6 +551,7 @@ def init_prompts():
             handler = HandleSingleLanguageQuestions(select_option_with_explain)
             config: dict[str, Any] = handler.handle(repo_type)
             config["variant"] = variant  # Add variant to config
+            config["active_personas"] = active_personas  # Add selected personas
         else:
             # Multi-folder or mixed - just save repo type for now
             if repo_type == RepositoryTypes.MULTI_MONOREPO:
@@ -514,6 +559,7 @@ def init_prompts():
                 config = DEFAULT_MULTI_LANGUAGE_CONFIG_TEMPLATE.copy()
                 config["repository"]["type"] = repo_type
                 config["variant"] = variant  # Add variant to config
+                config["active_personas"] = active_personas  # Add selected personas
 
                 # Run interactive folder setup
                 # (language questions are now asked inline for each folder)
@@ -538,6 +584,7 @@ def init_prompts():
                 config = DEFAULT_CONFIG_TEMPLATE.copy()
                 config["repository"]["type"] = repo_type
                 config["variant"] = variant  # Add variant to config
+                config["active_personas"] = active_personas  # Add selected personas
 
         # Save configuration (now includes variant from Step 3)
         ConfigHandler.save_config(config)
