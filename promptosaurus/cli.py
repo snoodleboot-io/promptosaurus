@@ -670,7 +670,6 @@ def switch_command(tool_name: str | None):
             )
             assert isinstance(target_tool_result, str), "allow_multiple=False should return str"
             target_tool = target_tool_result
-            )
         except UserCancelledError:
             click.echo("\nOperation cancelled.")
             raise click.Abort() from None
