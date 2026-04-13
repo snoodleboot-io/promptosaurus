@@ -25,7 +25,7 @@ class TestPythonRuntimeUIRendering:
         q = PythonRuntimeQuestion()
 
         # Verify the raw options first
-        assert q.options == ["3.11", "3.12", "3.13", "3.14", "pypy"]
+        assert q.options == ["3.14", "3.13", "3.12", "3.11", "pypy"]
 
         # Create question context for rendering
         context = QuestionContext(
@@ -75,7 +75,7 @@ class TestPythonRuntimeUIRendering:
             "3.11": "Python 3.11 - Older stable release, good for maximum compatibility",
             "3.12": "Python 3.12 - Stable release with improved performance",
             "3.13": "Python 3.13 - Recent release with modern features",
-            "3.14": "Python 3.14 - Latest release with cutting-edge features and performance (Recommended)",
+            "3.14": "Python 3.14 - Latest release with cutting-edge features and performance (recommended)",
             "pypy": "PyPy - Alternative Python implementation with JIT for faster execution",
         }
 
@@ -131,7 +131,7 @@ class TestPythonPackageManagerUIRendering:
         q = PythonPackageManagerQuestion()
 
         # Verify the raw options first
-        assert q.options == ["pip", "uv", "poetry", "pipenv", "conda"]
+        assert q.options == ["uv", "pip", "poetry", "pipenv", "conda"]
 
         # Create question context for rendering
         context = QuestionContext(
@@ -178,7 +178,7 @@ class TestPythonPackageManagerUIRendering:
 
         expected_explanations = {
             "pip": "Simplest, built-in package manager for Python",
-            "uv": "Ultra-fast modern replacement for pip, instant installations",
+            "uv": "Ultra-fast modern replacement for pip, instant installations (recommended)",
             "poetry": "Dependency management with lock files, publish to PyPI",
             "pipenv": "Combines pip and virtualenv, integrates environment management",
             "conda": "Cross-platform, handles non-Python dependencies",
