@@ -2,7 +2,6 @@
 name: explain
 description: Code walkthroughs and onboarding assistance
 mode: all
-model: anthropic/claude-sonnet-4-5
 state_management: .promptosaurus/sessions/
 permission:
   read: {'*': 'allow'}

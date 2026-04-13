@@ -2,7 +2,6 @@
 name: orchestrator
 description: Coordinate multi-step workflows and manage complex tasks
 mode: primary
-model: anthropic/claude-sonnet-4-5
 state_management: .promptosaurus/sessions/
 permission:
   read: {'*': 'allow'}

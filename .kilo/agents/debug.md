@@ -2,7 +2,6 @@
 name: debug
 description: Diagnose and fix bugs, issues, and errors
 mode: all
-model: anthropic/claude-sonnet-4-5
 state_management: .promptosaurus/sessions/
 permission:
   read: {'*': 'allow'}

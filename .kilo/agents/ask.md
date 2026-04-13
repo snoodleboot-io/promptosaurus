@@ -2,7 +2,6 @@
 name: ask
 description: Answer questions and provide explanations
 mode: primary
-model: anthropic/claude-sonnet-4-5
 state_management: .promptosaurus/sessions/
 permission:
   read: {'*': 'allow'}
