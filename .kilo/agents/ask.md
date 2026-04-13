@@ -19,9 +19,6 @@ Use this mode when you have questions about the codebase, architecture, or techn
 
 - feature-planning
 - post-implementation-checklist
-- data-validation-pipelines
-- ensemble-methods
-- mlops-pipeline-design
 
 # Workflows
 
@@ -29,9 +26,6 @@ Use this mode when you have questions about the codebase, architecture, or techn
 - review
 - refactor
 - migration
-- model-evaluation
-- mlops-pipeline-setup
-- production-ml-deployment
 
 # Subagents
 

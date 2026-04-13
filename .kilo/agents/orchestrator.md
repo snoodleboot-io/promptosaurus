@@ -46,9 +46,6 @@ Use this mode when coordinating complex workflows, managing multi-step tasks, or
 
 - feature-planning
 - post-implementation-checklist
-- data-validation-pipelines
-- ensemble-methods
-- mlops-pipeline-design
 
 # Workflows
 
@@ -56,9 +53,6 @@ Use this mode when coordinating complex workflows, managing multi-step tasks, or
 - review
 - refactor
 - migration
-- model-evaluation
-- mlops-pipeline-setup
-- production-ml-deployment
 
 # Subagents
 
