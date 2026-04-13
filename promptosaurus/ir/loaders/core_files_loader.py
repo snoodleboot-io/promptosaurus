@@ -1,7 +1,6 @@
 """Loader for core system and convention files by language."""
 
 from pathlib import Path
-from typing import Optional
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
@@ -37,7 +36,7 @@ class CoreFilesLoader:
         )
 
     def get_core_files(
-        self, language: Optional[str] = None, config: Optional[dict] = None
+        self, language: str | None = None, config: dict | None = None
     ) -> dict[str, str]:
         """Get all core files, optionally templated with config values.
 
@@ -157,9 +156,7 @@ class CoreFilesLoader:
             raise FileNotFoundError(f"session.md not found at {session_file}")
         return session_file.read_text(encoding="utf-8")
 
-    def get_language_conventions(
-        self, language: str, config: Optional[dict] = None
-    ) -> Optional[str]:
+    def get_language_conventions(self, language: str, config: dict | None = None) -> str | None:
         """Get language-specific conventions, optionally templated.
 
         Args:

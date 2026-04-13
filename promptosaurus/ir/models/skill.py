@@ -5,7 +5,6 @@ that can be composed into agents and workflows.
 """
 
 from pydantic import BaseModel, Field
-from typing import List
 
 
 class Skill(BaseModel):
@@ -32,7 +31,7 @@ class Skill(BaseModel):
         min_length=1,
         description="Detailed instructions for executing the skill",
     )
-    tools_needed: List[str] = Field(
+    tools_needed: list[str] = Field(
         default_factory=list,
         description="List of tool names required by this skill",
     )

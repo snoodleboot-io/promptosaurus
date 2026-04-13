@@ -1,7 +1,6 @@
 """Loader for language-skill-workflow mappings."""
 
 from pathlib import Path
-from typing import Optional
 
 import yaml
 
@@ -23,7 +22,9 @@ class LanguageSkillMappingLoader:
         True
     """
 
-    def __init__(self, mapping_file: Path | str = "promptosaurus/configurations/language_skill_mapping.yaml"):
+    def __init__(
+        self, mapping_file: Path | str = "promptosaurus/configurations/language_skill_mapping.yaml"
+    ):
         """Initialize with path to mapping file.
 
         Args:
@@ -49,7 +50,7 @@ class LanguageSkillMappingLoader:
                 self._mapping = yaml.safe_load(f) or {}
         return self._mapping
 
-    def get_skills_for_language(self, language: str, subagent: Optional[str] = None) -> list[str]:
+    def get_skills_for_language(self, language: str, subagent: str | None = None) -> list[str]:
         """Get skills for a language and optional subagent.
 
         Resolution priority:
@@ -73,9 +74,7 @@ class LanguageSkillMappingLoader:
         """
         return self._resolve(language, subagent, "skills")
 
-    def get_workflows_for_language(
-        self, language: str, subagent: Optional[str] = None
-    ) -> list[str]:
+    def get_workflows_for_language(self, language: str, subagent: str | None = None) -> list[str]:
         """Get workflows for a language and optional subagent.
 
         Uses the same resolution priority as get_skills_for_language.
@@ -95,7 +94,7 @@ class LanguageSkillMappingLoader:
         """
         return self._resolve(language, subagent, "workflows")
 
-    def _resolve(self, language: str, subagent: Optional[str], key: str) -> list[str]:
+    def _resolve(self, language: str, subagent: str | None, key: str) -> list[str]:
         """Resolve skills or workflows using priority chain.
 
         Priority:
