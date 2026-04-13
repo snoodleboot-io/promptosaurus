@@ -1192,4 +1192,4 @@ benchmark.print_report()
 
 ---
 
-*This guide covers advanced patterns for extending and customizing Phase 2A. For standard usage, see the Integration Guide.*
+*This guide covers advanced patterns for extending and customizing current system. For standard usage, see the Integration Guide.*

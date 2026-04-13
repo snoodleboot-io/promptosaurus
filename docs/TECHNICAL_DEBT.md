@@ -44,7 +44,7 @@
 - Affects how language-specific rules are loaded
 - Impacts: Extensibility for new languages
 
-**When to address:** Phase 3 extensibility improvements
+**When to address:** future extensibility improvements
 
 ---
 
@@ -66,7 +66,7 @@
 ### Content Organization
 - ✅ **Workflows:** `workflow.md` in minimal/verbose variants
 - ✅ **Skills:** `skill.md` in minimal/verbose variants
-- ✅ **Agents:** `prompt.md` (unchanged from Phase 1)
+- ✅ **Agents:** `prompt.md` (unchanged from development)
 
 ---
 

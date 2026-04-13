@@ -510,7 +510,7 @@ pytest --cov=promptosaurus --cov-fail-under=90
 1. Create 5 missing test files (Week 1)
 2. Expand registry tests (Week 2)
 3. Achieve 85% overall coverage (Week 3)
-4. Then proceed with Phase 3 expansion
+4. Then proceed with future expansion
 
 ---
 
