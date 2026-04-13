@@ -1,7 +1,7 @@
 ---
 type: subagent
 agent: ask
-name: testing
+name: qa-tester
 variant: verbose
 version: 1.0.0
 description: Generate tests for code with detailed examples
