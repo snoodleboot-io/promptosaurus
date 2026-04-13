@@ -57,7 +57,7 @@ class KiloBuilder(AbstractBuilder):
         Args:
             agents_dir: Base directory for agent configurations (default: 'agents')
         """
-        self.agents_dir = agents_dir
+        self.agents_dir = Path(agents_dir) if isinstance(agents_dir, str) else agents_dir
         self.core_loader = CoreFilesLoader()
         # Initialize Builder for template variable substitution
         self._builder = Builder()
@@ -84,15 +84,6 @@ class KiloBuilder(AbstractBuilder):
         if errors:
             raise BuilderValidationError(
                 errors=errors, message=f"Invalid agent '{agent.name}': {'; '.join(errors)}"
-            )
-
-        # Check if agents directory exists
-        if not self.agents_dir.exists():
-            from promptosaurus.builders.errors import VariantNotFoundError
-
-            raise VariantNotFoundError(
-                variant=options.variant,
-                message=f"Agents directory not found: {self.agents_dir}",
             )
 
         # Use agent system prompt directly (no variants for top-level agents)
