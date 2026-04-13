@@ -51,7 +51,9 @@ class AbstractBuilder(ABC):
     """
 
     @abstractmethod
-    def build(self, agent: Agent, options: BuildOptions, config: dict | None = None) -> str | dict[str, Any]:
+    def build(
+        self, agent: Agent, options: BuildOptions, config: dict | None = None
+    ) -> str | dict[str, Any]:
         """Build tool-specific output from an Agent IR model.
 
         Args:
