@@ -19,25 +19,23 @@ class TestTypeScriptVersionQuestion:
         assert q.key == "typescript_version"
         assert q.options
 
-    def test_options_include_recent_versions(self):
-        """Options should include recent TypeScript versions."""
+    def test_options_are_major_x_only(self):
+        """Options should be simplified major.x versions."""
         q = TypeScriptVersionQuestion()
 
-        # Updated to match new real versions: 6.0, 5.9, 5.8, ..., 5.0
-        assert "6.0" in q.options
-        assert "5.9" in q.options
-        assert "5.8" in q.options
-        assert "5.4" in q.options
-        assert "5.0" in q.options
-        # Should NOT have placeholder versions
-        assert "5.x" not in q.options
-        assert "4.x" not in q.options
+        # Should have simplified versions
+        assert "6.x" in q.options
+        assert "5.x" in q.options
+        # Should NOT have individual minor versions
+        assert "6.0" not in q.options
+        assert "5.9" not in q.options
+        assert "5.4" not in q.options
 
     def test_default_is_latest(self):
         """Default should be latest stable version."""
         q = TypeScriptVersionQuestion()
 
-        assert q.default == "6.0"
+        assert q.default == "6.x"
 
 
 class TestTypeScriptPackageManagerQuestion:
@@ -54,7 +52,6 @@ class TestTypeScriptPackageManagerQuestion:
         """Options should include common package managers."""
         q = TypeScriptPackageManagerQuestion()
 
-        # Updated to match new options: ["pnpm", "npm", "yarn"]
         assert "pnpm" in q.options
         assert "npm" in q.options
         assert "yarn" in q.options
