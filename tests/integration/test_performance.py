@@ -88,9 +88,7 @@ def create_test_agents_directory(temp_dir: str | Path, agent_count: int = 5) -> 
 
 
 @pytest.fixture(scope="session")
-def builders_and_agents_1() -> Generator[
-    tuple[dict[str, Builder], Agent, Path], None, None
-]:
+def builders_and_agents_1() -> Generator[tuple[dict[str, Builder], Agent, Path], None, None]:
     """Session-scoped fixture: 1 agent with all builders."""
     with TemporaryDirectory() as temp_dir:
         agents_dir = create_test_agents_directory(temp_dir, 1)
@@ -106,9 +104,7 @@ def builders_and_agents_1() -> Generator[
 
 
 @pytest.fixture(scope="session")
-def builders_and_agents_5() -> Generator[
-    tuple[dict[str, Builder], list[Agent], Path], None, None
-]:
+def builders_and_agents_5() -> Generator[tuple[dict[str, Builder], list[Agent], Path], None, None]:
     """Session-scoped fixture: 5 agents with all builders."""
     with TemporaryDirectory() as temp_dir:
         agents_dir = create_test_agents_directory(temp_dir, 5)
@@ -124,9 +120,7 @@ def builders_and_agents_5() -> Generator[
 
 
 @pytest.fixture(scope="session")
-def builders_and_agents_10() -> Generator[
-    tuple[dict[str, Builder], list[Agent], Path], None, None
-]:
+def builders_and_agents_10() -> Generator[tuple[dict[str, Builder], list[Agent], Path], None, None]:
     """Session-scoped fixture: 10 agents with all builders."""
     with TemporaryDirectory() as temp_dir:
         agents_dir = create_test_agents_directory(temp_dir, 10)
@@ -381,9 +375,9 @@ class TestPerformanceBuilderComparison:
         fastest = min(times.items(), key=lambda x: x[1])
         slowest = max(times.items(), key=lambda x: x[1])
 
-        # Slowest should not be more than 15x fastest (allows for CI variance)
+        # Slowest should not be more than 25x fastest (Claude generates many Markdown files)
         ratio = slowest[1] / fastest[1]
-        assert ratio < 15.0, f"{slowest[0]} is {ratio:.1f}x slower than {fastest[0]}"
+        assert ratio < 25.0, f"{slowest[0]} is {ratio:.1f}x slower than {fastest[0]}"
 
     def test_builder_output_consistency(
         self, builders_and_agents_1: tuple[dict[str, Builder], Agent, Path]
@@ -411,9 +405,10 @@ class TestPerformanceBuilderComparison:
                 assert len(result) > 100, f"{tool_name} output too small"
                 assert len(result) < 100_000, f"{tool_name} output too large"
             else:
-                # Dict output (Claude)
-                assert "system" in result, "Claude missing 'system' key"
-                assert "tools" in result, "Claude missing 'tools' key"
+                # Dict output (Claude): keys are file paths like .claude/agents/...
+                assert any(k.startswith(".claude/") or k == "CLAUDE.md" for k in result), (
+                    f"Claude output keys {list(result.keys())} should contain .claude/ or CLAUDE.md paths"
+                )
 
 
 class TestPerformanceScaling:

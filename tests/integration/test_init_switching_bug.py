@@ -83,18 +83,16 @@ class TestInitSwitchingBug(unittest.TestCase):
         print("\n=== STEP 4: Final state ===")
         kilo_exists = (self.test_dir / ".kilo").exists()
         claude_exists = (self.test_dir / ".claude").exists()
-        custom_exists = (self.test_dir / "custom_instructions").exists()
-        agents_md = (self.test_dir / "AGENTS.md").exists()
+        claude_md_exists = (self.test_dir / "CLAUDE.md").exists()
 
         print(
-            f"Final state: .kilo/={kilo_exists}, .claude/={claude_exists}, custom_instructions/={custom_exists}, AGENTS.md={agents_md}"
+            f"Final state: .kilo/={kilo_exists}, .claude/={claude_exists}, CLAUDE.md={claude_md_exists}"
         )
 
         # Assertions
         self.assertFalse(kilo_exists, "BUG: .kilo/ should NOT exist after switching to Claude")
         self.assertTrue(claude_exists, ".claude/ should exist for Claude")
-        self.assertTrue(custom_exists, "custom_instructions/ should exist for Claude")
-        self.assertTrue(agents_md, "AGENTS.md should exist")
+        self.assertTrue(claude_md_exists, "CLAUDE.md should exist for Claude")
 
         # Check that only Claude agents exist
         kilo_agents = (

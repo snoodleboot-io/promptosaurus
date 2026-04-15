@@ -146,6 +146,21 @@ javascript/test:
   - test-mocking-rules
   workflows:
   - testing
+python:
+  skills:
+  - feature-planning
+  - incremental-implementation
+  - post-implementation-checklist
+  - test-aaa-structure
+  - test-coverage-categories
+  - test-mocking-rules
+  workflows:
+  - feature
+  - code
+  - testing
+  - refactor
+  - boilerplate
+  - house-style
 product:
   skills:
   - user-needs-discovery

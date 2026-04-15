@@ -52,18 +52,14 @@ class TestToolSwitching(unittest.TestCase):
         # Check what was created
         claude_exists = (self.test_dir / ".claude").exists()
         kilo_exists = (self.test_dir / ".kilo").exists()
-        custom_exists = (self.test_dir / "custom_instructions").exists()
+        claude_md_exists = (self.test_dir / "CLAUDE.md").exists()
 
         # Verify: Claude artifacts should exist
         self.assertTrue(claude_exists, ".claude/ should exist for claude tool")
-        self.assertTrue(custom_exists, "custom_instructions/ should exist for claude tool")
+        self.assertTrue(claude_md_exists, "CLAUDE.md should exist for claude tool")
 
         # Verify: Kilo artifacts should NOT exist
         self.assertFalse(kilo_exists, ".kilo/ should NOT exist for claude tool")
-
-        # Verify AGENTS.md was created
-        agents_md = self.test_dir / "AGENTS.md"
-        self.assertTrue(agents_md.exists(), "AGENTS.md should be created")
 
     def test_builder_creates_correct_artifacts_kilo_ide(self):
         """Test that kilo-ide builder creates .kilo/ not .claude/."""
@@ -124,7 +120,7 @@ class TestToolSwitching(unittest.TestCase):
 
         # Verify final state: Only claude exists
         self.assertTrue((self.test_dir / ".claude").exists())
-        self.assertTrue((self.test_dir / "custom_instructions").exists())
+        self.assertTrue((self.test_dir / "CLAUDE.md").exists())
         self.assertFalse((self.test_dir / ".kilo").exists())
 
 

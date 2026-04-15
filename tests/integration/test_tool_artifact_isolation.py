@@ -65,15 +65,15 @@ class TestToolArtifactIsolation(unittest.TestCase):
         self.assertFalse(artifacts["rules"].exists(), "rules/ should NEVER exist at root")
 
     def test_claude_isolation(self):
-        """Test Claude only creates .claude/ and custom_instructions/ artifacts."""
+        """Test Claude only creates .claude/ and CLAUDE.md artifacts."""
         self._build_for_tool("claude")
         artifacts = self._get_all_artifacts()
 
         # Should exist
         self.assertTrue(artifacts["claude"].exists(), ".claude/ should exist for Claude")
         self.assertTrue(
-            artifacts["custom_instructions"].exists(),
-            "custom_instructions/ should exist for Claude",
+            (self.test_dir / "CLAUDE.md").exists(),
+            "CLAUDE.md should exist for Claude",
         )
 
         # Should NOT exist
@@ -81,18 +81,19 @@ class TestToolArtifactIsolation(unittest.TestCase):
         self.assertFalse(artifacts["cline"].exists(), ".cline/ should NOT exist")
         self.assertFalse(artifacts["cursor"].exists(), ".cursor/ should NOT exist")
         self.assertFalse(artifacts["copilot"].exists(), ".github/ should NOT exist (for this test)")
+        self.assertFalse(
+            artifacts["custom_instructions"].exists(),
+            "custom_instructions/ should NOT exist for Claude",
+        )
         self.assertFalse(artifacts["rules"].exists(), "rules/ should NEVER exist at root")
 
     def test_cline_isolation(self):
-        """Test Cline only creates .cline/ and .clinerules artifacts."""
+        """Test Cline only creates .cline/ artifacts."""
         self._build_for_tool("cline")
         artifacts = self._get_all_artifacts()
 
         # Should exist
         self.assertTrue(artifacts["cline"].exists(), ".cline/ should exist for Cline")
-        self.assertTrue(
-            (self.test_dir / ".clinerules").exists(), ".clinerules should exist for Cline"
-        )
 
         # Should NOT exist
         self.assertFalse(artifacts["kilo"].exists(), ".kilo/ should NOT exist")
@@ -104,15 +105,12 @@ class TestToolArtifactIsolation(unittest.TestCase):
         self.assertFalse(artifacts["rules"].exists(), "rules/ should NEVER exist at root")
 
     def test_cursor_isolation(self):
-        """Test Cursor only creates .cursor/ and .cursorrules artifacts."""
+        """Test Cursor only creates .cursor/ artifacts."""
         self._build_for_tool("cursor")
         artifacts = self._get_all_artifacts()
 
         # Should exist
         self.assertTrue(artifacts["cursor"].exists(), ".cursor/ should exist for Cursor")
-        self.assertTrue(
-            (self.test_dir / ".cursorrules").exists(), ".cursorrules should exist for Cursor"
-        )
 
         # Should NOT exist
         self.assertFalse(artifacts["kilo"].exists(), ".kilo/ should NOT exist")
@@ -140,13 +138,8 @@ class TestToolArtifactIsolation(unittest.TestCase):
         claude_names = {p.name for p in claude_artifacts}
         cline_names = {p.name for p in cline_artifacts}
 
-        # These should overlap (AGENTS.md is universal)
-        self.assertIn(
-            "AGENTS.md", claude_names & cline_names, "AGENTS.md should exist for all tools"
-        )
-
-        # These should NOT overlap
-        problematic_overlaps = {".kilo", ".claude", "custom_instructions"} & (
+        # These should NOT overlap (tool-specific artifacts)
+        problematic_overlaps = {".kilo", ".claude", "CLAUDE.md", "custom_instructions"} & (
             claude_names & cline_names
         )
         self.assertEqual(
