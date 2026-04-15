@@ -17,7 +17,7 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
-from promptosaurus.builders.base import AbstractBuilder, BuildOptions
+from promptosaurus.builders.base import Builder, BuildOptions
 from promptosaurus.builders.claude_builder import ClaudeBuilder
 from promptosaurus.builders.cline_builder import ClineBuilder
 from promptosaurus.builders.copilot_builder import CopilotBuilder
@@ -89,7 +89,7 @@ def create_test_agents_directory(temp_dir: str | Path, agent_count: int = 5) -> 
 
 @pytest.fixture(scope="session")
 def builders_and_agents_1() -> Generator[
-    tuple[dict[str, AbstractBuilder], Agent, Path], None, None
+    tuple[dict[str, Builder], Agent, Path], None, None
 ]:
     """Session-scoped fixture: 1 agent with all builders."""
     with TemporaryDirectory() as temp_dir:
@@ -107,7 +107,7 @@ def builders_and_agents_1() -> Generator[
 
 @pytest.fixture(scope="session")
 def builders_and_agents_5() -> Generator[
-    tuple[dict[str, AbstractBuilder], list[Agent], Path], None, None
+    tuple[dict[str, Builder], list[Agent], Path], None, None
 ]:
     """Session-scoped fixture: 5 agents with all builders."""
     with TemporaryDirectory() as temp_dir:
@@ -125,7 +125,7 @@ def builders_and_agents_5() -> Generator[
 
 @pytest.fixture(scope="session")
 def builders_and_agents_10() -> Generator[
-    tuple[dict[str, AbstractBuilder], list[Agent], Path], None, None
+    tuple[dict[str, Builder], list[Agent], Path], None, None
 ]:
     """Session-scoped fixture: 10 agents with all builders."""
     with TemporaryDirectory() as temp_dir:
@@ -145,7 +145,7 @@ class TestPerformanceSingleAgent:
     """Performance tests for single agent with all builders."""
 
     def test_kilo_builder_performance(
-        self, builders_and_agents_1: tuple[dict[str, AbstractBuilder], Agent, Path]
+        self, builders_and_agents_1: tuple[dict[str, Builder], Agent, Path]
     ) -> None:
         """Test KiloBuilder performance on single agent."""
         builders, test_agent, _ = builders_and_agents_1
@@ -162,7 +162,7 @@ class TestPerformanceSingleAgent:
         )
 
     def test_claude_builder_performance(
-        self, builders_and_agents_1: tuple[dict[str, AbstractBuilder], Agent, Path]
+        self, builders_and_agents_1: tuple[dict[str, Builder], Agent, Path]
     ) -> None:
         """Test ClaudeBuilder performance on single agent."""
         builders, test_agent, _ = builders_and_agents_1
@@ -179,7 +179,7 @@ class TestPerformanceSingleAgent:
         )
 
     def test_cline_builder_performance(
-        self, builders_and_agents_1: tuple[dict[str, AbstractBuilder], Agent, Path]
+        self, builders_and_agents_1: tuple[dict[str, Builder], Agent, Path]
     ) -> None:
         """Test ClineBuilder performance on single agent."""
         builders, test_agent, _ = builders_and_agents_1
@@ -196,7 +196,7 @@ class TestPerformanceSingleAgent:
         )
 
     def test_cursor_builder_performance(
-        self, builders_and_agents_1: tuple[dict[str, AbstractBuilder], Agent, Path]
+        self, builders_and_agents_1: tuple[dict[str, Builder], Agent, Path]
     ) -> None:
         """Test CursorBuilder performance on single agent."""
         builders, test_agent, _ = builders_and_agents_1
@@ -213,7 +213,7 @@ class TestPerformanceSingleAgent:
         )
 
     def test_copilot_builder_performance(
-        self, builders_and_agents_1: tuple[dict[str, AbstractBuilder], Agent, Path]
+        self, builders_and_agents_1: tuple[dict[str, Builder], Agent, Path]
     ) -> None:
         """Test CopilotBuilder performance on single agent."""
         builders, test_agent, _ = builders_and_agents_1
@@ -230,7 +230,7 @@ class TestPerformanceSingleAgent:
         )
 
     def test_all_builders_single_agent(
-        self, builders_and_agents_1: tuple[dict[str, AbstractBuilder], Agent, Path]
+        self, builders_and_agents_1: tuple[dict[str, Builder], Agent, Path]
     ) -> None:
         """Test building all 5 tools for single agent.
 
@@ -259,7 +259,7 @@ class TestPerformanceSingleAgent:
         )
 
     def test_memory_usage_single_agent(
-        self, builders_and_agents_1: tuple[dict[str, AbstractBuilder], Agent, Path]
+        self, builders_and_agents_1: tuple[dict[str, Builder], Agent, Path]
     ) -> None:
         """Test memory usage during single agent build."""
         builders, test_agent, _ = builders_and_agents_1
@@ -280,7 +280,7 @@ class TestPerformanceMultipleAgents:
     """Performance tests for multiple agents."""
 
     def test_5_agents_all_tools(
-        self, builders_and_agents_5: tuple[dict[str, AbstractBuilder], list[Agent], Path]
+        self, builders_and_agents_5: tuple[dict[str, Builder], list[Agent], Path]
     ) -> None:
         """Test building all 5 tools for 5 agents."""
         builders, agents, _ = builders_and_agents_5
@@ -307,7 +307,7 @@ class TestPerformanceMultipleAgents:
         assert total_time < 15.0, f"5 agents all tools took {total_time:.3f}s, expected <15s"
 
     def test_10_agents_all_tools(
-        self, builders_and_agents_10: tuple[dict[str, AbstractBuilder], list[Agent], Path]
+        self, builders_and_agents_10: tuple[dict[str, Builder], list[Agent], Path]
     ) -> None:
         """Test building all 5 tools for 10 agents."""
         builders, agents, _ = builders_and_agents_10
@@ -336,7 +336,7 @@ class TestPerformanceMultipleAgents:
         )
 
     def test_memory_usage_10_agents(
-        self, builders_and_agents_10: tuple[dict[str, AbstractBuilder], list[Agent], Path]
+        self, builders_and_agents_10: tuple[dict[str, Builder], list[Agent], Path]
     ) -> None:
         """Test memory usage for 10 agents, all tools."""
         builders, agents, _ = builders_and_agents_10
@@ -357,7 +357,7 @@ class TestPerformanceBuilderComparison:
     """Compare performance across all 5 builders."""
 
     def test_builder_performance_comparison(
-        self, builders_and_agents_1: tuple[dict[str, AbstractBuilder], Agent, Path]
+        self, builders_and_agents_1: tuple[dict[str, Builder], Agent, Path]
     ) -> None:
         """Compare build time across all 5 builders."""
         builders, agent, _ = builders_and_agents_1
@@ -386,7 +386,7 @@ class TestPerformanceBuilderComparison:
         assert ratio < 15.0, f"{slowest[0]} is {ratio:.1f}x slower than {fastest[0]}"
 
     def test_builder_output_consistency(
-        self, builders_and_agents_1: tuple[dict[str, AbstractBuilder], Agent, Path]
+        self, builders_and_agents_1: tuple[dict[str, Builder], Agent, Path]
     ) -> None:
         """Test that all builders produce valid output."""
         builders, agent, _ = builders_and_agents_1
@@ -426,7 +426,7 @@ class TestPerformanceScaling:
         # Test with 5 agents
         with TemporaryDirectory() as temp_dir:
             agents_dir_5 = create_test_agents_directory(temp_dir, 5)
-            builders_5: dict[str, AbstractBuilder] = {
+            builders_5: dict[str, Builder] = {
                 "kilo": KiloBuilder(agents_dir=agents_dir_5),
             }
             agents_5 = [create_test_agent(f"agent_{i}", i) for i in range(5)]
@@ -439,7 +439,7 @@ class TestPerformanceScaling:
         # Test with 10 agents
         with TemporaryDirectory() as temp_dir:
             agents_dir_10 = create_test_agents_directory(temp_dir, 10)
-            builders_10: dict[str, AbstractBuilder] = {
+            builders_10: dict[str, Builder] = {
                 "kilo": KiloBuilder(agents_dir=agents_dir_10),
             }
             agents_10 = [create_test_agent(f"agent_{i}", i) for i in range(10)]

@@ -4,26 +4,24 @@ This module implements the ClaudeBuilder class that translates Agent IR models
 into Markdown files for the .claude/ directory structure.
 """
 
-from datetime import datetime
 from pathlib import Path
-from typing import Any
 
-from jinja2 import Environment, FileSystemLoader, Template
+from jinja2 import Environment, FileSystemLoader
 
-from promptosaurus.builders.base import AbstractBuilder, BuildOptions
+from promptosaurus.builders.base import Builder, BuildOptions
 from promptosaurus.builders.errors import BuilderValidationError
 from promptosaurus.builders.naming_utils import (
     agent_to_file_name,
+    skill_to_directory_name,
     subagent_to_file_name,
     workflow_to_file_name,
-    skill_to_directory_name,
 )
 from promptosaurus.builders.workflow_loader import WorkflowLoader
 from promptosaurus.ir.loaders import CoreFilesLoader
 from promptosaurus.ir.models import Agent
 
 
-class ClaudeBuilder(AbstractBuilder):
+class ClaudeBuilder(Builder):
     """Builder for Claude Markdown artifacts.
 
     Generates Markdown files in .claude/ directory structure:

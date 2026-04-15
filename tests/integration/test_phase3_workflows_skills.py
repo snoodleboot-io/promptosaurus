@@ -385,7 +385,8 @@ class TestPhase3Totals:
         phase3_workflows = {
             wf.parent.parent.name
             for wf in workflow_files
-            if wf.parent.parent.name not in {
+            if wf.parent.parent.name
+            not in {
                 "feature",
                 "testing",
                 "code",
@@ -405,7 +406,8 @@ class TestPhase3Totals:
         phase3_skills = {
             sk.parent.parent.name
             for sk in skill_files
-            if sk.parent.parent.name not in {
+            if sk.parent.parent.name
+            not in {
                 "feature-planning",
                 "post-implementation-checklist",
                 "incremental-implementation",

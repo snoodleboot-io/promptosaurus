@@ -5,7 +5,7 @@ mixin interfaces for generating tool-specific configurations from the
 Intermediate Representation (IR) Agent models.
 """
 
-from promptosaurus.builders.base import AbstractBuilder, BuildOptions
+from promptosaurus.builders.base import Builder, BuildOptions
 from promptosaurus.builders.claude_builder import ClaudeBuilder
 from promptosaurus.builders.cline_builder import ClineBuilder
 from promptosaurus.builders.component_composer import ComponentComposer
@@ -35,7 +35,7 @@ from promptosaurus.builders.kilo_builder import KiloBuilder
 from promptosaurus.builders.registry import BuilderRegistry
 
 __all__ = [
-    "AbstractBuilder",
+    "Builder",
     "BuildOptions",
     "SupportsSkills",
     "SupportsWorkflows",

@@ -726,7 +726,9 @@ class TestErrorHandling:
     def test_invalid_agent_raises_error(self) -> None:
         """Verify invalid agent raises appropriate error."""
         # Agent with empty required field - Pydantic will reject before builder
-        with pytest.raises(Exception):  # Pydantic ValidationError
+        from pydantic import ValidationError
+
+        with pytest.raises(ValidationError):  # Pydantic ValidationError
             Agent(
                 name="invalid",
                 description="",  # Invalid: empty description
