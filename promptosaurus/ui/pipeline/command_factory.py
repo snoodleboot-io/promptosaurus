@@ -15,9 +15,13 @@ class CommandFactory:
     def __init__(self) -> None:
         self._digit_buffer = ""
 
-    def create_command(self, event: InputEvent) -> object:
+    def create_command(self, event: InputEvent, allow_multiple: bool = False) -> object:
         """Create command from input event."""
         if event.event_type == InputEventType.NUMBER and event.value is not None:
+            if allow_multiple:
+                # Multi-select: each digit press targets that item independently
+                self._digit_buffer = ""
+                return SelectCommand(event.value)
             self._digit_buffer += str(event.value)
             return SelectCommand(int(self._digit_buffer))
         else:
